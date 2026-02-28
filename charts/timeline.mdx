@@ -1,0 +1,330 @@
+---
+title: Timeline Charts
+description: Create spiral and serpentine timeline charts for chronological data visualization
+---
+
+Timeline charts display time-based data in unique curved layouts, including spiral and serpentine patterns, ideal for visualizing events and trends over extended periods.
+
+## When to Use Timeline Charts
+
+Use timeline charts when you need to:
+- Visualize long-term chronological data
+- Create visually striking time-based displays
+- Show seasonal or cyclical patterns
+- Display data that spans many years
+- Create space-efficient time visualizations
+- Present historical data in an engaging format
+
+## Chart Types
+
+amCharts 5 provides timeline chart variants:
+
+- **SpiralChart** - Data arranged in a spiral pattern
+- **SerpentineChart** - Data arranged in a snake-like pattern
+- **CurveChart** - Base chart for curved layouts
+
+## Creating a Spiral Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5timeline from "@amcharts/amcharts5/timeline";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create spiral chart
+const chart = root.container.children.push(
+  am5timeline.SpiralChart.new(root, {
+    panX: false,
+    panY: false,
+    wheelX: "none",
+    wheelY: "none",
+    levelCount: 5,
+    innerRadius: am5.percent(20),
+    startAngle: -90,
+    endAngle: 270
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5timeline.AxisRendererCurveX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5timeline.AxisRendererCurveY.new(root, {})
+  })
+);
+
+// Create series
+const series = chart.series.push(
+  am5timeline.CurveColumnSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Configure columns
+series.columns.template.setAll({
+  strokeOpacity: 0,
+  cornerRadiusTL: 3,
+  cornerRadiusTR: 3
+});
+
+// Set data
+const data = [];
+for (let i = 0; i < 500; i++) {
+  data.push({
+    date: new Date(2020, 0, i).getTime(),
+    value: Math.random() * 100
+  });
+}
+
+series.data.setAll(data);
+```
+
+## Spiral Chart Configuration
+
+### Core Settings
+
+<Info>
+Control the spiral's appearance with these key settings.
+</Info>
+
+- **levelCount** (`number`) - Number of spiral circles (default: 3)
+- **innerRadius** (`Percent`) - Inner radius creating the center hole (default: 60%)
+- **startAngle** (`number`) - Start angle in degrees (default: -90)
+- **endAngle** (`number`) - End angle in degrees (default: 360)
+- **yAxisRadius** (`Percent`) - Radius for Y-axis (default: 50%)
+
+```typescript
+const chart = root.container.children.push(
+  am5timeline.SpiralChart.new(root, {
+    levelCount: 8,
+    innerRadius: am5.percent(10),
+    startAngle: 0,
+    endAngle: 360,
+    yAxisRadius: am5.percent(60)
+  })
+);
+```
+
+## Creating a Serpentine Chart
+
+```typescript
+import * as am5timeline from "@amcharts/amcharts5/timeline";
+
+const chart = root.container.children.push(
+  am5timeline.SerpentineChart.new(root, {
+    panX: false,
+    panY: false,
+    wheelX: "none",
+    wheelY: "none",
+    levelCount: 5,
+    yAxisWidth: am5.percent(15)
+  })
+);
+
+// Create axes with curve renderers
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5timeline.AxisRendererCurveX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5timeline.AxisRendererCurveY.new(root, {})
+  })
+);
+```
+
+## Series Types
+
+### Curve Column Series
+
+```typescript
+const series = chart.series.push(
+  am5timeline.CurveColumnSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Customize columns
+series.columns.template.setAll({
+  width: am5.percent(90),
+  strokeOpacity: 0,
+  fillOpacity: 0.8
+});
+```
+
+### Curve Line Series
+
+```typescript
+const series = chart.series.push(
+  am5timeline.CurveLineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Customize line
+series.strokes.template.setAll({
+  strokeWidth: 2
+});
+
+// Add fill
+series.fills.template.setAll({
+  fillOpacity: 0.3,
+  visible: true
+});
+```
+
+## Axis Configuration
+
+### Curve X Axis Renderer
+
+```typescript
+const xRenderer = am5timeline.AxisRendererCurveX.new(root, {});
+
+// Customize grid
+xRenderer.grid.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeOpacity: 0.05
+});
+
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: xRenderer
+  })
+);
+```
+
+### Curve Y Axis Renderer
+
+```typescript
+const yRenderer = am5timeline.AxisRendererCurveY.new(root, {});
+
+// Set axis length
+yRenderer.set("axisLength", 50);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: yRenderer
+  })
+);
+```
+
+## Cursor
+
+```typescript
+const cursor = am5timeline.CurveCursor.new(root, {});
+chart.set("cursor", cursor);
+
+// Customize cursor lines
+cursor.lineX.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1,
+  strokeOpacity: 0.3
+});
+
+cursor.lineY.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1,
+  strokeOpacity: 0.3
+});
+```
+
+## Time Ranges and Events
+
+Highlight specific time periods:
+
+```typescript
+// Add axis range
+const rangeDataItem = xAxis.makeDataItem({
+  value: new Date(2020, 5, 1).getTime(),
+  endValue: new Date(2020, 7, 1).getTime()
+});
+
+const range = xAxis.createAxisRange(rangeDataItem);
+
+range.get("axisFill").setAll({
+  fill: am5.color(0xff0000),
+  fillOpacity: 0.2,
+  visible: true
+});
+
+range.get("label").setAll({
+  text: "Event",
+  location: 0.5
+});
+```
+
+## Data Point Bullets
+
+```typescript
+series.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 4,
+      fill: series.get("fill")
+    })
+  });
+});
+```
+
+## Tooltips
+
+```typescript
+series.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{valueX.formatDate()}: {valueY}"
+}));
+```
+
+## Use Cases
+
+<Steps>
+1. **Long-term trends** - Visualize years of data in compact space
+2. **Historical timelines** - Show events across centuries
+3. **Seasonal patterns** - Display cyclical data with spiral layout
+4. **Progress tracking** - Monitor metrics over extended periods
+5. **Data art** - Create visually appealing data visualizations
+</Steps>
+
+## Key Classes
+
+- `SpiralChart` - Spiral timeline chart from `@amcharts/amcharts5/timeline`
+- `SerpentineChart` - Serpentine timeline chart
+- `CurveChart` - Base curve chart
+- `CurveColumnSeries` - Column series for curved charts
+- `CurveLineSeries` - Line series for curved charts
+- `AxisRendererCurveX` - X-axis renderer for curves
+- `AxisRendererCurveY` - Y-axis renderer for curves
+- `CurveCursor` - Cursor for curve charts
+
+<Tip>
+Use spiral charts for data spanning multiple years to create a compact, visually interesting display that shows both long-term trends and seasonal patterns.
+</Tip>
+
+<Note>
+Timeline charts are experimental and may not support all features of standard XY charts. They work best with time-series data.
+</Note>

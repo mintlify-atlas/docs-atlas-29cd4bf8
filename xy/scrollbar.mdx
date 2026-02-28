@@ -1,0 +1,368 @@
+---
+title: 'XY Chart Scrollbar'
+description: 'Add scrollbars to navigate large datasets in XY charts'
+---
+
+## Overview
+
+Scrollbars allow users to navigate through large datasets by panning and zooming. amCharts 5 provides two types of scrollbars: basic scrollbars and scrollbars with chart previews.
+
+## Basic Scrollbar
+
+Add a simple scrollbar without a preview:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+chart.set("scrollbarX", am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+}));
+```
+
+### Vertical Scrollbar
+
+Add a vertical scrollbar:
+
+```typescript
+chart.set("scrollbarY", am5.Scrollbar.new(root, {
+  orientation: "vertical"
+}));
+```
+
+## Scrollbar with Chart Preview
+
+The `XYChartScrollbar` displays a miniature version of your chart inside the scrollbar, providing a visual overview of the entire dataset.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+```
+
+<Tip>
+  Use `XYChartScrollbar` when you want users to see the overall data pattern while navigating through the chart.
+</Tip>
+
+### Adding Series to Scrollbar Preview
+
+Add axes and series to the scrollbar's chart:
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+
+// Add X axis to scrollbar chart
+const sbxAxis = scrollbar.chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      opposite: false,
+      strokeOpacity: 0
+    })
+  })
+);
+
+// Add Y axis to scrollbar chart
+const sbyAxis = scrollbar.chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Add series to scrollbar chart
+const sbseries = scrollbar.chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: sbxAxis,
+    yAxis: sbyAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Set the same data
+sbseries.data.setAll(data);
+```
+
+### Complete Example with Candlestick Chart
+
+Here's a complete example from the source code showing a scrollbar with a line preview for a candlestick chart:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      minorGridEnabled: true
+    })
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Create main series
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date"
+  })
+);
+
+// Add scrollbar with preview
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+
+// Configure scrollbar axes
+const sbxAxis = scrollbar.chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    groupIntervals: [{ timeUnit: "week", count: 1 }],
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      opposite: false,
+      strokeOpacity: 0
+    })
+  })
+);
+
+const sbyAxis = scrollbar.chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Add simplified series to scrollbar
+const sbseries = scrollbar.chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: sbxAxis,
+    yAxis: sbyAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Set data
+series.data.setAll(data);
+sbseries.data.setAll(data);
+```
+
+<Note>
+  The scrollbar chart is a complete, independent `XYChart` instance. You can add multiple series and customize it just like the main chart.
+</Note>
+
+## Scrollbar Customization
+
+### Size and Position
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 60,
+  marginTop: 10,
+  marginBottom: 10
+});
+```
+
+### Grip Styling
+
+Customize the scrollbar grips (handles):
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+
+// Customize grips
+scrollbar.startGrip.setAll({
+  scale: 1.2,
+  opacity: 1
+});
+
+scrollbar.endGrip.setAll({
+  scale: 1.2,
+  opacity: 1
+});
+```
+
+### Thumb Styling
+
+Customize the draggable thumb area:
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+
+scrollbar.thumb.setAll({
+  fill: am5.color(0x3b82f6),
+  fillOpacity: 0.3
+});
+```
+
+### Overlay Customization
+
+The overlay dims the inactive portions of the scrollbar preview:
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+
+chart.set("scrollbarX", scrollbar);
+
+scrollbar.overlay.setAll({
+  fill: am5.color(0x000000),
+  fillOpacity: 0.3
+});
+```
+
+## Data Grouping in Scrollbar
+
+Use data grouping to improve scrollbar performance with large datasets:
+
+```typescript
+const sbxAxis = scrollbar.chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    groupIntervals: [
+      { timeUnit: "week", count: 1 },
+      { timeUnit: "month", count: 1 },
+      { timeUnit: "year", count: 1 }
+    ],
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+<Tip>
+  Group data more aggressively in the scrollbar preview than in the main chart to improve performance.
+</Tip>
+
+## Scrollbar Events
+
+Listen to scrollbar events:
+
+```typescript
+const scrollbar = am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+});
+
+chart.set("scrollbarX", scrollbar);
+
+scrollbar.events.on("rangechanged", function(ev) {
+  console.log("Scrollbar range:", ev.target.get("start"), ev.target.get("end"));
+});
+```
+
+## Programmatic Scrolling
+
+Control the scrollbar position programmatically:
+
+```typescript
+const scrollbar = am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+});
+
+chart.set("scrollbarX", scrollbar);
+
+// Set initial position (show last 20%)
+scrollbar.set("start", 0.8);
+scrollbar.set("end", 1);
+```
+
+## Vertical Scrollbar Example
+
+Add a vertical scrollbar for charts with many data points:
+
+```typescript
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "vertical",
+  width: 50
+});
+
+chart.set("scrollbarY", scrollbar);
+
+// Configure vertical scrollbar axes
+const sbyAxis = scrollbar.chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+      opposite: false
+    })
+  })
+);
+
+const sbxAxis = scrollbar.chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+## Performance Considerations
+
+<Warning>
+  When using `XYChartScrollbar` with very large datasets (100,000+ points), consider using a simplified series type (like LineSeries instead of CandlestickSeries) in the preview for better performance.
+</Warning>
+
+<Tip>
+  Set `interactive: false` on the scrollbar chart to disable tooltips and interactions in the preview, improving performance.
+</Tip>
+
+## Best Practices
+
+<Tip>
+  Always set a reasonable `height` for horizontal scrollbars (typically 40-60 pixels) to ensure the preview is visible but doesn't take up too much space.
+</Tip>
+
+<Note>
+  The scrollbar preview chart automatically inherits some styling from your main chart theme, but you can customize it independently.
+</Note>
+
+<Tip>
+  For financial charts, use a LineSeries in the scrollbar preview even when the main chart uses CandlestickSeries for better performance and clarity.
+</Tip>

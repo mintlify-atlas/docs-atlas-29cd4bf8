@@ -1,0 +1,476 @@
+---
+title: "JSON Plugin"
+description: "Parse JSON configurations to create charts dynamically with the JsonParser plugin"
+---
+
+## Overview
+
+The JSON plugin allows you to create entire chart configurations from JSON or JavaScript objects. This enables dynamic chart generation, serialization, and configuration-based chart creation without writing explicit code for every chart element.
+
+## Installation
+
+Import the JsonParser class from the plugins module:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { JsonParser } from "@amcharts/amcharts5/plugins/json";
+```
+
+## Basic Usage
+
+### Creating a Chart from JSON
+
+Create charts by parsing JSON configuration:
+
+```typescript
+let root = am5.Root.new("chartdiv");
+
+// Create parser
+let parser = JsonParser.new(root);
+
+// Define chart configuration
+let config = {
+  type: "XYChart",
+  settings: {
+    paddingLeft: 0,
+    paddingRight: 0
+  },
+  children: [
+    {
+      type: "CategoryAxis",
+      settings: {
+        categoryField: "category",
+        renderer: {
+          type: "AxisRendererX"
+        }
+      }
+    },
+    {
+      type: "ValueAxis",
+      settings: {
+        renderer: {
+          type: "AxisRendererY"
+        }
+      }
+    }
+  ]
+};
+
+// Parse and create chart
+parser.parse(config).then((chart) => {
+  root.container.children.push(chart);
+});
+```
+
+### Parsing JSON Strings
+
+Parse JSON strings directly:
+
+```typescript
+let jsonString = JSON.stringify(config);
+
+parser.parseString(jsonString).then((chart) => {
+  root.container.children.push(chart);
+});
+```
+
+## Configuration Structure
+
+### Basic Object Format
+
+Each chart element is defined with `type`, `settings`, and optional properties:
+
+```json
+{
+  "type": "ClassName",
+  "settings": {
+    "property1": "value1",
+    "property2": "value2"
+  },
+  "properties": {},
+  "children": [],
+  "states": [],
+  "adapters": []
+}
+```
+
+<ResponseField name="type" type="string" required>
+  Class name of the amCharts element (e.g., "XYChart", "LineSeries", "ValueAxis")
+</ResponseField>
+
+<ResponseField name="settings" type="object">
+  Initial settings for the element
+</ResponseField>
+
+<ResponseField name="properties" type="object">
+  Additional properties to set after creation
+</ResponseField>
+
+<ResponseField name="children" type="array">
+  Child elements (for containers)
+</ResponseField>
+
+<ResponseField name="states" type="array">
+  State definitions for the element
+</ResponseField>
+
+<ResponseField name="adapters" type="array">
+  Adapter functions for dynamic value modification
+</ResponseField>
+
+## Complete Chart Example
+
+Here's a complete XY chart with series and data:
+
+```typescript
+let config = {
+  type: "XYChart",
+  settings: {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  },
+  children: [
+    {
+      type: "CategoryAxis",
+      settings: {
+        categoryField: "category",
+        renderer: {
+          type: "AxisRendererX",
+          settings: {
+            minGridDistance: 30
+          }
+        }
+      }
+    },
+    {
+      type: "ValueAxis",
+      settings: {
+        renderer: {
+          type: "AxisRendererY"
+        }
+      }
+    }
+  ],
+  properties: {
+    series: [
+      {
+        type: "ColumnSeries",
+        settings: {
+          name: "Series 1",
+          xAxis: "#xAxis",
+          yAxis: "#yAxis",
+          valueYField: "value",
+          categoryXField: "category"
+        },
+        properties: {
+          data: [
+            { category: "A", value: 100 },
+            { category: "B", value: 200 },
+            { category: "C", value: 150 }
+          ]
+        }
+      }
+    ]
+  },
+  refs: {
+    "xAxis": "#children.0",
+    "yAxis": "#children.1"
+  }
+};
+```
+
+## References
+
+### Using References
+
+Reference other elements in your configuration using `refs` and the `#` prefix:
+
+```typescript
+let config = {
+  refs: {
+    "myAxis": {
+      type: "ValueAxis",
+      settings: {
+        renderer: {
+          type: "AxisRendererY"
+        }
+      }
+    }
+  },
+  properties: {
+    series: [
+      {
+        type: "LineSeries",
+        settings: {
+          yAxis: "#myAxis",  // Reference to myAxis
+          valueYField: "value"
+        }
+      }
+    ]
+  }
+};
+```
+
+### Reference Syntax
+
+<ResponseField name="#refName" type="reference">
+  Reference an element defined in `refs` object
+</ResponseField>
+
+<ResponseField name="#refName.property" type="reference">
+  Access a property of a referenced element
+</ResponseField>
+
+<ResponseField name="#refName.get('setting')" type="reference">
+  Get a setting value from a referenced element
+</ResponseField>
+
+<ResponseField name="##literal" type="string">
+  Escape `#` to use literal hash symbol (becomes `#literal`)
+</ResponseField>
+
+## Colors and Special Types
+
+### Color Values
+
+Define colors using the Color type:
+
+```json
+{
+  "settings": {
+    "fill": {
+      "type": "Color",
+      "value": "#ff0000"
+    },
+    "stroke": {
+      "type": "Color",
+      "value": 16711680
+    }
+  }
+}
+```
+
+### Percent Values
+
+Define percentage values:
+
+```json
+{
+  "settings": {
+    "width": {
+      "type": "Percent",
+      "value": 80
+    }
+  }
+}
+```
+
+### Gradients
+
+Define linear gradients:
+
+```json
+{
+  "settings": {
+    "fillGradient": {
+      "type": "LinearGradient",
+      "settings": {
+        "stops": [
+          { "color": { "type": "Color", "value": "#ff0000" }, "offset": 0 },
+          { "color": { "type": "Color", "value": "#0000ff" }, "offset": 1 }
+        ]
+      }
+    }
+  }
+}
+```
+
+## States
+
+Define visual states for elements:
+
+```typescript
+let config = {
+  type: "RoundedRectangle",
+  settings: {
+    width: 100,
+    height: 50,
+    fill: am5.color(0x0000ff)
+  },
+  states: [
+    {
+      key: "hover",
+      settings: {
+        fill: am5.color(0xff0000)
+      }
+    },
+    {
+      key: "active",
+      settings: {
+        fill: am5.color(0x00ff00)
+      }
+    }
+  ]
+};
+```
+
+## Adapters
+
+Add dynamic value modification with adapters:
+
+```typescript
+let config = {
+  type: "ColumnSeries",
+  settings: {
+    valueYField: "value",
+    categoryXField: "category"
+  },
+  adapters: [
+    {
+      key: "fill",
+      callback: function(fill, target) {
+        // Dynamically set fill based on value
+        if (target.dataItem.get("valueY") > 100) {
+          return am5.color(0x00ff00);
+        }
+        return fill;
+      }
+    }
+  ]
+};
+```
+
+<Note>
+  Adapter callbacks must be provided as actual JavaScript functions, not JSON strings.
+</Note>
+
+## Templates
+
+Define reusable templates:
+
+```typescript
+let config = {
+  type: "LineSeries",
+  settings: {
+    valueYField: "value",
+    bullets: [
+      function() {
+        return am5.Bullet.new(root, {
+          sprite: {
+            type: "Circle",
+            settings: {
+              radius: 5,
+              fill: am5.color(0xff0000)
+            }
+          }
+        });
+      }
+    ]
+  }
+};
+```
+
+## Parent Container
+
+Parse directly into a parent container:
+
+```typescript
+parser.parse(config, {
+  parent: root.container
+}).then((chart) => {
+  console.log("Chart created and added to container");
+});
+```
+
+## Use Cases
+
+### Configuration-Based Charts
+
+Store chart configurations in a database and generate charts dynamically:
+
+```typescript
+// Fetch config from API
+fetch('/api/chart-config')
+  .then(response => response.json())
+  .then(config => {
+    return parser.parse(config);
+  })
+  .then(chart => {
+    root.container.children.push(chart);
+  });
+```
+
+### Chart Serialization
+
+Combine with the Serializer plugin to save and restore chart states:
+
+```typescript
+import { Serializer } from "@amcharts/amcharts5/plugins/json";
+
+// Serialize existing chart
+let serializer = Serializer.new(root);
+let serialized = serializer.serialize(chart);
+
+// Later, restore the chart
+parser.parse(serialized).then((restoredChart) => {
+  root.container.children.push(restoredChart);
+});
+```
+
+### Dynamic Chart Generation
+
+Generate different chart types based on user selection:
+
+```typescript
+function createChart(type) {
+  let config = {
+    type: type,  // "XYChart", "PieChart", etc.
+    settings: getDefaultSettings(type),
+    children: getDefaultChildren(type)
+  };
+  
+  return parser.parse(config);
+}
+```
+
+## Error Handling
+
+Handle parsing errors gracefully:
+
+```typescript
+parser.parse(config)
+  .then((chart) => {
+    console.log("Chart created successfully");
+  })
+  .catch((error) => {
+    console.error("Failed to parse chart:", error);
+  });
+```
+
+## Limitations
+
+<Warning>
+  Function callbacks (adapters, bullets, etc.) cannot be serialized as JSON strings. They must be provided as actual JavaScript functions.
+</Warning>
+
+<Warning>
+  Not all chart features can be configured through JSON. Complex interactions may require programmatic setup.
+</Warning>
+
+## Performance Considerations
+
+<Tip>
+  Parsing is asynchronous to allow for dynamic class loading. Always use `.then()` or `await` to handle the result.
+</Tip>
+
+<Tip>
+  For frequently used configurations, consider caching parsed results instead of re-parsing each time.
+</Tip>
+
+## See Also
+
+- [Serializer](https://www.amcharts.com/docs/v5/concepts/serializing/) - Serialize existing charts to JSON
+- [ChartSerializer](https://www.amcharts.com/docs/v5/concepts/serializing/#Chart_Serializer) - Specialized chart serialization
+- [Example: JSON Configuration](https://www.amcharts.com/docs/v5/concepts/serializing/#Creating_charts_from_JSON)

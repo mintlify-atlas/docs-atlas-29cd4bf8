@@ -1,0 +1,389 @@
+---
+title: "Exporting Plugin"
+description: "Export charts as images, PDFs, or data files with the Exporting plugin"
+---
+
+## Overview
+
+The Exporting plugin enables you to export chart visualizations and data in multiple formats. It supports image exports (PNG, JPG), PDF generation, data exports (CSV, JSON, XLSX, HTML), and printing functionality.
+
+## Installation
+
+Import the Exporting plugin and related classes from the plugins module:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { Exporting } from "@amcharts/amcharts5/plugins/exporting";
+```
+
+## Basic Usage
+
+### Adding Exporting to a Chart
+
+Create an Exporting instance and attach it to your root element:
+
+```typescript
+let root = am5.Root.new("chartdiv");
+
+// Create exporting instance
+let exporting = Exporting.new(root, {
+  menu: ExportingMenu.new(root, {})
+});
+```
+
+### Programmatic Export
+
+You can trigger exports programmatically without showing the menu:
+
+```typescript
+// Export as PNG
+exporting.export("png").then((dataUri) => {
+  console.log("Exported PNG:", dataUri);
+});
+
+// Download PNG file
+exporting.download("png");
+
+// Print chart
+exporting.print();
+```
+
+## Export Formats
+
+### Image Formats
+
+Export charts as raster images:
+
+```typescript
+// PNG export with custom options
+exporting.export("png", {
+  quality: 1,
+  minWidth: 800,
+  maintainPixelRatio: false
+});
+
+// JPG export
+exporting.export("jpg", {
+  quality: 0.8
+});
+```
+
+#### Image Export Options
+
+<ResponseField name="quality" type="number">
+  Image quality from 0 to 1 (default: 1 for PNG, 0.8 for JPG)
+</ResponseField>
+
+<ResponseField name="maintainPixelRatio" type="boolean" default={false}>
+  Export with hardware resolution (`false`) or screen appearance (`true`)
+</ResponseField>
+
+<ResponseField name="minWidth" type="number">
+  Minimum width of exported image in pixels
+</ResponseField>
+
+<ResponseField name="maxWidth" type="number">
+  Maximum width of exported image in pixels
+</ResponseField>
+
+<ResponseField name="minHeight" type="number">
+  Minimum height of exported image in pixels
+</ResponseField>
+
+<ResponseField name="maxHeight" type="number">
+  Maximum height of exported image in pixels
+</ResponseField>
+
+### PDF Export
+
+Generate PDF documents with chart images:
+
+```typescript
+exporting.export("pdf", {
+  imageFormat: "png",
+  pageSize: "A4",
+  pageOrientation: "landscape",
+  fontSize: 14,
+  addURL: true
+});
+```
+
+#### PDF Options
+
+<ResponseField name="imageFormat" type="'png' | 'jpg'" default="png">
+  Image format for embedded chart image
+</ResponseField>
+
+<ResponseField name="pageSize" type="string" default="A4">
+  Page size (A0-A10, B0-B10, C0-C10, LETTER, LEGAL, etc.)
+</ResponseField>
+
+<ResponseField name="pageOrientation" type="'portrait' | 'landscape'" default="portrait">
+  Page orientation
+</ResponseField>
+
+<ResponseField name="pageMargins" type="number | number[]">
+  Page margins as a number or array `[left, top, right, bottom]`
+</ResponseField>
+
+<ResponseField name="fontSize" type="number" default={14}>
+  Font size for text elements
+</ResponseField>
+
+<ResponseField name="align" type="'left' | 'center' | 'middle'" default="left">
+  Chart image alignment in PDF
+</ResponseField>
+
+<ResponseField name="addURL" type="boolean" default={true}>
+  Include source page URL in the PDF
+</ResponseField>
+
+### Data Export
+
+Export chart data in various formats:
+
+```typescript
+// Configure data source
+exporting.set("dataSource", chart.series.getIndex(0).data);
+
+// Export as CSV
+exporting.export("csv", {
+  separator: ",",
+  addColumnNames: true
+});
+
+// Export as JSON
+exporting.export("json", {
+  indent: 2
+});
+
+// Export as XLSX
+exporting.export("xlsx");
+```
+
+#### Data Export Options
+
+<ResponseField name="dataSource" type="any[]">
+  Array of data objects to export
+</ResponseField>
+
+<ResponseField name="dataFields" type="object">
+  Map of field names to column headers: `{ fieldName: "Column Name" }`
+</ResponseField>
+
+<ResponseField name="dataFieldsOrder" type="string[]">
+  Array specifying the order of fields in export
+</ResponseField>
+
+<ResponseField name="numericFields" type="string[]">
+  Fields containing numeric values for proper formatting
+</ResponseField>
+
+<ResponseField name="dateFields" type="string[]">
+  Fields containing date values
+</ResponseField>
+
+<ResponseField name="dateFormat" type="string | Intl.DateTimeFormatOptions">
+  Date format for date fields
+</ResponseField>
+
+<ResponseField name="numberFormat" type="string | Intl.NumberFormatOptions">
+  Number format for numeric fields
+</ResponseField>
+
+## Configuration
+
+### General Settings
+
+```typescript
+let exporting = Exporting.new(root, {
+  filePrefix: "my-chart",
+  title: "Sales Report",
+  backgroundColor: am5.color(0xffffff),
+  backgroundOpacity: 1
+});
+```
+
+<ResponseField name="filePrefix" type="string" default="chart">
+  Prefix for downloaded file names
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Chart title for print, PDF, and Excel exports
+</ResponseField>
+
+<ResponseField name="backgroundColor" type="Color">
+  Background color for exported images (auto-detected if not set)
+</ResponseField>
+
+<ResponseField name="backgroundOpacity" type="number" default={1}>
+  Background opacity (0 = transparent, 1 = opaque)
+</ResponseField>
+
+### Export Menu
+
+Customize the export menu appearance and behavior:
+
+```typescript
+import { ExportingMenu } from "@amcharts/amcharts5/plugins/exporting";
+
+let exporting = Exporting.new(root, {
+  menu: ExportingMenu.new(root, {
+    align: "right",
+    valign: "top",
+    items: [
+      {
+        type: "format",
+        format: "png",
+        label: "Export as PNG"
+      },
+      {
+        type: "format",
+        format: "pdf",
+        label: "Export as PDF"
+      },
+      {
+        type: "separator"
+      },
+      {
+        type: "format",
+        format: "csv",
+        label: "Download CSV"
+      }
+    ]
+  })
+});
+```
+
+### Including Multiple Charts
+
+Export multiple charts in a single image:
+
+```typescript
+exporting.set("extraImages", [
+  secondChart.root,
+  {
+    source: thirdChart.root,
+    position: "bottom",
+    marginTop: 20
+  }
+]);
+```
+
+## Events
+
+Listen to export lifecycle events:
+
+```typescript
+exporting.events.on("exportstarted", (ev) => {
+  console.log("Export started:", ev.format);
+});
+
+exporting.events.on("exportfinished", (ev) => {
+  console.log("Export finished:", ev.format);
+});
+
+exporting.events.on("dataprocessed", (ev) => {
+  console.log("Data processed:", ev.data);
+});
+
+exporting.events.on("pdfdocready", (ev) => {
+  // Modify PDF document before export
+  ev.doc.content.push({
+    text: "Additional content",
+    margin: [0, 20, 0, 0]
+  });
+});
+```
+
+### Available Events
+
+<ResponseField name="exportstarted">
+  Triggered when export operation begins
+</ResponseField>
+
+<ResponseField name="exportfinished">
+  Triggered when export operation completes
+</ResponseField>
+
+<ResponseField name="downloadstarted">
+  Triggered when file download begins
+</ResponseField>
+
+<ResponseField name="printstarted">
+  Triggered when print operation starts
+</ResponseField>
+
+<ResponseField name="dataprocessed">
+  Triggered after data is processed for export
+</ResponseField>
+
+<ResponseField name="pdfdocready">
+  Triggered when PDF document is prepared (can be modified)
+</ResponseField>
+
+<ResponseField name="workbookready">
+  Triggered when XLSX workbook is prepared (can be modified)
+</ResponseField>
+
+## Advanced Usage
+
+### Custom Print Options
+
+```typescript
+exporting.print({
+  delay: 500,
+  printMethod: "iframe",
+  imageFormat: "png",
+  quality: 1
+});
+```
+
+### PDF with Data Table
+
+Export PDF with both chart image and data table:
+
+```typescript
+exporting.export("pdf", {
+  includeData: true,
+  addColumnNames: true
+});
+```
+
+### Canvas Export
+
+Get a canvas element for custom processing:
+
+```typescript
+exporting.getCanvas({
+  quality: 1,
+  minWidth: 1920
+}).then((canvas) => {
+  // Use canvas element
+  document.body.appendChild(canvas);
+});
+```
+
+## Browser Compatibility
+
+The Exporting plugin works in all modern browsers. Note that:
+
+- PDF export requires the pdfmake library (loaded automatically)
+- XLSX export requires the xlsx library (loaded automatically)
+- Some browsers may prompt for download permission
+
+## Performance Tips
+
+<Tip>
+  For large datasets, consider filtering or limiting data before export to improve performance.
+</Tip>
+
+<Warning>
+  Image exports capture the chart as it appears on screen. Ensure all chart elements are fully rendered before exporting.
+</Warning>
+
+## See Also
+
+- [ExportingMenu](/plugins/exporting#export-menu) - Customize the export menu
+- [Annotator](https://www.amcharts.com/docs/v5/concepts/exporting/annotator/) - Add annotations before export
+- [Example: Custom Export Menu](https://www.amcharts.com/docs/v5/concepts/exporting/#Custom_menu)

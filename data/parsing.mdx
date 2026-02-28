@@ -1,0 +1,328 @@
+---
+title: Parsing Data
+description: Parse CSV, JSON, and other data formats using amCharts 5 built-in parsers to convert raw data into chart-ready structures.
+---
+
+## Overview
+
+amCharts 5 provides built-in parser utilities to convert common data formats like JSON and CSV into structured objects that can be used in charts.
+
+## JSONParser
+
+The `JSONParser` class parses JSON strings into JavaScript objects.
+
+### Basic Usage
+
+```typescript
+import { JSONParser } from "@amcharts/amcharts5";
+
+const jsonString = '[{"date": "2023-01-01", "value": 100}, {"date": "2023-01-02", "value": 150}]';
+
+const data = JSONParser.parse(jsonString);
+series.data.setAll(data);
+```
+
+### Options
+
+The `JSONParser.parse()` method accepts an optional `IJSONParserOptions` object:
+
+```typescript
+interface IJSONParserOptions {
+  /**
+   * Reverse the order of parsed data.
+   */
+  reverse?: boolean;
+}
+```
+
+**Example:**
+
+```typescript
+const data = JSONParser.parse(jsonString, {
+  reverse: true  // Data will be in reverse order
+});
+```
+
+### Handling Existing Objects
+
+The parser can also handle pre-parsed objects:
+
+```typescript
+const obj = { date: "2023-01-01", value: 100 };
+const data = JSONParser.parse(obj);  // Returns the object as-is
+
+const arr = [{ date: "2023-01-01", value: 100 }];
+const data2 = JSONParser.parse(arr);  // Returns the array as-is
+```
+
+### Error Handling
+
+The parser returns `undefined` if parsing fails:
+
+```typescript
+const data = JSONParser.parse("invalid json");
+if (data === undefined) {
+  console.error("Failed to parse JSON");
+}
+```
+
+## CSVParser
+
+The `CSVParser` class parses CSV (Comma-Separated Values) strings into arrays of objects.
+
+### Basic Usage
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+const csvString = `date,value
+2023-01-01,100
+2023-01-02,150
+2023-01-03,120`;
+
+const data = CSVParser.parse(csvString, {
+  delimiter: ",",
+  useColumnNames: true
+});
+
+// Result:
+// [
+//   { date: "2023-01-01", value: "100" },
+//   { date: "2023-01-02", value: "150" },
+//   { date: "2023-01-03", value: "120" }
+// ]
+
+series.data.setAll(data);
+```
+
+### Options
+
+The `CSVParser.parse()` method accepts an `ICSVParserOptions` object:
+
+```typescript
+interface ICSVParserOptions {
+  /**
+   * Delimiter used for columns.
+   * @default ","
+   */
+  delimiter?: string;
+  
+  /**
+   * Reverse the order of parsed data.
+   */
+  reverse?: boolean;
+  
+  /**
+   * Skip first X rows.
+   * @default 0
+   */
+  skipRows?: number;
+  
+  /**
+   * Skip empty rows.
+   * @default true
+   */
+  skipEmpty?: boolean;
+  
+  /**
+   * Use the first row to name the columns.
+   * @default false
+   */
+  useColumnNames?: boolean;
+}
+```
+
+### Using Column Names
+
+When `useColumnNames` is `true`, the first row becomes property names:
+
+```typescript
+const csvWithHeaders = `Date,Sales,Profit
+2023-01-01,1000,250
+2023-01-02,1500,400`;
+
+const data = CSVParser.parse(csvWithHeaders, {
+  useColumnNames: true
+});
+
+// Result:
+// [
+//   { Date: "2023-01-01", Sales: "1000", Profit: "250" },
+//   { Date: "2023-01-02", Sales: "1500", Profit: "400" }
+// ]
+```
+
+When `useColumnNames` is `false` or omitted, columns are named `col0`, `col1`, etc.:
+
+```typescript
+const data = CSVParser.parse(csvWithHeaders, {
+  useColumnNames: false
+});
+
+// Result:
+// [
+//   { col0: "Date", col1: "Sales", col2: "Profit" },
+//   { col0: "2023-01-01", col1: "1000", col2: "250" },
+//   ...
+// ]
+```
+
+### Custom Delimiters
+
+Parse tab-separated or semicolon-separated files:
+
+```typescript
+// Tab-separated values
+const tsvData = CSVParser.parse(tsvString, {
+  delimiter: "\t",
+  useColumnNames: true
+});
+
+// Semicolon-separated values (common in European locales)
+const ssvData = CSVParser.parse(ssvString, {
+  delimiter: ";",
+  useColumnNames: true
+});
+```
+
+### Skipping Rows
+
+Skip header rows or metadata:
+
+```typescript
+const csvWithMetadata = `# Data exported on 2023-01-01
+# Source: Sales Database
+date,value
+2023-01-01,100
+2023-01-02,150`;
+
+const data = CSVParser.parse(csvWithMetadata, {
+  skipRows: 2,           // Skip first 2 rows
+  useColumnNames: true   // Row 3 becomes column names
+});
+```
+
+### Handling Empty Rows
+
+By default, empty rows are skipped:
+
+```typescript
+const csvWithEmptyRows = `date,value
+2023-01-01,100
+
+2023-01-02,150
+
+`;
+
+const data = CSVParser.parse(csvWithEmptyRows, {
+  useColumnNames: true,
+  skipEmpty: true  // Default behavior
+});
+
+// Empty rows are automatically removed
+```
+
+### Reversing Data Order
+
+Parse data in reverse order:
+
+```typescript
+const data = CSVParser.parse(csvString, {
+  useColumnNames: true,
+  reverse: true  // Last row becomes first
+});
+```
+
+## Combining with Data Loading
+
+Parsers work seamlessly with the `net.load()` utility:
+
+### Loading and Parsing JSON
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { JSONParser } from "@amcharts/amcharts5";
+
+async function loadJSON() {
+  const response = await am5.net.load("https://example.com/data.json");
+  const data = JSONParser.parse(response.response);
+  
+  if (data) {
+    series.data.setAll(data);
+  }
+}
+
+loadJSON();
+```
+
+### Loading and Parsing CSV
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+async function loadCSV() {
+  const response = await am5.net.load("https://example.com/data.csv");
+  const data = CSVParser.parse(response.response, {
+    delimiter: ",",
+    useColumnNames: true,
+    skipRows: 0,
+    skipEmpty: true
+  });
+  
+  series.data.setAll(data);
+}
+
+loadCSV();
+```
+
+## Quoted Values and Special Characters
+
+The CSV parser handles quoted values correctly:
+
+```typescript
+const csvWithQuotes = `name,description,value
+"Product A","Description with, comma",100
+"Product B","Description with ""quotes""",150`;
+
+const data = CSVParser.parse(csvWithQuotes, {
+  useColumnNames: true
+});
+
+// Quotes are properly unescaped:
+// [
+//   { name: "Product A", description: "Description with, comma", value: "100" },
+//   { name: "Product B", description: "Description with \"quotes\"", value: "150" }
+// ]
+```
+
+## Working with Parsed Data
+
+Parsed CSV data contains string values. Use a [DataProcessor](/data/processing) to convert strings to appropriate types:
+
+```typescript
+import { CSVParser, DataProcessor } from "@amcharts/amcharts5";
+
+const response = await am5.net.load("data.csv");
+const data = CSVParser.parse(response.response, {
+  useColumnNames: true
+});
+
+// Create a data processor to convert types
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd",
+  numericFields: ["value", "sales"]
+});
+
+// Process the data
+processor.processMany(data);
+
+// Now data has correct types
+series.data.setAll(data);
+```
+
+## Related Topics
+
+- [Loading Data](/data/loading) - Load data from various sources
+- [Processing Data](/data/processing) - Transform and validate data
+- [Live Data](/data/live-data) - Update charts dynamically

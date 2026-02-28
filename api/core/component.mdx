@@ -1,0 +1,325 @@
+---
+title: Component
+---
+
+A base class for elements that make use of data.
+
+Component extends [Container](/api/core/container) and adds data handling capabilities.
+
+## Properties
+
+### data
+
+<ResponseField name="data" type="ListData<unknown>">
+  Component's data
+</ResponseField>
+
+See [Data](https://www.amcharts.com/docs/v5/concepts/data/) for more info.
+
+```typescript
+component.data.setAll([
+  { value: 100 },
+  { value: 200 },
+  { value: 300 }
+]);
+```
+
+### dataItems
+
+<ResponseField name="dataItems" type="Array<DataItem>" readonly>
+  A list of component's data items
+</ResponseField>
+
+```typescript
+const dataItems = component.dataItems;
+console.log("Total items:", dataItems.length);
+```
+
+### inited
+
+<ResponseField name="inited" type="boolean" readonly>
+  Indicates if the component has already been initialized
+</ResponseField>
+
+```typescript
+if (component.inited) {
+  // Component is ready
+}
+```
+
+### Animation
+
+<ResponseField name="interpolationDuration" type="number">
+  A duration of the animation from one setting value to another, in milliseconds
+</ResponseField>
+
+See [Animating data values](https://www.amcharts.com/docs/v5/concepts/animations/#Animating_data_values) for more info.
+
+<ResponseField name="interpolationEasing" type="Easing">
+  Easing function to use for cross setting value animations
+</ResponseField>
+
+See [Easing functions](https://www.amcharts.com/docs/v5/concepts/animations/#Easing_functions) for more info.
+
+## Methods
+
+### updateData()
+
+Updates existing data in the component without disposing old data items. If there are more data items than before, new ones will be created. If there are less, old ones will be removed.
+
+<ParamField path="data" type="Array<any>" required>
+  New data array
+</ParamField>
+
+```typescript
+component.updateData([
+  { value: 150 },
+  { value: 250 },
+  { value: 350 }
+]);
+```
+
+### makeDataItem()
+
+Creates a new data item and processes it.
+
+<ParamField path="data" type="object" required>
+  Data item settings
+</ParamField>
+
+<ParamField path="dataContext" type="any">
+  Data context
+</ParamField>
+
+<ResponseField name="dataItem" type="DataItem">
+  New data item
+</ResponseField>
+
+```typescript
+const dataItem = component.makeDataItem({
+  value: 100,
+  category: "A"
+});
+```
+
+### pushDataItem()
+
+Adds new explicit data item to the component.
+
+<ParamField path="data" type="object" required>
+  Data item settings
+</ParamField>
+
+<ParamField path="dataContext" type="any">
+  Data context
+</ParamField>
+
+<ResponseField name="dataItem" type="DataItem">
+  New data item
+</ResponseField>
+
+```typescript
+const dataItem = component.pushDataItem({
+  value: 100,
+  category: "A"
+});
+```
+
+### showDataItem()
+
+Shows component's data item.
+
+<ParamField path="dataItem" type="DataItem" required>
+  Data item to show
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+<ResponseField name="promise" type="Promise<void>">
+  Promise that resolves when animation completes
+</ResponseField>
+
+```typescript
+await component.showDataItem(dataItem, 500);
+```
+
+### hideDataItem()
+
+Hides component's data item.
+
+<ParamField path="dataItem" type="DataItem" required>
+  Data item to hide
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+<ResponseField name="promise" type="Promise<void>">
+  Promise that resolves when animation completes
+</ResponseField>
+
+```typescript
+await component.hideDataItem(dataItem, 500);
+```
+
+### markDirtyValues()
+
+Forces a repaint of the element which relies on data.
+
+<ParamField path="dataItem" type="DataItem">
+  Optional specific data item to mark dirty
+</ParamField>
+
+```typescript
+component.markDirtyValues();
+```
+
+### getDataItemById()
+
+Looks up and returns a data item by its ID.
+
+<ParamField path="id" type="string" required>
+  ID to look up
+</ParamField>
+
+<ResponseField name="dataItem" type="DataItem | undefined">
+  Data item with matching ID, or undefined if not found
+</ResponseField>
+
+```typescript
+const dataItem = component.getDataItemById("item-1");
+if (dataItem) {
+  console.log("Found:", dataItem);
+}
+```
+
+### disposeDataItem()
+
+Disposes a data item.
+
+<ParamField path="dataItem" type="DataItem" required>
+  Data item to dispose
+</ParamField>
+
+```typescript
+component.disposeDataItem(dataItem);
+```
+
+## Events
+
+<ResponseField name="datavalidated" type="{}">
+  Dispatched after data is processed and validated
+</ResponseField>
+
+<ResponseField name="valueschanged" type="{}">
+  Dispatched when data values change
+</ResponseField>
+
+```typescript
+component.events.on("datavalidated", () => {
+  console.log("Data has been validated");
+});
+
+component.events.on("valueschanged", () => {
+  console.log("Values have changed");
+});
+```
+
+## DataItem Class
+
+DataItem is a wrapper for actual data used by components.
+
+### Properties
+
+<ResponseField name="component" type="Component" readonly>
+  A data item's owner Component
+</ResponseField>
+
+<ResponseField name="dataContext" type="unknown" readonly>
+  A reference to actual item in source data this item is based on
+</ResponseField>
+
+<ResponseField name="bullets" type="Array<Bullet>">
+  Bullets associated with this data item
+</ResponseField>
+
+### Methods
+
+#### show()
+
+Shows a data item that's currently hidden.
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+```typescript
+dataItem.show(500);
+```
+
+#### hide()
+
+Hides a data item that's currently visible.
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+```typescript
+dataItem.hide(500);
+```
+
+#### isHidden()
+
+Returns `true` if data item is hidden.
+
+<ResponseField name="hidden" type="boolean">
+  Whether the data item is hidden
+</ResponseField>
+
+```typescript
+if (dataItem.isHidden()) {
+  console.log("Data item is hidden");
+}
+```
+
+## Examples
+
+### Setting Data
+
+```typescript
+component.data.setAll([
+  { category: "A", value: 100 },
+  { category: "B", value: 200 },
+  { category: "C", value: 300 }
+]);
+```
+
+### Working with Data Items
+
+```typescript
+const dataItems = component.dataItems;
+
+dataItems.forEach((dataItem, index) => {
+  console.log(`Item ${index}:`, dataItem.get("value"));
+  
+  if (dataItem.get("value") < 150) {
+    dataItem.hide();
+  }
+});
+```
+
+### Listening to Data Events
+
+```typescript
+component.events.on("datavalidated", () => {
+  console.log("Total items:", component.dataItems.length);
+});
+
+component.events.on("valueschanged", () => {
+  console.log("Data values have been updated");
+});
+```

@@ -1,0 +1,364 @@
+---
+title: Processing Data
+description: Transform, validate, and pre-process data using amCharts 5 DataProcessor to convert strings to dates, numbers, colors, and more.
+---
+
+## Overview
+
+The `DataProcessor` class provides automatic data transformation capabilities. It can convert string values to dates, numbers, colors, and handle empty values - all before the data is used by chart components.
+
+## Basic Usage
+
+Create a `DataProcessor` instance and assign it to your data:
+
+```typescript
+import { DataProcessor } from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date"
+}));
+
+// Create data processor
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd",
+  numericFields: ["value"]
+});
+
+// Assign to series data
+series.data.processor = processor;
+
+// Data will be automatically processed
+series.data.setAll([
+  { date: "2023-01-01", value: "100" },  // Strings will be converted
+  { date: "2023-01-02", value: "150" },
+  { date: "2023-01-03", value: "120" }
+]);
+```
+
+## Configuration
+
+The `DataProcessor` accepts an `IDataProcessorSettings` object:
+
+```typescript
+interface IDataProcessorSettings {
+  /**
+   * Date format used for parsing string-based dates.
+   */
+  dateFormat?: string;
+  
+  /**
+   * A list of fields in data that need to be converted to timestamps.
+   */
+  dateFields?: string[];
+  
+  /**
+   * A list of fields in data that need to be converted to numbers.
+   */
+  numericFields?: string[];
+  
+  /**
+   * A list of fields in data that need to be converted to Color objects.
+   */
+  colorFields?: string[];
+  
+  /**
+   * Replace empty values with this.
+   */
+  emptyAs?: any;
+}
+```
+
+## Converting Date Strings
+
+Convert string dates to timestamps:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  dateFields: ["date", "timestamp", "created"],
+  dateFormat: "yyyy-MM-dd HH:mm:ss"
+});
+
+series.data.processor = processor;
+
+series.data.setAll([
+  { date: "2023-01-01 14:30:00", value: 100 },
+  { date: "2023-01-02 15:45:00", value: 150 }
+]);
+
+// Dates are converted to timestamps (milliseconds)
+```
+
+### Date Format Patterns
+
+The processor uses the root's `DateFormatter` for parsing. Common patterns:
+
+- `yyyy` - Full year (e.g., 2023)
+- `MM` - Month as number (01-12)
+- `dd` - Day of month (01-31)
+- `HH` - Hour in 24-hour format (00-23)
+- `mm` - Minutes (00-59)
+- `ss` - Seconds (00-59)
+
+```typescript
+// ISO 8601 format
+dateFormat: "yyyy-MM-dd'T'HH:mm:ss"
+
+// US format
+dateFormat: "MM/dd/yyyy"
+
+// European format
+dateFormat: "dd.MM.yyyy"
+```
+
+## Converting Numeric Strings
+
+Convert string numbers to numeric values:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  numericFields: ["value", "sales", "profit", "quantity"]
+});
+
+series.data.processor = processor;
+
+series.data.setAll([
+  { date: 1609459200000, value: "100", sales: "1,234.56" },
+  { date: 1609545600000, value: "150", sales: "2,345.67" }
+]);
+
+// Strings are converted to numbers
+```
+
+The processor uses `$type.toNumber()` which handles:
+- Integer strings: `"100"` → `100`
+- Float strings: `"123.45"` → `123.45`
+- Strings with commas: `"1,234.56"` → `1234.56`
+- Invalid values: `"abc"` → `NaN`
+
+## Converting Color Strings
+
+Convert color strings to `Color` objects:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  colorFields: ["color", "fillColor", "strokeColor"]
+});
+
+series.data.processor = processor;
+
+series.data.setAll([
+  { category: "A", value: 100, color: "#ff0000" },
+  { category: "B", value: 150, color: "rgb(0, 255, 0)" },
+  { category: "C", value: 120, color: "blue" }
+]);
+
+// Color strings are converted to Color objects
+```
+
+Supported color formats:
+- Hex: `"#ff0000"`, `"#f00"`
+- RGB: `"rgb(255, 0, 0)"`
+- RGBA: `"rgba(255, 0, 0, 0.5)"`
+- Named colors: `"red"`, `"blue"`, `"green"`
+
+## Handling Empty Values
+
+Replace empty or null values with a default:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  numericFields: ["value"],
+  emptyAs: 0  // Replace empty values with 0
+});
+
+series.data.processor = processor;
+
+series.data.setAll([
+  { date: 1609459200000, value: 100 },
+  { date: 1609545600000, value: null },     // → 0
+  { date: 1609632000000, value: "" },       // → 0
+  { date: 1609718400000, value: undefined } // → 0
+]);
+```
+
+The `emptyAs` setting replaces:
+- `null` values
+- `undefined` values  
+- Empty strings (`""`)
+
+## Processing Nested Fields
+
+The processor supports dot notation for nested objects:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  dateFields: ["info.timestamp"],
+  numericFields: ["metrics.value", "metrics.count"],
+  colorFields: ["style.color"]
+});
+
+series.data.processor = processor;
+
+series.data.setAll([
+  {
+    info: { timestamp: "2023-01-01" },
+    metrics: { value: "100", count: "50" },
+    style: { color: "#ff0000" }
+  }
+]);
+
+// Nested fields are processed recursively
+```
+
+## Manual Processing
+
+You can also process data manually without attaching to a component:
+
+### Processing a Single Row
+
+```typescript
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd",
+  numericFields: ["value"]
+});
+
+const row = { date: "2023-01-01", value: "100" };
+processor.processRow(row);
+
+// row is modified in place:
+// { date: 1672531200000, value: 100 }
+```
+
+### Processing Multiple Rows
+
+```typescript
+const data = [
+  { date: "2023-01-01", value: "100" },
+  { date: "2023-01-02", value: "150" }
+];
+
+processor.processMany(data);
+
+// data array is modified in place
+series.data.setAll(data);
+```
+
+<Warning>
+  The `processRow()` and `processMany()` methods modify the original data objects. Make a copy if you need to preserve the original data.
+</Warning>
+
+## Automatic Processing with ListData
+
+When a processor is assigned to `data.processor`, all data operations are automatically processed:
+
+```typescript
+series.data.processor = processor;
+
+// All these operations trigger processing:
+series.data.setAll([...]);     // All items processed
+series.data.push({...});        // Single item processed
+series.data.insertIndex(0, {})  // Single item processed
+series.data.setIndex(5, {})     // Single item processed
+```
+
+The `ListData` class (which extends `List`) automatically calls `processor.processRow()` for new items:
+
+## Combining with Parsers
+
+Data processors work well with CSV/JSON parsers:
+
+```typescript
+import { CSVParser, DataProcessor } from "@amcharts/amcharts5";
+
+// Load CSV data
+const response = await am5.net.load("data.csv");
+const data = CSVParser.parse(response.response, {
+  useColumnNames: true
+});
+
+// Create processor
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd",
+  numericFields: ["value", "sales", "profit"]
+});
+
+// Process before setting
+processor.processMany(data);
+series.data.setAll(data);
+
+// Or attach to data for automatic processing
+series.data.processor = processor;
+series.data.setAll(data);  // Automatically processed
+```
+
+## Performance Considerations
+
+### When to Use DataProcessor
+
+Use a `DataProcessor` when:
+- Loading data from CSV files (all values are strings)
+- Receiving data from APIs with string values
+- Working with user-uploaded data
+- You need consistent data type conversion
+
+### When to Skip DataProcessor
+
+Skip the processor for better performance when:
+- Your data already has correct types
+- Working with very large datasets (millions of rows)
+- You're handling type conversion manually
+
+```typescript
+// Good: Data already has correct types
+series.data.setAll([
+  { date: 1609459200000, value: 100 },  // timestamp and number
+  { date: 1609545600000, value: 150 }
+]);
+
+// No processor needed
+```
+
+### Disabling Features
+
+Only enable the features you need:
+
+```typescript
+// Only process dates (more efficient)
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd"
+  // No numericFields, colorFields, or emptyAs
+});
+```
+
+## Updating Processor Settings
+
+You can modify processor settings after creation:
+
+```typescript
+const processor = DataProcessor.new(root, {
+  dateFields: ["date"],
+  dateFormat: "yyyy-MM-dd"
+});
+
+series.data.processor = processor;
+
+// Later, add numeric field processing
+processor.set("numericFields", ["value", "sales"]);
+
+// Change date format
+processor.set("dateFormat", "MM/dd/yyyy");
+```
+
+## Related Topics
+
+- [Loading Data](/data/loading) - Load data from files and APIs
+- [Parsing Data](/data/parsing) - Parse CSV and JSON formats
+- [Live Data](/data/live-data) - Update data in real-time

@@ -1,0 +1,295 @@
+---
+title: 'XY Chart Axes'
+description: 'Learn how to configure and customize axes in amCharts 5 XY charts'
+---
+
+## Overview
+
+Axes are fundamental components of XY charts that define the coordinate system for plotting data. amCharts 5 provides several axis types to handle different data formats and use cases.
+
+## Axis Types
+
+### ValueAxis
+
+The `ValueAxis` is used for numeric data. It automatically calculates the scale based on the data values.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+```
+
+<Note>
+  The `ValueAxis` automatically determines the minimum and maximum values based on your data. You can override these with the `min` and `max` settings.
+</Note>
+
+#### Custom Min/Max Values
+
+You can set custom minimum and maximum values for precise control over the axis scale:
+
+```typescript
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    min: 0,
+    max: 100,
+    strictMinMax: true,
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+```
+
+<Tip>
+  Use `strictMinMax: true` to force the axis to use exactly the min/max values you specify. Otherwise, the axis may adjust them for better scale fitting.
+</Tip>
+
+#### Logarithmic Scale
+
+Enable logarithmic scale for data with wide value ranges:
+
+```typescript
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    logarithmic: true,
+    treatZeroAs: 0.1,
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+```
+
+### DateAxis
+
+The `DateAxis` is designed for time-based data. It supports various time intervals and automatic grouping.
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      minorGridEnabled: true
+    }),
+    tooltip: am5.Tooltip.new(root, {})
+  })
+);
+```
+
+#### Dynamic Data Grouping
+
+Automatically group data when zooming out:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    groupCount: 500,
+    baseInterval: { timeUnit: "day", count: 1 },
+    groupIntervals: [
+      { timeUnit: "day", count: 1 },
+      { timeUnit: "week", count: 1 },
+      { timeUnit: "month", count: 1 }
+    ],
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+<Note>
+  The `groupCount` property determines the maximum number of data points before grouping kicks in. Default is 500.
+</Note>
+
+### CategoryAxis
+
+The `CategoryAxis` displays discrete categories instead of continuous values.
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: am5xy.AxisRendererX.new(root, {
+      minGridDistance: 30
+    })
+  })
+);
+
+// Set the data
+xAxis.data.setAll([
+  { category: "Product A" },
+  { category: "Product B" },
+  { category: "Product C" }
+]);
+```
+
+## Axis Renderers
+
+Axis renderers control the visual appearance and position of axes.
+
+### AxisRendererX (Horizontal)
+
+```typescript
+const xRenderer = am5xy.AxisRendererX.new(root, {
+  minorGridEnabled: true,
+  minGridDistance: 50,
+  pan: "zoom"
+});
+```
+
+### AxisRendererY (Vertical)
+
+```typescript
+const yRenderer = am5xy.AxisRendererY.new(root, {
+  opposite: false,
+  pan: "zoom"
+});
+```
+
+<Tip>
+  Set `opposite: true` on the renderer to position the axis on the opposite side (right for Y-axis, top for X-axis).
+</Tip>
+
+## Zoom and Pan Settings
+
+### Pre-zooming Axes
+
+Set initial zoom position using `start` and `end` properties:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    start: 0.7,
+    end: 1,
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+### Limiting Zoom Scope
+
+Control how far users can zoom in or out:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    maxZoomCount: 100,
+    minZoomCount: 10,
+    maxZoomFactor: 1000,
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+### Excluding Axes from Pan/Zoom
+
+```typescript
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    panX: false,
+    panY: false,
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+```
+
+<Warning>
+  Setting `panX` or `panY` to `false` will prevent that axis from responding to pan gestures, but the chart can still be panned via other axes.
+</Warning>
+
+## Axis Labels and Grids
+
+### Grid Configuration
+
+Customize grid lines appearance:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      minorGridEnabled: true
+    })
+  })
+);
+
+// Customize grid appearance
+xAxis.get("renderer").grid.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeOpacity: 0.1,
+  strokeWidth: 1
+});
+```
+
+### Label Customization
+
+Modify label appearance and behavior:
+
+```typescript
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Customize labels
+yAxis.get("renderer").labels.template.setAll({
+  fontSize: 12,
+  fill: am5.color(0x666666),
+  paddingRight: 10
+});
+```
+
+## Multiple Axes
+
+Add multiple axes to the same chart:
+
+```typescript
+// First Y axis
+const yAxis1 = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Second Y axis (on the right)
+const yAxis2 = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+      opposite: true
+    })
+  })
+);
+
+// Stack axes vertically
+chart.leftAxesContainer.set("layout", root.verticalLayout);
+```
+
+## Axis Tooltips
+
+Enable tooltips on axes to show values on hover:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {}),
+    tooltip: am5.Tooltip.new(root, {})
+  })
+);
+```
+
+## Best Practices
+
+<Tip>
+  Always specify a `baseInterval` for `DateAxis` to ensure proper data handling and grouping.
+</Tip>
+
+<Tip>
+  Use `maxDeviation` property to control how much the axis can adjust its scale when zooming. Lower values (e.g., 0.1) keep the scale more stable.
+</Tip>
+
+<Note>
+  When using multiple series with different value ranges, consider using separate Y-axes for better data visualization.
+</Note>

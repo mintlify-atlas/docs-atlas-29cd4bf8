@@ -1,0 +1,536 @@
+---
+title: Gradients
+description: Learn how to create and apply linear and radial gradients to chart elements in amCharts 5.
+---
+
+## Overview
+
+Gradients in amCharts 5 allow you to fill chart elements with smooth color transitions instead of solid colors. The library provides two types of gradients: linear gradients (straight color transitions) and radial gradients (circular color transitions).
+
+## Linear Gradients
+
+### Basic Linear Gradient
+
+Create a linear gradient with color stops:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const gradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff0000) },  // Red at start
+    { color: am5.color(0x0000ff) }   // Blue at end
+  ],
+  rotation: 90  // Vertical gradient (top to bottom)
+});
+
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+series.columns.template.set("fillGradient", gradient);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:31-112`
+
+### Gradient Rotation
+
+Control the direction of the gradient using the `rotation` property (in degrees):
+
+```typescript
+// Horizontal gradient (left to right)
+const horizontalGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0x3366cc) },
+    { color: am5.color(0x6bcf7f) }
+  ],
+  rotation: 0
+});
+
+// Vertical gradient (top to bottom)
+const verticalGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff6b6b) },
+    { color: am5.color(0xffd93d) }
+  ],
+  rotation: 90
+});
+
+// Diagonal gradient
+const diagonalGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0x9b59b6) },
+    { color: am5.color(0x3498db) }
+  ],
+  rotation: 45
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:12-20`
+
+### Multiple Color Stops
+
+Add multiple color stops for complex gradients:
+
+```typescript
+const multiColorGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff0000), offset: 0 },     // Red at 0%
+    { color: am5.color(0xffff00), offset: 0.33 },  // Yellow at 33%
+    { color: am5.color(0x00ff00), offset: 0.66 },  // Green at 66%
+    { color: am5.color(0x0000ff), offset: 1 }      // Blue at 100%
+  ],
+  rotation: 90
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:74-108`
+
+## Radial Gradients
+
+### Basic Radial Gradient
+
+Create a radial gradient that radiates from a center point:
+
+```typescript
+const radialGradient = am5.RadialGradient.new(root, {
+  stops: [
+    { color: am5.color(0xffffff) },  // White at center
+    { color: am5.color(0x3366cc) }   // Blue at edge
+  ]
+});
+
+const series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+series.slices.template.set("fillGradient", radialGradient);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/RadialGradient.ts:40-126`
+
+### Positioning Radial Gradients
+
+Control the center position of the gradient:
+
+```typescript
+// Gradient centered at custom position
+const positionedGradient = am5.RadialGradient.new(root, {
+  stops: [
+    { color: am5.color(0xffff00) },
+    { color: am5.color(0xff0000) }
+  ],
+  x: am5.percent(30),   // 30% from left
+  y: am5.percent(30)    // 30% from top
+});
+
+// Gradient centered (default)
+const centeredGradient = am5.RadialGradient.new(root, {
+  stops: [
+    { color: am5.color(0xffffff) },
+    { color: am5.color(0x000000) }
+  ],
+  x: am5.percent(50),
+  y: am5.percent(50)
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/RadialGradient.ts:20-29`
+
+### Custom Radius
+
+```typescript
+const customRadiusGradient = am5.RadialGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff6b6b) },
+    { color: am5.color(0x4ecdc4) }
+  ],
+  radius: am5.percent(80)  // 80% of available space
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/RadialGradient.ts:15-18`
+
+## Gradient Stops
+
+### Color Stop Properties
+
+Each gradient stop can have multiple properties:
+
+```typescript
+const gradient = am5.LinearGradient.new(root, {
+  stops: [
+    {
+      color: am5.color(0xff0000),
+      offset: 0,           // Position (0 to 1)
+      opacity: 1,          // Opacity (0 to 1)
+      lighten: 0,          // Lighten amount
+      brighten: 0          // Brighten amount
+    },
+    {
+      color: am5.color(0x0000ff),
+      offset: 1,
+      opacity: 0.8,
+      lighten: 0.2
+    }
+  ],
+  rotation: 90
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:85-106`
+
+### Automatic Offset Calculation
+
+If you don't specify offsets, they're calculated automatically:
+
+```typescript
+// Stops will be evenly spaced: 0%, 33.3%, 66.6%, 100%
+const autoGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff0000) },
+    { color: am5.color(0x00ff00) },
+    { color: am5.color(0x0000ff) },
+    { color: am5.color(0xffff00) }
+  ]
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:79-83`
+
+### Opacity in Stops
+
+```typescript
+const fadeGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0x3366cc), opacity: 1 },      // Fully opaque
+    { color: am5.color(0x3366cc), opacity: 0 }       // Fully transparent
+  ],
+  rotation: 90
+});
+
+series.fills.template.setAll({
+  fillGradient: fadeGradient,
+  visible: true
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:85-89`
+
+### Color Manipulation in Stops
+
+Lighten or brighten colors within the gradient:
+
+```typescript
+const manipulatedGradient = am5.LinearGradient.new(root, {
+  stops: [
+    {
+      color: am5.color(0x3366cc),
+      lighten: 0.3    // Lighten by 30%
+    },
+    {
+      color: am5.color(0x3366cc),
+      brighten: -0.3  // Darken by 30%
+    }
+  ],
+  rotation: 90
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/LinearGradient.ts:95-103`
+
+## Applying Gradients
+
+### To Series Fill
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+const gradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0x297373) },
+    { color: am5.color(0x6bcf7f) }
+  ],
+  rotation: 90
+});
+
+series.columns.template.set("fillGradient", gradient);
+```
+
+### To Series Stroke
+
+```typescript
+const strokeGradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff0000) },
+    { color: am5.color(0x0000ff) }
+  ],
+  rotation: 0
+});
+
+series.strokes.template.set("strokeGradient", strokeGradient);
+```
+
+### To Labels
+
+Apply gradients to text labels (since v5.10.1):
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Gradient Text",
+  fontSize: 48,
+  fillGradient: am5.LinearGradient.new(root, {
+    stops: [
+      { color: am5.color(0xff6b6b) },
+      { color: am5.color(0x4ecdc4) }
+    ],
+    rotation: 0
+  })
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:37-42`
+
+### To Backgrounds
+
+```typescript
+const container = root.container.children.push(
+  am5.Container.new(root, {
+    width: am5.percent(100),
+    height: am5.percent(100),
+    background: am5.RoundedRectangle.new(root, {
+      fillGradient: am5.LinearGradient.new(root, {
+        stops: [
+          { color: am5.color(0x667eea) },
+          { color: am5.color(0x764ba2) }
+        ],
+        rotation: 135
+      })
+    })
+  })
+);
+```
+
+## Gradient Targets
+
+### Setting a Gradient Target
+
+Make gradients span across multiple elements:
+
+```typescript
+const container = root.container.children.push(
+  am5.Container.new(root, {
+    layout: root.horizontalLayout
+  })
+);
+
+const gradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0xff0000) },
+    { color: am5.color(0x0000ff) }
+  ],
+  target: container  // Gradient spans entire container
+});
+
+// Multiple children will share the same gradient
+for (let i = 0; i < 5; i++) {
+  container.children.push(
+    am5.Rectangle.new(root, {
+      width: 100,
+      height: 100,
+      fillGradient: gradient
+    })
+  );
+}
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/gradients/Gradient.ts:17-21`
+
+## Combining with Other Effects
+
+### Gradient with Opacity
+
+```typescript
+series.columns.template.setAll({
+  fillGradient: am5.LinearGradient.new(root, {
+    stops: [
+      { color: am5.color(0x3366cc) },
+      { color: am5.color(0x6bcf7f) }
+    ],
+    rotation: 90
+  }),
+  fillOpacity: 0.7  // Apply overall opacity
+});
+```
+
+### Gradient with Stroke
+
+```typescript
+series.columns.template.setAll({
+  fillGradient: am5.LinearGradient.new(root, {
+    stops: [
+      { color: am5.color(0xff6b6b) },
+      { color: am5.color(0xffd93d) }
+    ],
+    rotation: 90
+  }),
+  stroke: am5.color(0x000000),
+  strokeWidth: 2
+});
+```
+
+## Dynamic Gradients
+
+### Changing Gradients Based on Data
+
+```typescript
+series.columns.template.adapters.add("fillGradient", (gradient, target) => {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    const value = dataItem.get("valueY");
+    
+    if (value > 100) {
+      return am5.LinearGradient.new(root, {
+        stops: [
+          { color: am5.color(0x00ff00) },
+          { color: am5.color(0x00aa00) }
+        ],
+        rotation: 90
+      });
+    } else {
+      return am5.LinearGradient.new(root, {
+        stops: [
+          { color: am5.color(0xff0000) },
+          { color: am5.color(0xaa0000) }
+        ],
+        rotation: 90
+      });
+    }
+  }
+  return gradient;
+});
+```
+
+### Animated Gradients
+
+Animate gradient rotation:
+
+```typescript
+const gradient = am5.LinearGradient.new(root, {
+  stops: [
+    { color: am5.color(0x667eea) },
+    { color: am5.color(0x764ba2) }
+  ],
+  rotation: 0
+});
+
+// Animate rotation
+gradient.animate({
+  key: "rotation",
+  to: 360,
+  duration: 5000,
+  loops: Infinity
+});
+
+series.columns.template.set("fillGradient", gradient);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Limit Color Stops">
+    Use 2-4 color stops for optimal performance:
+    
+    ```typescript
+    // Good: Simple gradient
+    const gradient = am5.LinearGradient.new(root, {
+      stops: [
+        { color: am5.color(0x3366cc) },
+        { color: am5.color(0x6bcf7f) }
+      ]
+    });
+    
+    // Avoid: Too many stops
+    // const gradient = am5.LinearGradient.new(root, {
+    //   stops: [/* 20 different color stops */]
+    // });
+    ```
+  </Accordion>
+
+  <Accordion title="Reuse Gradient Instances">
+    Create gradients once and reuse them across multiple elements:
+    
+    ```typescript
+    const sharedGradient = am5.LinearGradient.new(root, {
+      stops: [
+        { color: am5.color(0xff0000) },
+        { color: am5.color(0x0000ff) }
+      ],
+      rotation: 90
+    });
+    
+    series1.columns.template.set("fillGradient", sharedGradient);
+    series2.columns.template.set("fillGradient", sharedGradient);
+    ```
+  </Accordion>
+
+  <Accordion title="Consider Direction">
+    Match gradient direction to data flow:
+    
+    ```typescript
+    // For vertical bar charts, use vertical gradients
+    const verticalGradient = am5.LinearGradient.new(root, {
+      stops: [/* ... */],
+      rotation: 90  // Top to bottom
+    });
+    
+    // For horizontal bar charts, use horizontal gradients
+    const horizontalGradient = am5.LinearGradient.new(root, {
+      stops: [/* ... */],
+      rotation: 0  // Left to right
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Use Radial for Circular Charts">
+    Radial gradients work best with pie charts and gauge charts:
+    
+    ```typescript
+    const radialGradient = am5.RadialGradient.new(root, {
+      stops: [
+        { color: am5.color(0xffffff) },
+        { color: am5.color(0x3366cc) }
+      ]
+    });
+    
+    pieSeries.slices.template.set("fillGradient", radialGradient);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Colors" icon="palette" href="/customization/colors">
+    Learn about color manipulation and color sets
+  </Card>
+  <Card title="Patterns" icon="grid" href="/customization/patterns">
+    Apply repeating patterns instead of gradients
+  </Card>
+</CardGroup>

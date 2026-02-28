@@ -1,0 +1,370 @@
+---
+title: Funnel Chart
+description: Create funnel and pyramid charts to visualize conversion and hierarchical data
+---
+
+Funnel charts display values as progressively decreasing (or increasing) slices, ideal for visualizing stages in a process, conversion rates, or hierarchical data.
+
+## When to Use Funnel Charts
+
+Use funnel charts when you need to:
+- Visualize conversion funnels (sales, marketing)
+- Show progressive reduction through stages
+- Display hierarchical data with pyramids
+- Illustrate filtering or selection processes
+- Track user journey through stages
+- Show population demographics
+
+## Creating a Funnel Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create chart
+const chart = root.container.children.push(
+  am5percent.SlicedChart.new(root, {
+    layout: root.verticalLayout
+  })
+);
+
+// Create funnel series
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    orientation: "vertical",
+    valueField: "value",
+    categoryField: "category",
+    bottomRatio: 0,
+    alignLabels: false
+  })
+);
+
+// Configure slices
+series.slices.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff)
+});
+
+// Configure labels
+series.labels.template.setAll({
+  text: "{category}: {value}",
+  fontSize: 14,
+  fill: am5.color(0xffffff)
+});
+
+// Set data
+series.data.setAll([
+  { category: "Website Visits", value: 10000 },
+  { category: "Product Views", value: 5000 },
+  { category: "Add to Cart", value: 2000 },
+  { category: "Checkout", value: 1000 },
+  { category: "Purchase", value: 500 }
+]);
+
+// Add legend
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    marginTop: 15
+  })
+);
+
+legend.data.setAll(series.dataItems);
+```
+
+## Configuration Options
+
+### Orientation
+
+<Info>
+Funnel charts can be displayed vertically or horizontally.
+</Info>
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    orientation: "horizontal" // or "vertical"
+  })
+);
+```
+
+### Bottom Ratio
+
+Controls the width of the bottom edge of each slice:
+
+- **bottomRatio**: `0` - Trapezoid shape (default for funnel)
+- **bottomRatio**: `1` - Rectangle shape
+- **bottomRatio**: Values between 0-1 for intermediate shapes
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    bottomRatio: 0 // Full funnel effect
+  })
+);
+```
+
+### Start and End Locations
+
+Control where the funnel starts and ends:
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    startLocation: 0,    // 0 = beginning
+    endLocation: 1       // 1 = end
+  })
+);
+```
+
+## Creating a Pyramid Chart
+
+```typescript
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+const series = chart.series.push(
+  am5percent.PyramidSeries.new(root, {
+    orientation: "vertical",
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+series.data.setAll([
+  { category: "0-10", value: 1000 },
+  { category: "10-20", value: 2000 },
+  { category: "20-30", value: 3000 },
+  { category: "30-40", value: 2500 },
+  { category: "40-50", value: 2000 }
+]);
+```
+
+## Slice Configuration
+
+### Appearance
+
+```typescript
+// Configure all slices
+series.slices.template.setAll({
+  strokeWidth: 3,
+  stroke: am5.color(0xffffff),
+  cornerRadius: 5,
+  fillOpacity: 0.9
+});
+
+// Hover effect
+series.slices.template.states.create("hover", {
+  scale: 1.02,
+  fillOpacity: 1
+});
+```
+
+### Colors
+
+```typescript
+// Use color set
+series.set("colors", am5.ColorSet.new(root, {}));
+
+// Custom colors in data
+const data = [
+  { category: "Stage 1", value: 1000, fill: am5.color(0x3498db) },
+  { category: "Stage 2", value: 800, fill: am5.color(0x2ecc71) },
+  { category: "Stage 3", value: 600, fill: am5.color(0xf39c12) }
+];
+```
+
+## Labels and Ticks
+
+### Aligned Labels
+
+Align labels in columns/rows outside the funnel:
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    alignLabels: true
+  })
+);
+
+// Configure label appearance
+series.labels.template.setAll({
+  text: "{category}",
+  fontSize: 12,
+  fill: am5.color(0x000000)
+});
+```
+
+### Ticks
+
+```typescript
+// Configure ticks
+series.ticks.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1,
+  location: 0.5
+});
+```
+
+### Inside Labels
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    alignLabels: false
+  })
+);
+
+series.labels.template.setAll({
+  text: "{category}: {valuePercentTotal.formatNumber('0.00')}%",
+  fill: am5.color(0xffffff),
+  fontSize: 14
+});
+```
+
+## Slice Links
+
+Funnel charts include connectors between slices:
+
+```typescript
+// Configure links
+series.links.template.setAll({
+  fillOpacity: 0.3,
+  strokeWidth: 0
+});
+
+// Hide links for rectangular funnels
+series.set("bottomRatio", 1); // Links become invisible
+```
+
+## Tooltips
+
+```typescript
+series.slices.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{category}\nValue: {value}\nPercent: {valuePercentTotal.formatNumber('0.00')}%"
+}));
+```
+
+## Interactive Features
+
+### Click Events
+
+```typescript
+series.slices.template.events.on("click", function(ev) {
+  const dataItem = ev.target.dataItem;
+  const category = dataItem?.get("category");
+  const value = dataItem?.get("value");
+  const percent = dataItem?.get("valuePercentTotal");
+  
+  console.log(`${category}: ${value} (${percent?.toFixed(2)}%)`);
+});
+```
+
+### Active State
+
+```typescript
+// Create active state
+const activeState = series.slices.template.states.create("active", {
+  shiftRadius: 10
+});
+
+// Toggle on click
+series.slices.template.events.on("click", function(ev) {
+  const slice = ev.target;
+  if (slice.isActive()) {
+    slice.states.applyAnimate("default");
+  } else {
+    slice.states.applyAnimate("active");
+  }
+});
+```
+
+## Ignoring Zero Values
+
+```typescript
+const series = chart.series.push(
+  am5percent.FunnelSeries.new(root, {
+    ignoreZeroValues: true
+  })
+);
+```
+
+## Pictorial Stacked Series
+
+Create funnel-like shapes with custom SVG paths:
+
+```typescript
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+const series = chart.series.push(
+  am5percent.PictorialStackedSeries.new(root, {
+    orientation: "vertical",
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+// Set custom SVG path
+series.set("svgPath", "M 0,0 L 100,0 L 100,100 L 0,100 Z");
+```
+
+## Conversion Rate Calculation
+
+```typescript
+series.labels.template.adapters.add("text", function(text, target) {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    const index = dataItem.get("index") || 0;
+    if (index > 0) {
+      const dataItems = series.dataItems;
+      const currentValue = dataItem.get("value") || 0;
+      const previousValue = dataItems[index - 1]?.get("value") || 1;
+      const conversion = (currentValue / previousValue * 100).toFixed(1);
+      return `{category}\n{value} (${conversion}%)`;
+    }
+  }
+  return "{category}\n{value}";
+});
+```
+
+## Legend
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    marginTop: 15,
+    marginBottom: 15,
+    layout: root.horizontalLayout
+  })
+);
+
+legend.data.setAll(series.dataItems);
+
+// Show values in legend
+legend.valueLabels.template.setAll({
+  text: "{value}"
+});
+```
+
+## Key Classes
+
+- `FunnelSeries` - Funnel series from `@amcharts/amcharts5/percent`
+- `PyramidSeries` - Pyramid series
+- `PictorialStackedSeries` - Custom shape stacked series
+- `SlicedChart` - Container for sliced series
+- `FunnelSlice` - Individual funnel slice
+
+<Tip>
+Use `alignLabels: true` for funnels with many stages to keep labels readable. Use `alignLabels: false` for fewer stages to place labels inside slices.
+</Tip>
+
+<Note>
+Data should be ordered from largest to smallest value for a proper funnel visualization. The chart does not automatically sort data.
+</Note>

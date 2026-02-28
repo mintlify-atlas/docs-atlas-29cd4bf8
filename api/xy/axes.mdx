@@ -1,0 +1,427 @@
+---
+title: 'Axes'
+description: 'Axis types for XY charts including ValueAxis, DateAxis, and CategoryAxis'
+---
+
+## Overview
+
+Axes are used to plot data along the X and Y dimensions of an XY chart. amCharts 5 provides several axis types:
+
+- **ValueAxis** - For numeric values
+- **DateAxis** - For date/time values
+- **CategoryAxis** - For categorical data
+- **DurationAxis** - For duration values
+- **GaplessDateAxis** - Date axis without gaps
+
+## Base Axis Settings
+
+All axes share these common settings:
+
+<ParamField path="renderer" type="AxisRenderer" required>
+  A renderer object which is responsible of rendering visible axis elements.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/#Axis_renderer)
+</ParamField>
+
+<ParamField path="start" type="number">
+  The initial relative zoom start position of the axis (0 to 1).
+  
+  E.g. setting it to `0.1` will pre-zoom axis to 10% from the start.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Pre_zooming_axes)
+</ParamField>
+
+<ParamField path="end" type="number">
+  The initial relative zoom end position of the axis (0 to 1).
+  
+  E.g. setting it to `0.9` will pre-zoom axis to 10% from the end.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Pre_zooming_axes)
+</ParamField>
+
+<ParamField path="maxZoomFactor" type="number" default="1000">
+  Maximum number of times the scope of the axis could auto-zoom-in.
+  
+  This is to prevent axis jumping too drastically when scrolling/zooming.
+</ParamField>
+
+<ParamField path="maxZoomCount" type="number">
+  Maximum number of axis elements to show at a time.
+  
+  The axis will not allow to be zoomed out beyond this number.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Limiting_zoom_scope)
+</ParamField>
+
+<ParamField path="minZoomCount" type="number">
+  Minimum number of axis elements to show at a time.
+  
+  The axis will not allow to be zoomed in beyond this number.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Limiting_zoom_scope)
+</ParamField>
+
+<ParamField path="tooltip" type="Tooltip">
+  Tooltip element to use for axis.
+</ParamField>
+
+<ParamField path="tooltipLocation" type="number" default="0.5">
+  Indicates which relative place to snap to: `0` beginning, `0.5` middle, `1` end.
+</ParamField>
+
+<ParamField path="snapTooltip" type="boolean" default="true">
+  Should tooltip snap to the `tooltipLocation` (true) or follow cursor.
+</ParamField>
+
+## ValueAxis
+
+A numeric axis for plotting numeric values.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    min: 0,
+    max: 100,
+    strictMinMax: true,
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+```
+
+### ValueAxis Settings
+
+<ParamField path="min" type="number">
+  Override minimum value for the axis scale.
+  
+  NOTE: the axis might modify the minimum value to fit into its scale better, unless `strictMinMax` is set to `true`.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Custom_scope)
+</ParamField>
+
+<ParamField path="max" type="number">
+  Override maximum value for the axis scale.
+  
+  NOTE: the axis might modify the maximum value to fit into its scale better, unless `strictMinMax` is set to `true`.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Custom_scope)
+</ParamField>
+
+<ParamField path="strictMinMax" type="boolean">
+  Force axis scale to be precisely at values as set in `min` and/or `max`.
+  
+  This effectively locks the axis from auto-zooming itself when chart is zoomed in.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Custom_scope)
+</ParamField>
+
+<ParamField path="strictMinMaxSelection" type="boolean">
+  Force axis to auto-zoom to exact lowest and highest values from attached series' data items within currently visible range.
+  
+  This is a good feature when your series is plotted from derivative values.
+</ParamField>
+
+<ParamField path="logarithmic" type="boolean">
+  If set to `true` axis will use logarithmic scale.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Logarithmic_scale)
+</ParamField>
+
+<ParamField path="treatZeroAs" type="number">
+  Treat zero values as some other value.
+  
+  Useful in situations where zero would result in error, i.e. logarithmic scale.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Logarithmic_scale)
+</ParamField>
+
+<ParamField path="extraMin" type="number">
+  Relative extension to the automatically-calculated minimum value of the axis scale.
+  
+  E.g. `0.1` will extend the scale by 10%.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Relative_scope_extension)
+</ParamField>
+
+<ParamField path="extraMax" type="number">
+  Relative extension to the automatically-calculated maximum value of the axis scale.
+  
+  E.g. `0.1` will extend the scale by 10%.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Relative_scope_extension)
+</ParamField>
+
+<ParamField path="baseValue" type="number" default="0">
+  Base value, which indicates the threshold between "positive" and "negative" values.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Base_value)
+</ParamField>
+
+<ParamField path="maxPrecision" type="number">
+  Maximum number of decimals to allow in axis labels.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Label_format)
+</ParamField>
+
+<ParamField path="numberFormat" type="string">
+  Number format to use for axis labels.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Label_format)
+</ParamField>
+
+<ParamField path="tooltipNumberFormat" type="string | Intl.NumberFormatOptions">
+  A numeric format used for numbers displayed in axis tooltip.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Tooltip_number_format)
+</ParamField>
+
+<ParamField path="calculateTotals" type="boolean">
+  If your series relies on dynamically calculated values, like value changes, percents, or total sums, set this to `true`.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Calculated_values)
+</ParamField>
+
+<ParamField path="syncWithAxis" type="ValueAxis">
+  If set, the grid of this axis will be synced with grid of the target axis.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/#Syncing_grid)
+</ParamField>
+
+## DateAxis
+
+An axis for date/time values.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    groupData: true,
+    groupCount: 500,
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+```
+
+### DateAxis Settings
+
+<ParamField path="baseInterval" type="ITimeInterval" required>
+  Indicates granularity of data.
+  
+  ```typescript
+  baseInterval: { timeUnit: "day", count: 1 }
+  ```
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Data_granularity)
+</ParamField>
+
+<ParamField path="groupData" type="boolean" default="false">
+  Should axis group data items together dynamically?
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Dynamic_data_item_grouping)
+</ParamField>
+
+<ParamField path="groupCount" type="number" default="500">
+  Maximum number of data items in the view before data grouping kicks in.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Dynamic_data_item_grouping)
+</ParamField>
+
+<ParamField path="groupInterval" type="ITimeInterval">
+  Force data item grouping to specific interval.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Dynamic_data_item_grouping)
+</ParamField>
+
+<ParamField path="groupIntervals" type="Array<ITimeInterval>">
+  A list of intervals the axis is allowed to group data items into.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Dynamic_data_item_grouping)
+</ParamField>
+
+<ParamField path="gridIntervals" type="Array<ITimeInterval>">
+  A list of intervals the axis is allowed to show grid/labels on.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Grid_granularity)
+</ParamField>
+
+<ParamField path="markUnitChange" type="boolean" default="true">
+  Display "period change" labels using different format.
+  
+  If set to `true`, will use `periodChangeDateFormats` instead of `dateFormats` for such labels, e.g. for month start.
+</ParamField>
+
+<ParamField path="dateFormats" type="Record<string, string | Intl.DateTimeFormatOptions>">
+  Date formats used for intermediate labels.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Date_formats)
+</ParamField>
+
+<ParamField path="periodChangeDateFormats" type="Record<string, string | Intl.DateTimeFormatOptions>">
+  Date formats used for "period change" labels.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Date_formats)
+</ParamField>
+
+<ParamField path="tooltipDateFormat" type="string | Intl.DateTimeFormatOptions">
+  A date format to use for axis tooltip.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/#Axis_tooltip)
+</ParamField>
+
+## CategoryAxis
+
+An axis for categorical data.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const xAxis = chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+xAxis.data.setAll([
+  { category: "Category 1" },
+  { category: "Category 2" },
+  { category: "Category 3" }
+]);
+```
+
+### CategoryAxis Settings
+
+<ParamField path="categoryField" type="string" required>
+  A field in data which holds categories.
+</ParamField>
+
+<ParamField path="startLocation" type="number" default="0">
+  Relative location of where axis cell starts: 0 - beginning, 1 - end.
+</ParamField>
+
+<ParamField path="endLocation" type="number" default="1">
+  Relative location of where axis cell ends: 0 - beginning, 1 - end.
+</ParamField>
+
+## Base Axis Methods
+
+### zoom()
+
+```typescript
+public zoom(
+  start: number,
+  end: number,
+  duration?: number,
+  priority?: "start" | "end"
+): Animation | undefined
+```
+
+Zooms the axis to relative locations.
+
+Both `start` and `end` are relative: 0 means start of the axis, 1 - end.
+
+<ParamField path="start" type="number" required>
+  Relative start position (0-1)
+</ParamField>
+
+<ParamField path="end" type="number" required>
+  Relative end position (0-1)
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Duration of the zoom animation in milliseconds
+</ParamField>
+
+<ParamField path="priority" type="'start' | 'end'">
+  Which end to prioritize when adjusting zoom
+</ParamField>
+
+**Returns:** `Animation | undefined` - Zoom animation
+
+### coordinateToPosition()
+
+```typescript
+public coordinateToPosition(coordinate: number): number
+```
+
+Converts pixel coordinate to a relative position on axis.
+
+<ParamField path="coordinate" type="number" required>
+  Pixel coordinate
+</ParamField>
+
+**Returns:** `number` - Relative position (0-1)
+
+### toAxisPosition()
+
+```typescript
+public toAxisPosition(position: number): number
+```
+
+Converts relative position of the plot area to relative position of the axis with zoom taken into account.
+
+<ParamField path="position" type="number" required>
+  Position (0-1)
+</ParamField>
+
+**Returns:** `number` - Relative position
+
+### createAxisRange()
+
+```typescript
+public createAxisRange(axisDataItem: DataItem<IAxisDataItem>): DataItem
+```
+
+Creates and returns an axis range object.
+
+[See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/axis-ranges/)
+
+<ParamField path="axisDataItem" type="DataItem<IAxisDataItem>" required>
+  Axis data item
+</ParamField>
+
+**Returns:** `DataItem` - Axis range
+
+## Usage Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+const chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+
+// Create DateAxis
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    groupData: true,
+    renderer: am5xy.AxisRendererX.new(root, {}),
+    tooltip: am5.Tooltip.new(root, {})
+  })
+);
+
+// Create ValueAxis
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    min: 0,
+    extraMax: 0.1,
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Zoom axis programmatically
+yAxis.zoom(0.2, 0.8, 500);
+```
+
+## See Also
+
+- [ValueAxis Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/value-axis/)
+- [DateAxis Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/date-axis/)
+- [CategoryAxis Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/category-axis/)
+- [Axis Ranges](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/axis-ranges/)
+- [XYChart](xy-chart)
+- [Series](series)

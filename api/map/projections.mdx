@@ -1,0 +1,352 @@
+---
+title: 'Map Projections'
+description: 'Geographic projections for map visualization'
+icon: 'globe'
+---
+
+## Overview
+
+Map projections transform the 3D surface of the Earth onto a 2D plane. amCharts 5 uses [d3-geo](https://github.com/d3/d3-geo) projections and re-exports the most commonly used ones.
+
+Different projections have different characteristics and are suited for different purposes. Some preserve areas, others preserve angles, and none can preserve both perfectly.
+
+## Importing Projections
+
+Projections are imported from the map module:
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+// Use built-in projections
+const projection = am5map.geoMercator();
+
+// Or import from d3-geo for more options
+import { geoAzimuthalEqualArea } from "d3-geo";
+const projection = geoAzimuthalEqualArea();
+```
+
+## Built-in Projections
+
+amCharts 5 re-exports these commonly used projections from d3-geo:
+
+### geoMercator
+
+The Mercator projection is a cylindrical map projection that preserves angles but distorts sizes, especially near the poles. It's the default projection used by amCharts 5.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator()
+  })
+);
+```
+
+**Characteristics:**
+- Preserves angles (conformal)
+- Distorts areas, especially near poles
+- Commonly used for navigation and web maps
+- Cannot show the poles
+
+**Best for:** Navigation, web maps, general-purpose world maps
+
+### geoOrthographic
+
+The orthographic projection shows the Earth as it would appear from outer space. It's a perspective projection that shows one hemisphere at a time.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    panX: "rotateX",
+    panY: "rotateY"
+  })
+);
+
+chart.set("rotationX", -100);
+chart.set("rotationY", -40);
+```
+
+**Characteristics:**
+- Shows one hemisphere at a time
+- Creates a globe-like appearance
+- Severe distortion near the edges
+- Supports rotation via `rotationX`, `rotationY`, `rotationZ`
+
+**Best for:** Globe visualizations, showing the spherical nature of Earth
+
+**Note:** Use `panX: "rotateX"` and `panY: "rotateY"` for globe rotation on drag.
+
+### geoEquirectangular
+
+The equirectangular projection (also called the plate carrée projection) maps meridians to vertical straight lines and parallels to horizontal straight lines.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoEquirectangular()
+  })
+);
+```
+
+**Characteristics:**
+- Simple rectangular projection
+- Neither conformal nor equal-area
+- Meridians and parallels are straight lines
+- Significant distortion at high latitudes
+
+**Best for:** Simple world maps, raw data visualization
+
+### geoAlbersUsa
+
+A composite projection specifically designed for the United States, including Alaska and Hawaii.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_usaLow from "@amcharts/amcharts5-geodata/usaLow";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoAlbersUsa()
+  })
+);
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_usaLow
+  })
+);
+```
+
+**Characteristics:**
+- Composite conic projection
+- Includes Alaska and Hawaii repositioned
+- Equal-area projection
+- Only works for United States
+
+**Best for:** United States maps including Alaska and Hawaii
+
+### geoEqualEarth
+
+The Equal Earth projection is an equal-area pseudocylindrical projection designed in 2018 for world maps.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoEqualEarth()
+  })
+);
+```
+
+**Characteristics:**
+- Equal-area projection
+- Modern design (2018)
+- Pleasing visual appearance
+- Suitable for thematic world maps
+
+**Best for:** World thematic maps, choropleth maps
+
+### geoNaturalEarth1
+
+The Natural Earth projection is a pseudocylindrical projection designed to present a pleasing, moderately distorted view of the entire world.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoNaturalEarth1()
+  })
+);
+```
+
+**Characteristics:**
+- Compromise projection (balances distortion)
+- Neither equal-area nor conformal
+- Aesthetically pleasing for world maps
+- Moderate distortion throughout
+
+**Best for:** General-purpose world maps, physical maps
+
+## Using Other d3-geo Projections
+
+You can use any projection from [d3-geo](https://github.com/d3/d3-geo) or [d3-geo-projection](https://github.com/d3/d3-geo-projection):
+
+```typescript
+import { geoAzimuthalEqualArea } from "d3-geo";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: geoAzimuthalEqualArea()
+  })
+);
+```
+
+### Additional d3-geo Projections
+
+Some other useful projections from d3-geo:
+
+- **geoConicEqualArea** - Conic equal-area projection
+- **geoConicConformal** - Lambert conformal conic projection
+- **geoStereographic** - Stereographic projection
+- **geoAzimuthalEqualArea** - Lambert azimuthal equal-area projection
+- **geoGnomonic** - Gnomonic projection
+- **geoTransverseMercator** - Transverse Mercator projection
+
+See the [d3-geo documentation](https://github.com/d3/d3-geo#projections) for a complete list.
+
+## Projection Configuration
+
+Projections can be configured before being passed to the MapChart:
+
+```typescript
+import { geoMercator } from "@amcharts/amcharts5/map";
+
+const projection = geoMercator()
+  .scale(150)      // Set initial scale
+  .translate([480, 250])  // Set initial translation
+  .center([0, 0])  // Set center coordinates
+  .rotate([0, 0]); // Set rotation
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: projection
+  })
+);
+```
+
+**Note:** MapChart will override some projection settings (scale, translate) to fit the map to the container. Use MapChart settings like `homeZoomLevel`, `homeGeoPoint`, `rotationX`, and `rotationY` instead.
+
+## Projection Rotation
+
+Some projections (like `geoOrthographic`) support rotation to change the visible portion of the globe:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    rotationX: -100,  // Horizontal rotation
+    rotationY: -40,   // Vertical rotation
+    rotationZ: 0      // Depth rotation
+  })
+);
+
+// Animate rotation
+chart.animate({
+  key: "rotationX",
+  to: -50,
+  duration: 2000,
+  loops: Infinity
+});
+```
+
+## Animating Between Projections
+
+You can smoothly animate transitions between different projections using the `animateProjection` method:
+
+```typescript
+import { geoOrthographic, geoOrthographicRaw, geoMercator, geoMercatorRaw } from "d3-geo";
+
+// Start with Mercator
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: geoMercator()
+  })
+);
+
+// Later, animate to Orthographic
+chart.animateProjection(
+  geoOrthographic(),
+  geoOrthographicRaw,
+  2000,  // duration in ms
+  undefined,  // easing (uses default)
+  geoMercatorRaw  // source raw projection (only needed on first call)
+);
+```
+
+**Important:** You need to provide the raw projection function (e.g., `geoOrthographicRaw`) because d3-geo doesn't expose it on the projection instance.
+
+## Choosing a Projection
+
+Different projections serve different purposes:
+
+### For World Maps
+
+- **geoMercator** - General purpose, navigation
+- **geoEqualEarth** - Thematic maps, equal-area
+- **geoNaturalEarth1** - Aesthetically pleasing compromise
+- **geoOrthographic** - Globe view
+
+### For Regional Maps
+
+- **geoAlbersUsa** - United States (with Alaska and Hawaii)
+- **geoConicEqualArea** - Large regions, equal-area
+- **geoConicConformal** - Large regions, conformal
+
+### For Special Purposes
+
+- **geoOrthographic** - Satellite view, globe
+- **geoStereographic** - Polar regions
+- **geoGnomonic** - Great circle navigation
+
+## Example: Switching Projections
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator()
+  })
+);
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+// Add buttons to switch projections
+const buttonContainer = document.createElement("div");
+
+const mercatorBtn = document.createElement("button");
+mercatorBtn.textContent = "Mercator";
+mercatorBtn.onclick = () => {
+  chart.set("projection", am5map.geoMercator());
+};
+
+const orthographicBtn = document.createElement("button");
+orthographicBtn.textContent = "Orthographic";
+orthographicBtn.onclick = () => {
+  chart.setAll({
+    projection: am5map.geoOrthographic(),
+    panX: "rotateX",
+    panY: "rotateY"
+  });
+};
+
+const equalEarthBtn = document.createElement("button");
+equalEarthBtn.textContent = "Equal Earth";
+equalEarthBtn.onclick = () => {
+  chart.set("projection", am5map.geoEqualEarth());
+};
+
+buttonContainer.appendChild(mercatorBtn);
+buttonContainer.appendChild(orthographicBtn);
+buttonContainer.appendChild(equalEarthBtn);
+```
+
+## Further Reading
+
+- [d3-geo Projections](https://github.com/d3/d3-geo#projections)
+- [d3-geo-projection Extended Projections](https://github.com/d3/d3-geo-projection)
+- [Map Projections on amCharts 5 Docs](https://www.amcharts.com/docs/v5/charts/map-chart/#Projections)

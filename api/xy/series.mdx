@@ -1,0 +1,385 @@
+---
+title: 'Series'
+description: 'Series types for plotting data on XY charts'
+---
+
+## Overview
+
+Series are used to plot data on XY charts. amCharts 5 provides several series types:
+
+- **LineSeries** - Line and area charts
+- **ColumnSeries** - Column and bar charts
+- **CandlestickSeries** - Candlestick charts
+- **StepLineSeries** - Step line charts
+- **SmoothedXLineSeries** - Smoothed line charts
+
+## Base XYSeries Settings
+
+All series share these common settings:
+
+<ParamField path="xAxis" type="Axis" required>
+  X axis series uses.
+  
+  **IMPORTANT:** `xAxis` needs to be set when creating the series. Updating this setting on previously created series object will not work.
+</ParamField>
+
+<ParamField path="yAxis" type="Axis" required>
+  Y axis series uses.
+  
+  **IMPORTANT:** `yAxis` needs to be set when creating the series. Updating this setting on previously created series object will not work.
+</ParamField>
+
+<ParamField path="baseAxis" type="Axis">
+  Base axis for the series.
+  
+  A base axis will dictate direction series plot.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Base_axis)
+</ParamField>
+
+<ParamField path="valueXField" type="string">
+  Input data field for X value.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="valueYField" type="string">
+  Input data field for Y value.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="categoryXField" type="string">
+  Input data field for X category.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="categoryYField" type="string">
+  Input data field for Y category.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="openValueXField" type="string">
+  Input data field for X open value.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="openValueYField" type="string">
+  Input data field for Y open value.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Data_fields)
+</ParamField>
+
+<ParamField path="stacked" type="boolean">
+  If set to `true` series will be stacked to other series that also have this setting set to `true`.
+  
+  NOTE: for series stack properly, all stacked series must have same number of data items with the same timestamp/category.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Stacked_series)
+</ParamField>
+
+<ParamField path="stackToNegative" type="boolean">
+  Whether to stack negative values from zero (true) or from whatever previous series value is (false).
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Negative_value_stacking)
+</ParamField>
+
+<ParamField path="minBulletDistance" type="number">
+  Minimal distance between data items in pixels.
+  
+  If data items are closer than this, bullets are turned off to avoid overcrowding.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Bullets)
+</ParamField>
+
+<ParamField path="locationX" type="number" default="0.5">
+  Horizontal location of the data point relative to its cell.
+  
+  `0` - beginning, `0.5` - middle, `1` - end.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/line-series/#Data_item_location)
+</ParamField>
+
+<ParamField path="locationY" type="number" default="0.5">
+  Vertical location of the data point relative to its cell.
+  
+  `0` - beginning, `0.5` - middle, `1` - end.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/line-series/#Data_item_location)
+</ParamField>
+
+<ParamField path="snapTooltip" type="boolean">
+  If set to `true` XYCursor will show closest data item from series even if it is outside currently hovered date axis interval.
+  
+  This setting is relevant only if `baseAxis` is a date axis.
+</ParamField>
+
+<ParamField path="tooltipPositionX" type="'open' | 'value' | 'low' | 'high'" default="value">
+  Indicates horizontal position at which to show series' tooltip at.
+</ParamField>
+
+<ParamField path="tooltipPositionY" type="'open' | 'value' | 'low' | 'high'" default="value">
+  Indicates vertical position at which to show series' tooltip at.
+</ParamField>
+
+<ParamField path="maskBullets" type="boolean">
+  If set to `true`, series bullets will be masked by plot area.
+</ParamField>
+
+<ParamField path="seriesTooltipTarget" type="'series' | 'bullet'" default="series">
+  Whether series' tooltip should inherit its color from series or its first bullet.
+</ParamField>
+
+## LineSeries
+
+Used to plot line and/or area series.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    stroke: am5.color(0x095256),
+    fill: am5.color(0x095256)
+  })
+);
+```
+
+### LineSeries Settings
+
+<ParamField path="connect" type="boolean" default="true">
+  If set to `true` the line will connect over "gaps" - categories or time intervals with no data.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/line-series/#Gaps)
+</ParamField>
+
+<ParamField path="autoGapCount" type="number" default="1.1">
+  If there are more than `autoGapCount` base time intervals (e.g. days) with no data, the line will break and will display gap.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/line-series/#Auto_gaps_with_dates)
+</ParamField>
+
+<ParamField path="minDistance" type="number" default="0">
+  Allows simplifying the line with many points.
+  
+  If set, the series will skip points that are closer than X pixels to each other.
+  
+  With many data points, this allows having smoother, less cluttered lines.
+</ParamField>
+
+### LineSeries Properties
+
+<ResponseField name="strokes" type="ListTemplate<Graphics>">
+  A TemplateList of all line segments in series.
+  
+  `strokes.template` can be used to set default settings for all line segments, or to change on existing ones.
+  
+  ```typescript
+  series.strokes.template.setAll({
+    strokeWidth: 2,
+    stroke: am5.color(0x095256)
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="fills" type="ListTemplate<Graphics>">
+  A TemplateList of all segment fills in series.
+  
+  `fills.template` can be used to set default settings for all segment fills, or to change on existing ones.
+  
+  ```typescript
+  series.fills.template.setAll({
+    fillOpacity: 0.3,
+    visible: true
+  });
+  ```
+</ResponseField>
+
+## Base XYSeries Properties
+
+<ResponseField name="mainContainer" type="Container">
+  A Container that is used to put series' elements in.
+</ResponseField>
+
+<ResponseField name="axisRanges" type="List<IXYSeriesAxisRange>">
+  A list of axis ranges that affect the series.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/axes/axis-ranges/)
+</ResponseField>
+
+## Base XYSeries Methods
+
+### showDataItemTooltip()
+
+```typescript
+public showDataItemTooltip(dataItem: DataItem<IXYSeriesDataItem>): void
+```
+
+Shows tooltip for a specific data item.
+
+<ParamField path="dataItem" type="DataItem<IXYSeriesDataItem>" required>
+  Data item to show tooltip for
+</ParamField>
+
+### hideDataItemTooltip()
+
+```typescript
+public hideDataItemTooltip(dataItem: DataItem<IXYSeriesDataItem>): void
+```
+
+Hides tooltip for a specific data item.
+
+<ParamField path="dataItem" type="DataItem<IXYSeriesDataItem>" required>
+  Data item to hide tooltip for
+</ParamField>
+
+### createLegendMarker()
+
+```typescript
+public createLegendMarker(dataItem?: DataItem): void
+```
+
+Creates a legend marker for the series.
+
+<ParamField path="dataItem" type="DataItem">
+  Optional data item to create marker for
+</ParamField>
+
+### updateLegendMarker()
+
+```typescript
+public updateLegendMarker(dataItem?: DataItem): void
+```
+
+Updates the legend marker for the series.
+
+<ParamField path="dataItem" type="DataItem">
+  Optional data item to update marker for
+</ParamField>
+
+## Events
+
+<ResponseField name="datasetchanged" type="event">
+  Kicks in when axis starts using different data set, e.g. data of different granularity on DateAxis.
+  
+  ```typescript
+  series.events.on("datasetchanged", (ev) => {
+    console.log("Dataset changed:", ev.id);
+  });
+  ```
+</ResponseField>
+
+## Usage Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+const chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Create series
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Revenue",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueY}"
+    })
+  })
+);
+
+// Configure strokes and fills
+series.strokes.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0x095256)
+});
+
+series.fills.template.setAll({
+  fillOpacity: 0.3,
+  visible: true,
+  fill: am5.color(0x095256)
+});
+
+// Add bullets
+series.bullets.push(() => {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: series.get("fill")
+    })
+  });
+});
+
+// Set data
+series.data.setAll([
+  { date: new Date(2021, 0, 1).getTime(), value: 50 },
+  { date: new Date(2021, 0, 2).getTime(), value: 35 },
+  { date: new Date(2021, 0, 3).getTime(), value: 42 },
+  { date: new Date(2021, 0, 4).getTime(), value: 82 },
+  { date: new Date(2021, 0, 5).getTime(), value: 65 }
+]);
+
+// Make stuff animate on load
+series.appear(1000);
+```
+
+## Stacked Series Example
+
+```typescript
+const series1 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 1",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value1",
+    categoryXField: "category",
+    stacked: true
+  })
+);
+
+const series2 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 2",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value2",
+    categoryXField: "category",
+    stacked: true
+  })
+);
+```
+
+## See Also
+
+- [Series Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/)
+- [LineSeries Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/series/line-series/)
+- [Stacked Series](https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Stacked_series)
+- [XYChart](xy-chart)
+- [Axes](axes)
+- [Cursor](cursor)

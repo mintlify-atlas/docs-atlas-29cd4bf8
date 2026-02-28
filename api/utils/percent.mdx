@@ -1,0 +1,277 @@
+---
+title: Percent
+---
+
+The `Percent` class represents a relative value (percentage) in amCharts 5. It is used throughout the library for properties that accept percentage values.
+
+## Creating Percent Objects
+
+### percent()
+
+```typescript
+function percent(value: number): Percent
+```
+
+Converts numeric percent value to a proper Percent object.
+
+<ParamField path="value" type="number" required>
+  Percent value (e.g., 80 for 80%)
+</ParamField>
+
+<ResponseField name="return" type="Percent">
+  A Percent object
+</ResponseField>
+
+**Example:**
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+pieSeries.set("radius", am5.percent(80));
+column.set("width", am5.percent(50));
+```
+
+### Shortcuts
+
+For common percentage values, amCharts 5 provides convenient shortcuts:
+
+#### p0
+
+```typescript
+const p0: Percent
+```
+
+A shortcut for `percent(0)` (0%).
+
+#### p50
+
+```typescript
+const p50: Percent
+```
+
+A shortcut for `percent(50)` (50%).
+
+#### p100
+
+```typescript
+const p100: Percent
+```
+
+A shortcut for `percent(100)` (100%).
+
+**Example:**
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+series.set("fillOpacity", am5.p50); // 50% opacity
+container.set("width", am5.p100); // 100% width
+```
+
+## Percent Class
+
+### Constructor
+
+```typescript
+new Percent(percent: number)
+```
+
+Creates a new Percent object.
+
+<ParamField path="percent" type="number" required>
+  Percent value (e.g., 50 for 50%)
+</ParamField>
+
+**Example:**
+
+```typescript
+const halfWidth = new am5.Percent(50);
+```
+
+### Properties
+
+#### value
+
+```typescript
+get value(): number
+```
+
+<ResponseField name="value" type="number">
+  Relative value where 100% = 1, 50% = 0.5, etc. This is useful to apply transformations to other values.
+</ResponseField>
+
+**Example:**
+
+```typescript
+let totalValue = 256;
+let percent = am5.p50;
+console.log(totalValue * percent.value); // outputs 128
+```
+
+#### percent
+
+```typescript
+get percent(): number
+```
+
+<ResponseField name="percent" type="number">
+  Value in percent (e.g., 50 for 50%).
+</ResponseField>
+
+**Example:**
+
+```typescript
+let p = am5.percent(75);
+console.log(p.percent); // outputs 75
+```
+
+### Methods
+
+#### toString()
+
+```typescript
+toString(): string
+```
+
+Returns string representation of the percent value.
+
+<ResponseField name="return" type="string">
+  String representation (e.g., "50%")
+</ResponseField>
+
+**Example:**
+
+```typescript
+let p = am5.percent(80);
+console.log(p.toString()); // "80%"
+```
+
+#### interpolate()
+
+```typescript
+interpolate(min: number, max: number): number
+```
+
+Calculates the interpolated value between min and max based on the percent.
+
+<ParamField path="min" type="number" required>
+  Minimum value
+</ParamField>
+
+<ParamField path="max" type="number" required>
+  Maximum value
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Interpolated value
+</ResponseField>
+
+**Example:**
+
+```typescript
+let p = am5.percent(50);
+let value = p.interpolate(0, 100); // returns 50
+let value2 = p.interpolate(100, 200); // returns 150
+```
+
+### Static Methods
+
+#### Percent.normalize()
+
+```typescript
+static normalize(
+  percent: Percent | number,
+  min: number,
+  max: number
+): Percent
+```
+
+Normalizes a value to a Percent object within a given range. If a Percent is passed, it returns it as-is. If a number is passed, it normalizes it to a percentage within the min-max range.
+
+<ParamField path="percent" type="Percent | number" required>
+  Value to normalize
+</ParamField>
+
+<ParamField path="min" type="number" required>
+  Minimum value of the range
+</ParamField>
+
+<ParamField path="max" type="number" required>
+  Maximum value of the range
+</ParamField>
+
+<ResponseField name="return" type="Percent">
+  Normalized Percent object
+</ResponseField>
+
+**Example:**
+
+```typescript
+// Convert 150 to a percentage within 100-200 range
+let p = am5.Percent.normalize(150, 100, 200); // 50%
+
+// Pass through existing Percent
+let p2 = am5.Percent.normalize(am5.p50, 0, 100); // 50%
+```
+
+## Utility Functions
+
+### isPercent()
+
+```typescript
+function isPercent(value: any): boolean
+```
+
+Checks if value is a Percent object.
+
+<ParamField path="value" type="any" required>
+  Value to check
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if value is a Percent object
+</ResponseField>
+
+**Example:**
+
+```typescript
+let p = am5.percent(50);
+console.log(am5.isPercent(p)); // true
+console.log(am5.isPercent(50)); // false
+```
+
+## Usage Examples
+
+### Setting Element Dimensions
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Set a column to be 80% of available width
+column.set("width", am5.percent(80));
+
+// Set height to 100%
+container.set("height", am5.p100);
+```
+
+### Positioning Elements
+
+```typescript
+// Position label at 50% from the left
+label.set("x", am5.p50);
+label.set("centerX", am5.p50);
+
+// Position at bottom right corner
+element.set("x", am5.p100);
+element.set("y", am5.p100);
+```
+
+### Calculating Values
+
+```typescript
+let width = 500;
+let halfWidth = width * am5.p50.value; // 250
+
+let customPercent = am5.percent(75);
+let threeQuarters = width * customPercent.value; // 375
+```

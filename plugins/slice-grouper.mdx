@@ -1,0 +1,414 @@
+---
+title: "SliceGrouper Plugin"
+description: "Automatically group small slices in pie and donut charts with the SliceGrouper plugin"
+---
+
+## Overview
+
+The SliceGrouper plugin automatically consolidates small slices in percent-based charts (pie, donut, funnel) into a single "Other" slice. This improves chart readability by reducing visual clutter from many small slices and helps users focus on the most significant data.
+
+## Installation
+
+Import the SliceGrouper plugin:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5percent from "@amcharts/amcharts5/percent";
+import { SliceGrouper } from "@amcharts/amcharts5/plugins/sliceGrouper";
+```
+
+## Basic Usage
+
+### Adding to a Pie Chart
+
+Create a SliceGrouper instance and attach it to your percent series:
+
+```typescript
+let root = am5.Root.new("chartdiv");
+let chart = root.container.children.push(
+  am5percent.PieChart.new(root, {})
+);
+
+let series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+// Add SliceGrouper
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5
+});
+
+series.data.setAll([
+  { category: "A", value: 500 },
+  { category: "B", value: 300 },
+  { category: "C", value: 150 },
+  { category: "D", value: 30 },   // Will be grouped
+  { category: "E", value: 20 },   // Will be grouped
+  { category: "F", value: 10 }    // Will be grouped
+]);
+```
+
+## Configuration
+
+### Threshold-Based Grouping
+
+Group slices below a certain percentage:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5,  // Group slices with less than 5%
+  groupName: "Others"
+});
+```
+
+<ResponseField name="threshold" type="number" default={5}>
+  Slices with percentage below this value will be grouped
+</ResponseField>
+
+<ResponseField name="groupName" type="string" default="Other">
+  Category name for the grouped slice
+</ResponseField>
+
+### Limit-Based Grouping
+
+Show only the top N slices:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  limit: 5,  // Show only top 5 slices
+  groupName: "Other Categories"
+});
+```
+
+<ResponseField name="limit" type="number">
+  Maximum number of slices to display individually. Remaining slices are grouped.
+</ResponseField>
+
+### Series and Legend
+
+```typescript
+let legend = chart.children.push(
+  am5.Legend.new(root, {})
+);
+
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  legend: legend,  // Plugin will manage legend items
+  threshold: 5
+});
+```
+
+<ResponseField name="series" type="PercentSeries" required>
+  The percent series to apply grouping to
+</ResponseField>
+
+<ResponseField name="legend" type="Legend">
+  Legend to manipulate (hide small slices, add group slice)
+</ResponseField>
+
+## Click Behavior
+
+Control what happens when users click the grouped slice:
+
+### No Action (Default)
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  clickBehavior: "none"  // Nothing happens on click
+});
+```
+
+### Break Apart
+
+Reveal individual small slices:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5,
+  clickBehavior: "break"  // Show small slices when clicked
+});
+```
+
+<ResponseField name="clickBehavior" type="'none' | 'break' | 'zoom'" default="none">
+  Action when grouped slice is clicked:
+  - `"none"`: No action
+  - `"break"`: Show small slices, keep large slices visible
+  - `"zoom"`: Show only small slices, hide large slices
+</ResponseField>
+
+### Zoom Mode
+
+Show only the small slices:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5,
+  clickBehavior: "zoom"  // Show only small slices, hide others
+});
+```
+
+## Zoom Out Button
+
+When using `"break"` or `"zoom"` click behavior, a zoom out button appears:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  clickBehavior: "zoom"
+});
+
+// Access the zoom out button
+let zoomButton = grouper.zoomOutButton;
+if (zoomButton) {
+  zoomButton.setAll({
+    x: am5.p100,
+    centerX: am5.p100,
+    dx: -20,
+    dy: 20
+  });
+}
+```
+
+### Manual Zoom Out
+
+Programmatically return to the grouped view:
+
+```typescript
+grouper.zoomOut();
+```
+
+## Legend Integration
+
+When a legend is specified, the plugin automatically:
+
+- Adds the grouped slice to the legend
+- Hides legend items for grouped slices
+- Shows legend items when ungroup occurs
+
+```typescript
+let legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+legend.data.setAll(series.dataItems);
+
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  legend: legend,
+  threshold: 3,
+  groupName: "Small Slices"
+});
+```
+
+## Use Cases
+
+### Market Share Analysis
+
+Display major players prominently while grouping minor competitors:
+
+```typescript
+let series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    name: "Market Share",
+    valueField: "share",
+    categoryField: "company"
+  })
+);
+
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 2,  // Group companies with < 2% share
+  groupName: "Other Vendors",
+  clickBehavior: "break"
+});
+
+series.data.setAll([
+  { company: "Company A", share: 35.5 },
+  { company: "Company B", share: 28.3 },
+  { company: "Company C", share: 15.7 },
+  { company: "Company D", share: 8.2 },
+  { company: "Company E", share: 1.8 },  // Grouped
+  { company: "Company F", share: 1.5 },  // Grouped
+  // ... more small values
+]);
+```
+
+### Top N Analysis
+
+Show only the top performers:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  limit: 10,  // Show top 10 only
+  groupName: "Others",
+  clickBehavior: "zoom"
+});
+```
+
+### Budget Breakdown
+
+Group minor expenses:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 1,
+  groupName: "Miscellaneous",
+  clickBehavior: "break"
+});
+```
+
+## Combining Threshold and Limit
+
+Use both threshold and limit together:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  limit: 8,        // Show maximum 8 slices
+  threshold: 2,    // Group slices below 2%
+  groupName: "Other"
+});
+```
+
+Slices will be grouped if they meet either condition.
+
+## Dynamic Data Updates
+
+The plugin automatically updates when data changes:
+
+```typescript
+// Update data
+series.data.setAll(newData);
+
+// Plugin automatically recalculates grouping
+```
+
+## Styling the Grouped Slice
+
+Customize the appearance of the grouped slice:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5,
+  groupName: "Other"
+});
+
+// Wait for data validation to access the group slice
+series.events.on("datavalidated", () => {
+  let groupDataItem = grouper.getPrivate("groupDataItem");
+  if (groupDataItem) {
+    let slice = groupDataItem.get("slice");
+    slice.setAll({
+      fill: am5.color(0x999999),
+      stroke: am5.color(0x666666),
+      strokeWidth: 2
+    });
+  }
+});
+```
+
+## Best Practices
+
+<Tip>
+  Use a threshold of 3-5% for most charts to balance detail and readability.
+</Tip>
+
+<Tip>
+  Enable `"break"` click behavior to let users explore grouped data when needed.
+</Tip>
+
+<Tip>
+  Always provide a legend when using SliceGrouper so users can see all categories.
+</Tip>
+
+<Warning>
+  Setting the threshold too high may group too much data. Test with your actual data to find the right balance.
+</Warning>
+
+## Performance Considerations
+
+<Note>
+  SliceGrouper works efficiently with hundreds of slices, making it ideal for datasets with long-tail distributions.
+</Note>
+
+## Accessibility
+
+The plugin maintains proper data item associations so screen readers and tooltips work correctly with grouped slices:
+
+```typescript
+// Tooltips work automatically
+series.slices.template.setAll({
+  tooltipText: "{category}: {valuePercentTotal.formatNumber('0.00')}%"
+});
+```
+
+## Chart Type Compatibility
+
+SliceGrouper works with all percent-based chart types:
+
+- **PieChart** / **PieSeries**
+- **DonutChart** (PieChart with inner radius)
+- **FunnelSeries**
+- **PyramidSeries**
+- **PictorialStackedSeries**
+
+```typescript
+// Works with donut charts
+let series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category",
+    innerRadius: am5.percent(50)  // Makes it a donut
+  })
+);
+
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5
+});
+```
+
+## Troubleshooting
+
+### Grouped Slice Not Appearing
+
+Make sure data is set after creating the grouper:
+
+```typescript
+let grouper = SliceGrouper.new(root, {
+  series: series,
+  threshold: 5
+});
+
+// Set data AFTER creating grouper
+series.data.setAll(data);
+```
+
+### Legend Items Not Updating
+
+Ensure legend data is connected to series data items:
+
+```typescript
+legend.data.setAll(series.dataItems);
+```
+
+## See Also
+
+- [PieSeries](https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/) - Pie chart documentation
+- [Legend](https://www.amcharts.com/docs/v5/concepts/legend/) - Working with legends
+- [Example: Grouping Slices](https://www.amcharts.com/docs/v5/charts/percent-charts/grouping-slices/)

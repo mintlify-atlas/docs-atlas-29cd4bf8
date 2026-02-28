@@ -1,0 +1,508 @@
+---
+title: "Stock Toolbar"
+description: "Interactive toolbar controls for stock charts including indicators, drawing tools, date ranges, and comparison controls"
+---
+
+## Introduction
+
+The stock toolbar provides a comprehensive set of interactive controls for manipulating stock charts. It can include controls for indicators, drawing tools, comparisons, date ranges, and more.
+
+## Creating a Toolbar
+
+Create a toolbar by instantiating `StockToolbar` and adding controls:
+
+```typescript
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  controls: [
+    // Controls go here
+  ]
+});
+```
+
+<Info>
+The toolbar requires a container element in your HTML where it will be rendered.
+</Info>
+
+## HTML Container
+
+Add a container element to your HTML:
+
+```html
+<div id="chartcontrols"></div>
+<div id="chartdiv"></div>
+```
+
+## Toolbar Settings
+
+```typescript
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  controls: [],
+  useDefaultCSS: true,      // Load default CSS styles
+  deactivateRoot: true,      // Disable chart interaction when using controls
+  focusable: false           // Enable keyboard navigation
+});
+```
+
+## Indicator Control
+
+Add indicators to the chart:
+
+```typescript
+const indicatorControl = am5stock.IndicatorControl.new(root, {
+  stockChart: stockChart,
+  legend: valueLegend
+});
+
+toolbar.controls.push(indicatorControl);
+```
+
+The indicator control provides a dropdown menu with all available indicators. When selected, indicators are automatically added to the chart.
+
+## Drawing Control
+
+Enable drawing tools:
+
+```typescript
+const drawingControl = am5stock.DrawingControl.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(drawingControl);
+```
+
+Drawing control includes:
+- Line and arrow tools
+- Shapes (rectangles, ellipses)
+- Fibonacci tools
+- Annotations (labels, callouts)
+- Measure tool
+
+## Comparison Control
+
+Compare multiple securities:
+
+```typescript
+const comparisonControl = am5stock.ComparisonControl.new(root, {
+  stockChart: stockChart,
+  searchable: true,
+  searchCallback: (query) => {
+    // Return list of securities matching query
+    return [
+      { label: "Apple", subLabel: "AAPL", id: "AAPL" },
+      { label: "Microsoft", subLabel: "MSFT", id: "MSFT" },
+      { label: "Alphabet", subLabel: "GOOG", id: "GOOG" }
+    ].filter(item => 
+      item.label.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+});
+
+toolbar.controls.push(comparisonControl);
+```
+
+Handle comparison selection:
+
+```typescript
+comparisonControl.events.on("selected", (ev) => {
+  const series = am5xy.LineSeries.new(root, {
+    name: ev.item.id,
+    valueYField: "Close",
+    valueXField: "Date",
+    xAxis: dateAxis,
+    yAxis: valueAxis
+  });
+  
+  const comparingSeries = stockChart.addComparingSeries(series);
+  // Load data for compared series
+  comparingSeries.data.setAll(data);
+});
+```
+
+## Date Range Selector
+
+Select date ranges with calendar interface:
+
+```typescript
+const dateRangeSelector = am5stock.DateRangeSelector.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(dateRangeSelector);
+```
+
+## Period Selector
+
+Quick selection of common time periods:
+
+```typescript
+const periodSelector = am5stock.PeriodSelector.new(root, {
+  stockChart: stockChart,
+  periods: [
+    { timeUnit: "day", count: 1, name: "1D" },
+    { timeUnit: "day", count: 5, name: "5D" },
+    { timeUnit: "month", count: 1, name: "1M" },
+    { timeUnit: "month", count: 3, name: "3M" },
+    { timeUnit: "month", count: 6, name: "6M" },
+    { timeUnit: "ytd", name: "YTD" },
+    { timeUnit: "year", count: 1, name: "1Y" },
+    { timeUnit: "max", name: "All" }
+  ]
+});
+
+toolbar.controls.push(periodSelector);
+```
+
+## Series Type Control
+
+Switch between candlestick, OHLC, and line series:
+
+```typescript
+const seriesTypeControl = am5stock.SeriesTypeControl.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(seriesTypeControl);
+```
+
+Handle series type changes:
+
+```typescript
+seriesTypeControl.events.on("selected", (ev) => {
+  const currentSeries = stockChart.get("stockSeries");
+  const data = currentSeries.data.values;
+  
+  // Remove current series
+  mainPanel.series.removeValue(currentSeries);
+  
+  // Create new series based on type
+  let newSeries;
+  switch (ev.item.id) {
+    case "line":
+      newSeries = am5xy.LineSeries.new(root, {
+        valueYField: "Close",
+        // ... other settings
+      });
+      break;
+    case "candlestick":
+      newSeries = am5xy.CandlestickSeries.new(root, {
+        // ... settings
+      });
+      break;
+    case "ohlc":
+      newSeries = am5xy.OHLCSeries.new(root, {
+        // ... settings
+      });
+      break;
+  }
+  
+  mainPanel.series.push(newSeries);
+  newSeries.data.setAll(data);
+  stockChart.set("stockSeries", newSeries);
+});
+```
+
+## Interval Control
+
+Switch between different data granularities:
+
+```typescript
+const intervalControl = am5stock.IntervalControl.new(root, {
+  stockChart: stockChart,
+  items: [
+    { id: "1minute", label: "1m", interval: { timeUnit: "minute", count: 1 } },
+    { id: "5minute", label: "5m", interval: { timeUnit: "minute", count: 5 } },
+    { id: "1hour", label: "1h", interval: { timeUnit: "hour", count: 1 } },
+    { id: "1day", label: "1D", interval: { timeUnit: "day", count: 1 } },
+    { id: "1week", label: "1W", interval: { timeUnit: "week", count: 1 } },
+    { id: "1month", label: "1M", interval: { timeUnit: "month", count: 1 } }
+  ],
+  currentItem: "1day"
+});
+
+toolbar.controls.push(intervalControl);
+```
+
+Handle interval changes:
+
+```typescript
+intervalControl.events.on("selected", (ev) => {
+  // Load data for new interval
+  loadData(ev.item.id);
+  
+  // Update axis base interval
+  dateAxis.set("baseInterval", ev.item.interval);
+});
+```
+
+## Reset Control
+
+Reset chart to initial state:
+
+```typescript
+const resetControl = am5stock.ResetControl.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(resetControl);
+```
+
+## Settings Control
+
+Open settings modal for customization:
+
+```typescript
+const settingsControl = am5stock.SettingsControl.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(settingsControl);
+```
+
+## Data Save Control
+
+Export and import chart data:
+
+```typescript
+const dataSaveControl = am5stock.DataSaveControl.new(root, {
+  stockChart: stockChart
+});
+
+toolbar.controls.push(dataSaveControl);
+```
+
+## Dropdown List Control
+
+Create custom dropdown lists:
+
+```typescript
+const customDropdown = am5stock.DropdownListControl.new(root, {
+  stockChart: stockChart,
+  name: "Custom Control",
+  icon: am5stock.StockIcons.getIcon("Star"),
+  fixedLabel: false,
+  searchable: true,
+  searchCallback: (query) => {
+    return [
+      { id: "item1", label: "Item 1" },
+      { id: "item2", label: "Item 2" },
+      { id: "item3", label: "Item 3" }
+    ].filter(item => item.label.toLowerCase().includes(query.toLowerCase()));
+  }
+});
+
+customDropdown.events.on("selected", (ev) => {
+  console.log("Selected:", ev.item);
+});
+
+toolbar.controls.push(customDropdown);
+```
+
+## Icon Control
+
+Add simple icon buttons:
+
+```typescript
+const iconControl = am5stock.IconControl.new(root, {
+  stockChart: stockChart,
+  icon: am5stock.StockIcons.getIcon("Settings")
+});
+
+iconControl.events.on("click", (ev) => {
+  console.log("Icon clicked");
+});
+
+toolbar.controls.push(iconControl);
+```
+
+## Color Control
+
+Choose colors for drawings:
+
+```typescript
+const colorControl = am5stock.ColorControl.new(root, {
+  stockChart: stockChart,
+  colors: [
+    am5.color(0x000000),
+    am5.color(0xFF0000),
+    am5.color(0x00FF00),
+    am5.color(0x0000FF)
+  ]
+});
+
+toolbar.controls.push(colorControl);
+```
+
+## Complete Toolbar Example
+
+```typescript
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  controls: [
+    am5stock.IndicatorControl.new(root, {
+      stockChart: stockChart,
+      legend: valueLegend
+    }),
+    am5stock.DateRangeSelector.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.PeriodSelector.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.SeriesTypeControl.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.DrawingControl.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.ComparisonControl.new(root, {
+      stockChart: stockChart,
+      searchable: true
+    }),
+    am5stock.ResetControl.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.SettingsControl.new(root, {
+      stockChart: stockChart
+    })
+  ]
+});
+```
+
+## Control Settings
+
+All controls share common settings:
+
+```typescript
+const control = am5stock.IndicatorControl.new(root, {
+  stockChart: stockChart,     // Required: parent stock chart
+  name: "Custom Name",        // Control label
+  icon: am5stock.StockIcons.getIcon("Indicator"), // Icon
+  active: false,               // Initial active state
+  visible: true,               // Visibility
+  disabled: false             // Disabled state
+});
+```
+
+## Getting Controls
+
+Access controls from the stock chart:
+
+```typescript
+// Get specific control by type
+const indicatorControl = stockChart.getControl("IndicatorControl");
+
+// All controls are in the array
+stockChart.controls.forEach(control => {
+  console.log(control.className);
+});
+```
+
+## Stock Icons
+
+Use built-in icons for controls:
+
+```typescript
+const icon = am5stock.StockIcons.getIcon("Indicator");
+```
+
+Available icons include:
+- Indicator
+- Comparison
+- Drawing
+- Settings
+- Reset
+- Search
+- Star
+- And more...
+
+## Custom CSS
+
+Disable default CSS and use custom styles:
+
+```typescript
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  useDefaultCSS: false,
+  controls: []
+});
+```
+
+Then add your own CSS targeting toolbar classes:
+
+```css
+.am5stock-control-button {
+  /* Custom button styles */
+}
+
+.am5stock-dropdown-list {
+  /* Custom dropdown styles */
+}
+```
+
+## Keyboard Navigation
+
+Enable keyboard accessibility:
+
+```typescript
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  focusable: true,
+  controls: []
+});
+```
+
+With `focusable: true`:
+- Use Tab to navigate between controls
+- Use arrow keys to navigate dropdown items
+- Use Enter to select items
+
+## Complete Control List
+
+**Chart Controls:**
+- IndicatorControl
+- DrawingControl
+- ComparisonControl
+- SeriesTypeControl
+- IntervalControl
+
+**Navigation Controls:**
+- DateRangeSelector
+- PeriodSelector
+- ResetControl
+
+**Utility Controls:**
+- SettingsControl
+- DataSaveControl
+- ColorControl
+
+**Base Controls:**
+- DropdownListControl
+- DropdownControl
+- IconControl
+- StockControl (base class)
+
+## Events
+
+Listen for toolbar events:
+
+```typescript
+toolbar.events.on("created", (ev) => {
+  console.log("Toolbar created");
+});
+```
+
+## Related Topics
+
+- [Stock Charts Overview](/stock/overview) - Basic stock chart setup
+- [Indicators](/stock/indicators) - Technical indicators
+- [Drawing Tools](/stock/drawing-tools) - Drawing and annotation tools
+- [Comparisons](/stock/comparisons) - Compare multiple securities

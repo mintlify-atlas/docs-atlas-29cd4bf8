@@ -1,0 +1,448 @@
+---
+title: Geodata
+description: Learn how to work with geographic data in amCharts 5, including GeoJSON, geodata packages, and utilities for geographic calculations.
+---
+
+Geographic data in amCharts 5 is represented using the GeoJSON format. You can use pre-built geodata packages or create custom geographic data.
+
+## Geodata Packages
+
+amCharts provides official geodata packages with map outlines for various regions:
+
+```bash
+npm install @amcharts/amcharts5-geodata
+```
+
+### Available Maps
+
+The geodata package includes:
+
+- **World maps** - `worldLow`, `worldHigh`, `worldUltra`
+- **Continents** - `continentsLow`, `continentsHigh`
+- **Countries** - Individual country maps (e.g., `usaLow`, `chinaLow`)
+- **Regions** - US states, Canadian provinces, etc.
+
+### Using Geodata Packages
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+```
+
+### Map Detail Levels
+
+Choose the appropriate detail level based on your needs:
+
+- **Low** - Simplified geometry, smaller file size, faster loading
+- **High** - More detailed borders and coastlines
+- **Ultra** - Maximum detail (where available)
+
+```typescript
+// Low detail - fast, small file size
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+// High detail - more accurate borders
+import am5geodata_worldHigh from "@amcharts/amcharts5-geodata/worldHigh";
+```
+
+## GeoJSON Format
+
+### Geometry Types
+
+amCharts 5 supports all GeoJSON geometry types:
+
+**Point**
+```typescript
+{
+  type: "Point",
+  coordinates: [-73.935242, 40.730610]  // [longitude, latitude]
+}
+```
+
+**MultiPoint**
+```typescript
+{
+  type: "MultiPoint",
+  coordinates: [
+    [-73.935242, 40.730610],
+    [-118.243683, 34.052235]
+  ]
+}
+```
+
+**LineString**
+```typescript
+{
+  type: "LineString",
+  coordinates: [
+    [-73.935242, 40.730610],  // New York
+    [-0.1262, 51.5002]         // London
+  ]
+}
+```
+
+**MultiLineString**
+```typescript
+{
+  type: "MultiLineString",
+  coordinates: [
+    [[-73.935242, 40.730610], [-0.1262, 51.5002]],
+    [[-118.243683, 34.052235], [139.6823, 35.6785]]
+  ]
+}
+```
+
+**Polygon**
+```typescript
+{
+  type: "Polygon",
+  coordinates: [
+    // Outer ring
+    [
+      [-73.9, 40.7],
+      [-73.9, 40.8],
+      [-74.0, 40.8],
+      [-74.0, 40.7],
+      [-73.9, 40.7]  // Close the ring
+    ]
+  ]
+}
+```
+
+**MultiPolygon**
+```typescript
+{
+  type: "MultiPolygon",
+  coordinates: [
+    // First polygon
+    [[[-73.9, 40.7], [-73.9, 40.8], [-74.0, 40.8], [-74.0, 40.7], [-73.9, 40.7]]],
+    // Second polygon
+    [[[-118.2, 34.0], [-118.2, 34.1], [-118.3, 34.1], [-118.3, 34.0], [-118.2, 34.0]]]
+  ]
+}
+```
+
+### Custom GeoJSON Data
+
+Create custom geographic features:
+
+```typescript
+const customGeoJSON = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      id: "CUSTOM-1",
+      properties: {
+        name: "Custom Region",
+        value: 100
+      },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-10, 50],
+            [-10, 60],
+            [0, 60],
+            [0, 50],
+            [-10, 50]
+          ]
+        ]
+      }
+    }
+  ]
+};
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: customGeoJSON
+  })
+);
+```
+
+## Geographic Utilities
+
+amCharts 5 exports several utility functions for geographic calculations:
+
+### getGeoRectangle
+
+Create a rectangular polygon from coordinates:
+
+```typescript
+import { getGeoRectangle } from "@amcharts/amcharts5/map";
+
+const backgroundSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {})
+);
+
+backgroundSeries.data.push({
+  geometry: getGeoRectangle(90, 180, -90, -180)  // Full world
+});
+```
+
+See MapUtils.ts:59
+
+**Parameters:**
+- `north` - North latitude
+- `east` - East longitude
+- `south` - South latitude
+- `west` - West longitude
+
+### getGeoCircle
+
+Create a circular polygon around a point:
+
+```typescript
+import { getGeoCircle } from "@amcharts/amcharts5/map";
+
+const circlePolygon = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {})
+);
+
+circlePolygon.data.push({
+  geometry: getGeoCircle(
+    { longitude: -73.935, latitude: 40.730 },  // Center point
+    5  // Radius in degrees
+  )
+});
+```
+
+See MapUtils.ts:13-14
+
+### getGeoCentroid
+
+Calculate the geographic center of a geometry:
+
+```typescript
+import { getGeoCentroid } from "@amcharts/amcharts5/map";
+
+const centroid = getGeoCentroid(geometry);
+console.log(centroid);  // { longitude: ..., latitude: ... }
+```
+
+See MapUtils.ts:20-22
+
+### getGeoBounds
+
+Get the bounding box of a geometry:
+
+```typescript
+import { getGeoBounds } from "@amcharts/amcharts5/map";
+
+const bounds = getGeoBounds(geometry);
+console.log(bounds);  
+// { left: -10, right: 10, top: 60, bottom: 40 }
+```
+
+See MapUtils.ts:35-46
+
+### getGeoArea
+
+Calculate the geographic area:
+
+```typescript
+import { getGeoArea } from "@amcharts/amcharts5/map";
+
+const area = getGeoArea(geometry);
+console.log(area);  // Area in steradians
+```
+
+See MapUtils.ts:28-29
+
+### normalizeGeoPoint
+
+Normalize longitude and latitude values:
+
+```typescript
+import { normalizeGeoPoint } from "@amcharts/amcharts5/map";
+
+const normalized = normalizeGeoPoint({
+  longitude: 200,  // Wrapped to -160
+  latitude: 100    // Clamped to 90
+});
+```
+
+## Loading Custom Data
+
+### From Data Properties
+
+Add geographic data directly to data items:
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {})
+);
+
+pointSeries.data.setAll([
+  {
+    geometry: {
+      type: "Point",
+      coordinates: [-73.935242, 40.730610]
+    },
+    title: "New York"
+  }
+]);
+```
+
+### From External Files
+
+Load GeoJSON from a file:
+
+```typescript
+fetch("/data/custom-map.json")
+  .then(response => response.json())
+  .then(geoJSON => {
+    const polygonSeries = chart.series.push(
+      am5map.MapPolygonSeries.new(root, {
+        geoJSON: geoJSON
+      })
+    );
+  });
+```
+
+### Combining Multiple Sources
+
+Merge data from different sources:
+
+```typescript
+// Base map from geodata package
+const baseSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+// Overlay custom regions
+const customSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: customRegionsGeoJSON
+  })
+);
+```
+
+## Data Properties
+
+### Properties from GeoJSON
+
+Access GeoJSON properties in templates:
+
+```typescript
+const geoJSON = {
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      id: "US",
+      properties: {
+        name: "United States",
+        population: 331000000
+      },
+      geometry: { /* ... */ }
+    }
+  ]
+};
+
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: "{name}\nPopulation: {population}"
+});
+```
+
+### Matching Data to Geodata
+
+Use IDs to match external data:
+
+```typescript
+// Geodata has id properties
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+// Match by id
+polygonSeries.data.setAll([
+  { id: "US", value: 100 },
+  { id: "GB", value: 75 },
+  { id: "DE", value: 90 }
+]);
+
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: "{name}: {value}"
+});
+```
+
+## Coordinate Systems
+
+### Longitude and Latitude
+
+All coordinates use the WGS84 coordinate system:
+
+- **Longitude**: -180 to 180 degrees (west to east)
+- **Latitude**: -90 to 90 degrees (south to north)
+
+```typescript
+const point = {
+  longitude: -73.935242,  // West of Prime Meridian
+  latitude: 40.730610     // North of Equator
+};
+```
+
+### Coordinate Order
+
+GeoJSON uses `[longitude, latitude]` order:
+
+```typescript
+// GeoJSON format
+coordinates: [-73.935242, 40.730610]  // [lng, lat]
+
+// amCharts object format
+{ longitude: -73.935242, latitude: 40.730610 }
+```
+
+<Warning>
+Note the coordinate order difference between GeoJSON arrays `[lng, lat]` and amCharts objects `{longitude, latitude}`. This is a common source of errors.
+</Warning>
+
+## Performance Optimization
+
+### Use Appropriate Detail Levels
+
+Choose the lowest detail level that meets your needs:
+
+```typescript
+// For world overview - use Low
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+// For detailed region view - use High
+import am5geodata_europeHigh from "@amcharts/amcharts5-geodata/europeHigh";
+```
+
+### Simplify Custom Geometry
+
+Reduce coordinate points in custom geometries:
+
+- Use fewer points for smooth shapes
+- Remove unnecessary detail
+- Consider using MultiPolygon for complex shapes
+
+### Exclude Unnecessary Regions
+
+```typescript
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow,
+    exclude: ["AQ"]  // Exclude Antarctica if not needed
+  })
+);
+```
+
+## Related Topics
+
+- [Series Types](/maps/series-types) - Different ways to display geodata
+- [Projections](/maps/projections) - How geodata is transformed to screen coordinates

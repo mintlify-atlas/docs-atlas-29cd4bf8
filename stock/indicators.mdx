@@ -1,0 +1,454 @@
+---
+title: "Technical Indicators"
+description: "Add technical analysis indicators to stock charts including moving averages, RSI, MACD, and more"
+---
+
+## Introduction
+
+Stock charts support a comprehensive library of technical indicators that can be added programmatically or through the indicator control in the toolbar.
+
+## Adding Indicators
+
+Indicators are added to the stock chart's `indicators` collection:
+
+```typescript
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+// Add Moving Average indicator
+const movingAverage = am5stock.MovingAverage.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  period: 20,
+  field: "close",
+  type: "simple"
+});
+
+stockChart.indicators.push(movingAverage);
+```
+
+<Info>
+Indicators automatically update when the chart data changes or when zooming/panning.
+</Info>
+
+## Overlay Indicators
+
+Overlay indicators are drawn on top of the main price chart.
+
+### Moving Average
+
+Display simple, weighted, or exponential moving averages:
+
+```typescript
+const ma = am5stock.MovingAverage.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 50,
+  field: "close",
+  type: "simple", // "simple", "weighted", "exponential", "dema", "tema"
+  offset: 0
+});
+
+stockChart.indicators.push(ma);
+```
+
+**Settings:**
+- `period` - Number of periods for calculation
+- `field` - Field to use: `"open"`, `"close"`, `"low"`, `"high"`, `"hl/2"`, `"hlc/3"`, `"hlcc/4"`, `"ohlc/4"`
+- `type` - Moving average type
+- `offset` - Number of periods to offset the indicator
+
+### Bollinger Bands
+
+Show volatility bands around a moving average:
+
+```typescript
+const bollingerBands = am5stock.BollingerBands.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 20,
+  field: "close",
+  type: "simple",
+  standardDeviations: 2
+});
+
+stockChart.indicators.push(bollingerBands);
+```
+
+### Moving Average Envelope
+
+Create percentage-based bands around a moving average:
+
+```typescript
+const envelope = am5stock.MovingAverageEnvelope.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 20,
+  field: "close",
+  type: "simple",
+  shift: 5 // Percentage shift
+});
+
+stockChart.indicators.push(envelope);
+```
+
+### VWAP (Volume Weighted Average Price)
+
+Calculate volume-weighted average price:
+
+```typescript
+const vwap = am5stock.VWAP.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  volumeSeries: volumeSeries,
+  legend: valueLegend
+});
+
+stockChart.indicators.push(vwap);
+```
+
+### SuperTrend
+
+Display SuperTrend indicator for trend following:
+
+```typescript
+const superTrend = am5stock.SuperTrend.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 10,
+  multiplier: 3
+});
+
+stockChart.indicators.push(superTrend);
+```
+
+## Oscillator Indicators
+
+Oscillators are typically displayed in separate panels below the main chart.
+
+### RSI (Relative Strength Index)
+
+Measure momentum with RSI:
+
+```typescript
+const rsi = am5stock.RelativeStrengthIndex.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 14,
+  field: "close",
+  overBought: 70,
+  overSold: 30
+});
+
+stockChart.indicators.push(rsi);
+```
+
+RSI creates its own panel and displays overbought/oversold levels.
+
+### MACD (Moving Average Convergence Divergence)
+
+Add MACD with histogram:
+
+```typescript
+const macd = am5stock.MACD.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  fastPeriod: 12,
+  slowPeriod: 26,
+  signalPeriod: 9,
+  field: "close"
+});
+
+stockChart.indicators.push(macd);
+```
+
+### Stochastic Oscillator
+
+Display stochastic %K and %D lines:
+
+```typescript
+const stochastic = am5stock.StochasticOscillator.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  kPeriod: 14,
+  dPeriod: 3,
+  slowing: 3,
+  overBought: 80,
+  overSold: 20
+});
+
+stockChart.indicators.push(stochastic);
+```
+
+### Williams %R
+
+Measure overbought/oversold levels:
+
+```typescript
+const williamsR = am5stock.WilliamsR.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 14,
+  overBought: -20,
+  overSold: -80
+});
+
+stockChart.indicators.push(williamsR);
+```
+
+### Commodity Channel Index (CCI)
+
+Detect cyclical trends:
+
+```typescript
+const cci = am5stock.CommodityChannelIndex.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 20
+});
+
+stockChart.indicators.push(cci);
+```
+
+### Awesome Oscillator
+
+Momentum indicator using median prices:
+
+```typescript
+const awesomeOscillator = am5stock.AwesomeOscillator.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  fastPeriod: 5,
+  slowPeriod: 34
+});
+
+stockChart.indicators.push(awesomeOscillator);
+```
+
+## Volume Indicators
+
+Volume-based indicators provide insight into buying/selling pressure.
+
+### On Balance Volume (OBV)
+
+Cumulative volume indicator:
+
+```typescript
+const obv = am5stock.OnBalanceVolume.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  volumeSeries: volumeSeries,
+  legend: valueLegend
+});
+
+stockChart.indicators.push(obv);
+```
+
+### Accumulation/Distribution
+
+Measure money flow:
+
+```typescript
+const accumulationDistribution = am5stock.AccumulationDistribution.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  volumeSeries: volumeSeries,
+  legend: valueLegend
+});
+
+stockChart.indicators.push(accumulationDistribution);
+```
+
+### Chaikin Money Flow
+
+Volume-weighted indicator of accumulation and distribution:
+
+```typescript
+const chaikinMoneyFlow = am5stock.ChaikinMoneyFlow.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  volumeSeries: volumeSeries,
+  legend: valueLegend,
+  period: 20
+});
+
+stockChart.indicators.push(chaikinMoneyFlow);
+```
+
+### Volume Profile
+
+Display volume distribution across price levels:
+
+```typescript
+const volumeProfile = am5stock.VolumeProfile.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  volumeSeries: volumeSeries,
+  legend: valueLegend
+});
+
+stockChart.indicators.push(volumeProfile);
+```
+
+## Trend Indicators
+
+### Aroon
+
+Identify trend changes:
+
+```typescript
+const aroon = am5stock.Aroon.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 25
+});
+
+stockChart.indicators.push(aroon);
+```
+
+### Average True Range (ATR)
+
+Measure market volatility:
+
+```typescript
+const atr = am5stock.AverageTrueRange.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  period: 14
+});
+
+stockChart.indicators.push(atr);
+```
+
+### ZigZag
+
+Filter out price noise:
+
+```typescript
+const zigZag = am5stock.ZigZag.new(root, {
+  stockChart: stockChart,
+  stockSeries: valueSeries,
+  legend: valueLegend,
+  deviation: 5 // Minimum percentage change
+});
+
+stockChart.indicators.push(zigZag);
+```
+
+## Removing Indicators
+
+Remove an indicator from the chart:
+
+```typescript
+stockChart.indicators.removeValue(movingAverage);
+```
+
+## Indicator Settings
+
+All indicators share common settings:
+
+```typescript
+const indicator = am5stock.MovingAverage.new(root, {
+  stockChart: stockChart,      // Required: parent stock chart
+  stockSeries: valueSeries,    // Required: main series
+  volumeSeries: volumeSeries,  // Optional: for volume indicators
+  legend: valueLegend,         // Optional: legend to add to
+  period: 20,                  // Calculation period
+  field: "close",              // Data field to use
+  seriesColor: am5.color(0xFF0000) // Series color
+});
+```
+
+## Custom Indicators
+
+Create custom indicators by extending the `Indicator` class:
+
+```typescript
+import { Indicator } from "@amcharts/amcharts5/stock";
+
+class CustomIndicator extends Indicator {
+  // Implement prepareData() method
+  public prepareData() {
+    const stockSeries = this.get("stockSeries");
+    const dataItems = stockSeries.dataItems;
+    
+    // Process data and update indicator series
+    const data = this._getDataArray(dataItems);
+    // ... custom calculations
+    this.series.updateData(data);
+  }
+}
+```
+
+## Complete Indicator List
+
+**Overlay Indicators:**
+- MovingAverage
+- BollingerBands
+- MovingAverageEnvelope
+- MovingAverageDeviation
+- AccelerationBands
+- VWAP
+- SuperTrend
+- HeikinAshi
+
+**Oscillators:**
+- RelativeStrengthIndex (RSI)
+- MACD
+- StochasticOscillator
+- StochasticMomentumIndex
+- WilliamsR
+- CommodityChannelIndex (CCI)
+- AwesomeOscillator
+- Momentum
+- DisparityIndex
+- Trix
+
+**Volume Indicators:**
+- Volume
+- OnBalanceVolume
+- AccumulationDistribution
+- ChaikinMoneyFlow
+- ChaikinOscillator
+- PVT (Price Volume Trend)
+- VolumeProfile
+
+**Trend Indicators:**
+- Aroon
+- AverageTrueRange (ATR)
+- ZigZag
+- MACross
+- BullBearPower
+
+**Other Indicators:**
+- TypicalPrice
+- MedianPrice
+- StandardDeviation
+- AccumulativeSwingIndex
+
+## Events
+
+Listen for indicator updates:
+
+```typescript
+stockChart.events.on("indicatorsupdated", (ev) => {
+  console.log("Indicators were updated");
+});
+```
+
+## Related Topics
+
+- [Stock Charts Overview](/stock/overview) - Basic stock chart setup
+- [Toolbar](/stock/toolbar) - Add IndicatorControl to toolbar
+- [Comparisons](/stock/comparisons) - Compare multiple securities

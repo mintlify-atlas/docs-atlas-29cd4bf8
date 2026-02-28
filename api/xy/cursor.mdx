@@ -1,0 +1,323 @@
+---
+title: 'XYCursor'
+description: 'Creates a chart cursor for XY charts with crosshairs and tooltips'
+---
+
+## Overview
+
+XYCursor creates an interactive cursor for XY charts, displaying crosshairs and managing tooltips for data items.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+```
+
+## Settings
+
+<ParamField path="xAxis" type="Axis<AxisRenderer>">
+  Cursor's X axis.
+  
+  If set, cursor will snap to that axis' cells.
+</ParamField>
+
+<ParamField path="yAxis" type="Axis<AxisRenderer>">
+  Cursor's Y axis.
+  
+  If set, cursor will snap to that axis' cells.
+</ParamField>
+
+<ParamField path="behavior" type="'zoomX' | 'zoomY' | 'zoomXY' | 'selectX' | 'selectY' | 'selectXY' | 'none'" default="none">
+  What should cursor do when dragged across plot area.
+  
+  - `zoomX` - Zoom horizontally
+  - `zoomY` - Zoom vertically
+  - `zoomXY` - Zoom both directions
+  - `selectX` - Select horizontally
+  - `selectY` - Select vertically
+  - `selectXY` - Select both directions
+  - `none` - No interaction
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#Behavior)
+</ParamField>
+
+<ParamField path="positionX" type="number">
+  Cursor's horizontal position relative to plot area (0 to 1).
+  
+  If this setting is set, cursor will not react to mouse/touch and will just sit at specified position until `positionX` is reset to `undefined`.
+  
+  `0` - left, `1` - right.
+</ParamField>
+
+<ParamField path="positionY" type="number">
+  Cursor's vertical position relative to plot area (0 to 1).
+  
+  If this setting is set, cursor will not react to mouse/touch and will just sit at specified position until `positionY` is reset to `undefined`.
+  
+  `0` - top, `1` - bottom.
+</ParamField>
+
+<ParamField path="alwaysShow" type="boolean" default="false">
+  If set to `true`, cursor will not be hidden when mouse cursor moves out of the plot area.
+</ParamField>
+
+<ParamField path="snapToSeries" type="Array<XYSeries>">
+  A list of series to snap cursor to.
+  
+  If set, the cursor will always snap to the closest data item of listed series.
+</ParamField>
+
+<ParamField path="snapToSeriesBy" type="'xy' | 'x' | 'y' | 'x!' | 'y!'" default="xy">
+  Defines in which direction to look when searching for the nearest data item to snap to.
+  
+  - `xy` - Check both X and Y distance (default)
+  - `x` - Check only horizontal distance
+  - `y` - Check only vertical distance
+  - `x!` - Snap to exact X position
+  - `y!` - Snap to exact Y position
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#snapping-to-series)
+</ParamField>
+
+<ParamField path="syncWith" type="Array<XYCursor>">
+  An array of other XYCursor objects to sync this cursor with.
+  
+  If set will automatically move synced cursors to the same position within their respective axes.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#syncing-cursors)
+</ParamField>
+
+<ParamField path="moveThreshold" type="number" default="1">
+  Minimum distance in pixels between down and up points.
+  
+  If a distance is less than the value of `moveThreshold`, the zoom or selection won't happen.
+</ParamField>
+
+## Properties
+
+<ResponseField name="lineX" type="Grid">
+  A Grid element that is used for horizontal line of the cursor crosshair.
+  
+  ```typescript
+  cursor.lineX.setAll({
+    stroke: am5.color(0x000000),
+    strokeWidth: 1,
+    strokeDasharray: [4, 4]
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="lineY" type="Grid">
+  A Grid element that is used for vertical line of the cursor crosshair.
+  
+  ```typescript
+  cursor.lineY.setAll({
+    stroke: am5.color(0x000000),
+    strokeWidth: 1,
+    strokeDasharray: [4, 4]
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="selection" type="Graphics">
+  An element that represents current selection.
+  
+  ```typescript
+  cursor.selection.setAll({
+    fill: am5.color(0x000000),
+    fillOpacity: 0.1
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="chart" type="XYChart">
+  A chart cursor is attached to.
+</ResponseField>
+
+## Methods
+
+### handleMove()
+
+```typescript
+public handleMove(
+  point?: IPoint,
+  skipEvent?: boolean,
+  originalEvent?: IPointerEvent
+): void
+```
+
+Moves the cursor to X/Y coordinates within chart container.
+
+If `skipEvent` parameter is set to `true`, the move will not invoke the `"cursormoved"` event.
+
+<ParamField path="point" type="IPoint">
+  X/Y coordinates to move cursor to
+</ParamField>
+
+<ParamField path="skipEvent" type="boolean">
+  Do not fire "cursormoved" event
+</ParamField>
+
+<ParamField path="originalEvent" type="IPointerEvent">
+  Original pointer event
+</ParamField>
+
+### updateCursor()
+
+```typescript
+public updateCursor(): void
+```
+
+Updates the cursor position and tooltips.
+
+## Events
+
+<ResponseField name="selectstarted" type="event">
+  Kicks in when cursor selection starts.
+  
+  Only when `behavior` is set to a selection mode.
+  
+  ```typescript
+  cursor.events.on("selectstarted", (ev) => {
+    console.log("Selection started", ev.originalEvent);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="selectended" type="event">
+  Kicks in when cursor selection ends.
+  
+  Only when `behavior` is set to a selection mode.
+  
+  ```typescript
+  cursor.events.on("selectended", (ev) => {
+    console.log("Selection ended", ev.originalEvent);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="selectcancelled" type="event">
+  Invoked if pointer is pressed down on a plot area and released without moving (only when behavior is `"selectX"`).
+  
+  ```typescript
+  cursor.events.on("selectcancelled", (ev) => {
+    console.log("Selection cancelled");
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="cursormoved" type="event">
+  Kicks in when cursor's position over plot area changes.
+  
+  ```typescript
+  cursor.events.on("cursormoved", (ev) => {
+    console.log("Cursor moved to", ev.point);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="cursorhidden" type="event">
+  Kicks in when cursor is hidden when user rolls-out of the plot area.
+  
+  ```typescript
+  cursor.events.on("cursorhidden", (ev) => {
+    console.log("Cursor hidden");
+  });
+  ```
+</ResponseField>
+
+## Usage Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+const chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+
+// Create cursor
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+
+// Customize crosshair lines
+cursor.lineX.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1,
+  strokeDasharray: [4, 4]
+});
+
+cursor.lineY.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1,
+  strokeDasharray: [4, 4]
+});
+
+// Hide vertical line
+cursor.lineY.set("visible", false);
+
+// Customize selection
+cursor.selection.setAll({
+  fill: am5.color(0x095256),
+  fillOpacity: 0.1
+});
+```
+
+## Snap to Series Example
+
+```typescript
+// Create series
+const series1 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 1",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value1",
+    valueXField: "date"
+  })
+);
+
+const series2 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 2",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value2",
+    valueXField: "date"
+  })
+);
+
+// Snap cursor to series
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "none",
+  snapToSeries: [series1, series2],
+  snapToSeriesBy: "x"
+}));
+```
+
+## Syncing Cursors Example
+
+```typescript
+// Create two charts
+const chart1 = root.container.children.push(am5xy.XYChart.new(root, {}));
+const chart2 = root.container.children.push(am5xy.XYChart.new(root, {}));
+
+// Create cursors
+const cursor1 = chart1.set("cursor", am5xy.XYCursor.new(root, {}));
+const cursor2 = chart2.set("cursor", am5xy.XYCursor.new(root, {}));
+
+// Sync cursors
+cursor1.set("syncWith", [cursor2]);
+```
+
+## See Also
+
+- [Cursor Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/)
+- [Tooltips](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#tooltips)
+- [Snapping to Series](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#snapping-to-series)
+- [Syncing Cursors](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#syncing-cursors)
+- [XYChart](xy-chart)
+- [Series](series)
+- [Axes](axes)

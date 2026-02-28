@@ -1,0 +1,513 @@
+---
+title: Formatters
+---
+
+Formatters are utility classes that convert raw values into human-readable strings. amCharts 5 provides specialized formatters for numbers, dates, and durations.
+
+## NumberFormatter
+
+Formats numeric values according to specified patterns.
+
+### Constructor
+
+```typescript
+new NumberFormatter(root: Root, settings?: INumberFormatterSettings)
+```
+
+<ParamField path="root" type="Root" required>
+  Root element instance
+</ParamField>
+
+<ParamField path="settings" type="INumberFormatterSettings">
+  Configuration options
+</ParamField>
+
+### Settings
+
+#### numberFormat
+
+<ParamField path="numberFormat" type="string | Intl.NumberFormatOptions" default="'#,###.#####'">
+  Number format to be used when formatting numbers. Can be a format string or Intl.NumberFormatOptions object.
+</ParamField>
+
+#### negativeBase
+
+<ParamField path="negativeBase" type="number" default="0">
+  A threshold value for negative numbers.
+</ParamField>
+
+#### bigNumberPrefixes
+
+<ParamField path="bigNumberPrefixes" type="INumberSuffix[]">
+  Prefixes and thresholds to group big numbers into (e.g., 1M for 1,000,000). Used with the `a` modifier.
+</ParamField>
+
+#### smallNumberPrefixes
+
+<ParamField path="smallNumberPrefixes" type="INumberSuffix[]">
+  Prefixes and thresholds to group small numbers into (e.g., 1m for 0.001). Used with the `a` modifier.
+</ParamField>
+
+#### smallNumberThreshold
+
+<ParamField path="smallNumberThreshold" type="number" default="1">
+  All numbers below this value are considered small.
+</ParamField>
+
+#### bytePrefixes
+
+<ParamField path="bytePrefixes" type="INumberSuffix[]">
+  Prefixes and thresholds for grouping data size numbers (e.g., 1MB). Used with the `b` modifier.
+</ParamField>
+
+#### numericFields
+
+<ParamField path="numericFields" type="string[]">
+  Indicates which fields in data should be considered numeric for placeholder formatting.
+</ParamField>
+
+#### intlLocales
+
+<ParamField path="intlLocales" type="string">
+  Locales if using Intl.NumberFormatOptions syntax.
+</ParamField>
+
+#### forceLTR
+
+<ParamField path="forceLTR" type="boolean" default="false">
+  If true, forces the number string to be LTR even if RTL is enabled.
+</ParamField>
+
+### Methods
+
+#### format()
+
+```typescript
+format(
+  value: number | string,
+  format?: string | Intl.NumberFormatOptions,
+  precision?: number
+): string
+```
+
+Formats a number according to the specified format.
+
+<ParamField path="value" type="number | string" required>
+  Value to format
+</ParamField>
+
+<ParamField path="format" type="string | Intl.NumberFormatOptions">
+  Format to apply (uses default if not specified)
+</ParamField>
+
+<ParamField path="precision" type="number">
+  Number of decimal places
+</ParamField>
+
+<ResponseField name="return" type="string">
+  Formatted number string
+</ResponseField>
+
+**Example:**
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const formatter = am5.NumberFormatter.new(root, {
+  numberFormat: "#,###.00"
+});
+
+console.log(formatter.format(1234.567)); // "1,234.57"
+console.log(formatter.format(1000000, "#.0a")); // "1.0M"
+console.log(formatter.format(50, "#'%'")); // "50%"
+```
+
+### Format Syntax
+
+The format string uses special characters:
+
+- `#` - Optional digit
+- `0` - Required digit
+- `,` - Thousands separator
+- `.` - Decimal separator
+- `a` - Abbreviated notation (K, M, B)
+- `b` - Byte notation (KB, MB, GB)
+- `%` - Multiply by 100 and add percent sign
+- `‰` - Multiply by 1000 and add per mille sign
+- `e` - Scientific notation
+- `s` - Suppress negative sign
+- `p` - Percentage (no multiplication)
+- `!` - Force prefix on small numbers
+
+**Examples:**
+
+```typescript
+"#,###.00" // 1,234.57
+"#.0a" // 1.2M
+"#.00b" // 1.5MB
+"#%" // 50%
+"#.##e" // 1.23e+3
+```
+
+## DateFormatter
+
+Formats Date objects into strings.
+
+### Constructor
+
+```typescript
+new DateFormatter(root: Root, settings?: IDateFormatterSettings)
+```
+
+<ParamField path="root" type="Root" required>
+  Root element instance
+</ParamField>
+
+<ParamField path="settings" type="IDateFormatterSettings">
+  Configuration options
+</ParamField>
+
+### Settings
+
+#### dateFormat
+
+<ParamField path="dateFormat" type="string | Intl.DateTimeFormatOptions" default="'yyyy-MM-dd'">
+  A date format to be used when formatting dates.
+</ParamField>
+
+#### dateFields
+
+<ParamField path="dateFields" type="string[]">
+  Array of data fields that hold date values and should be formatted with DateFormatter.
+</ParamField>
+
+#### capitalize
+
+<ParamField path="capitalize" type="boolean" default="true">
+  Should the first letter of the formatted date be capitalized?
+</ParamField>
+
+#### intlLocales
+
+<ParamField path="intlLocales" type="string">
+  Locales to use when formatting using Intl.DateFormatter.
+</ParamField>
+
+### Methods
+
+#### format()
+
+```typescript
+format(
+  source: Date,
+  format?: string | Intl.DateTimeFormatOptions,
+  ignoreTimezone?: boolean
+): string
+```
+
+Formats a source Date object into string format.
+
+<ParamField path="source" type="Date" required>
+  Date to format
+</ParamField>
+
+<ParamField path="format" type="string | Intl.DateTimeFormatOptions">
+  Output format (uses default if not specified)
+</ParamField>
+
+<ParamField path="ignoreTimezone" type="boolean" default="false">
+  Ignore timezone when formatting
+</ParamField>
+
+<ResponseField name="return" type="string">
+  Formatted date string
+</ResponseField>
+
+**Example:**
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const formatter = am5.DateFormatter.new(root, {
+  dateFormat: "yyyy-MM-dd"
+});
+
+const date = new Date(2024, 0, 15);
+console.log(formatter.format(date)); // "2024-01-15"
+console.log(formatter.format(date, "MMM dd, yyyy")); // "Jan 15, 2024"
+console.log(formatter.format(date, "EEEE")); // "Monday"
+```
+
+#### parse()
+
+```typescript
+parse(source: any, format: string, utc?: boolean): Date
+```
+
+Parses a string into a Date object.
+
+<ParamField path="source" type="any" required>
+  String to parse
+</ParamField>
+
+<ParamField path="format" type="string" required>
+  Format of the source string
+</ParamField>
+
+<ParamField path="utc" type="boolean">
+  Parse as UTC
+</ParamField>
+
+<ResponseField name="return" type="Date">
+  Parsed Date object
+</ResponseField>
+
+### Format Syntax
+
+The format string uses special tokens:
+
+**Year:**
+- `yyyy` - Full year (2024)
+- `yy` - Two-digit year (24)
+- `y` - Year with any number of digits
+
+**Month:**
+- `MMMM` - Full month name (January)
+- `MMM` - Short month name (Jan)
+- `MM` - Two-digit month (01)
+- `M` - Month (1)
+
+**Day:**
+- `dd` - Two-digit day (05)
+- `d` - Day (5)
+- `DDD` - Day of year with leading zeros (065)
+- `D` - Day of year (65)
+
+**Weekday:**
+- `EEEE` - Full weekday name (Monday)
+- `EEE` - Short weekday name (Mon)
+- `EE` - Two-digit weekday (01)
+- `E` - Weekday number (1)
+
+**Time:**
+- `HH` - Two-digit 24-hour (14)
+- `H` - 24-hour (14)
+- `hh` - Two-digit 12-hour (02)
+- `h` - 12-hour (2)
+- `mm` - Two-digit minutes (05)
+- `m` - Minutes (5)
+- `ss` - Two-digit seconds (09)
+- `s` - Seconds (9)
+- `SSS` - Milliseconds (123)
+- `a` - AM/PM
+- `aa` - A.M./P.M.
+
+**Week:**
+- `ww` - Week of year with leading zero (05)
+- `w` - Week of year (5)
+
+**Timezone:**
+- `Z` - Timezone offset (GMT-05:00)
+- `ZZ` - Timezone offset (-0500)
+
+## DurationFormatter
+
+Formats numeric values as time durations.
+
+### Constructor
+
+```typescript
+new DurationFormatter(root: Root, settings?: IDurationFormatterSettings)
+```
+
+<ParamField path="root" type="Root" required>
+  Root element instance
+</ParamField>
+
+<ParamField path="settings" type="IDurationFormatterSettings">
+  Configuration options
+</ParamField>
+
+### Settings
+
+#### durationFormat
+
+<ParamField path="durationFormat" type="string">
+  A universal duration format to use wherever number needs to be formatted as a duration.
+</ParamField>
+
+#### baseUnit
+
+<ParamField path="baseUnit" type="TimeUnit" default="'second'">
+  Identifies what values are used in duration. Available options: `"millisecond"`, `"second"`, `"minute"`, `"hour"`, `"day"`, `"week"`, `"month"`, `"year"`.
+</ParamField>
+
+#### negativeBase
+
+<ParamField path="negativeBase" type="number" default="0">
+  A base value. Any number below it will be considered negative.
+</ParamField>
+
+#### durationFormats
+
+<ParamField path="durationFormats" type="Partial<Record<TimeUnit, Partial<Record<TimeUnit, string>>>>">
+  Time unit dependent duration formats. Used by DurationAxis.
+</ParamField>
+
+#### durationFields
+
+<ParamField path="durationFields" type="string[]">
+  Array of data fields that hold duration values and should be formatted with DurationFormatter.
+</ParamField>
+
+### Methods
+
+#### format()
+
+```typescript
+format(value: number | string, format?: string, base?: TimeUnit): string
+```
+
+Formats a number as duration. For example, 1000 (base unit seconds) would be converted to 16:40 (16 minutes and 40 seconds).
+
+<ParamField path="value" type="number | string" required>
+  Value to format
+</ParamField>
+
+<ParamField path="format" type="string">
+  Format to apply
+</ParamField>
+
+<ParamField path="base" type="TimeUnit">
+  Override base unit
+</ParamField>
+
+<ResponseField name="return" type="string">
+  Formatted duration string
+</ResponseField>
+
+**Example:**
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const formatter = am5.DurationFormatter.new(root, {
+  baseUnit: "second"
+});
+
+console.log(formatter.format(65)); // "1:05" (1 minute, 5 seconds)
+console.log(formatter.format(3661)); // "1:01:01" (1 hour, 1 minute, 1 second)
+console.log(formatter.format(90, "mm:ss")); // "01:30"
+```
+
+#### getFormat()
+
+```typescript
+getFormat(value: number, maxValue?: number, baseUnit?: TimeUnit): string
+```
+
+Returns appropriate default format for the value.
+
+<ParamField path="value" type="number" required>
+  Value to format
+</ParamField>
+
+<ParamField path="maxValue" type="number">
+  Maximum value to determine time unit
+</ParamField>
+
+<ParamField path="baseUnit" type="TimeUnit">
+  Base unit of the value
+</ParamField>
+
+<ResponseField name="return" type="string">
+  Format string
+</ResponseField>
+
+#### toTimeStamp()
+
+```typescript
+toTimeStamp(value: number, baseUnit: TimeUnit): number
+```
+
+Converts numeric value to timestamp in milliseconds.
+
+<ParamField path="value" type="number" required>
+  Source value
+</ParamField>
+
+<ParamField path="baseUnit" type="TimeUnit" required>
+  Base unit the source value is in
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Value as timestamp in milliseconds
+</ResponseField>
+
+#### getMilliseconds()
+
+```typescript
+getMilliseconds(value: number, baseUnit?: TimeUnit): number
+```
+
+Converts value to milliseconds according to baseUnit.
+
+<ParamField path="value" type="number" required>
+  Source duration value
+</ParamField>
+
+<ParamField path="baseUnit" type="TimeUnit">
+  Base unit
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Value in milliseconds
+</ResponseField>
+
+#### getValueUnit()
+
+```typescript
+getValueUnit(value: number, baseUnit?: TimeUnit): TimeUnit | undefined
+```
+
+Returns value's closest denominator time unit. For example, 100 seconds is `"minute"`, while 59 seconds would still be `"second"`.
+
+<ParamField path="value" type="number" required>
+  Source duration value
+</ParamField>
+
+<ParamField path="baseUnit" type="TimeUnit">
+  Base unit
+</ParamField>
+
+<ResponseField name="return" type="TimeUnit | undefined">
+  Denominator time unit
+</ResponseField>
+
+### Format Syntax
+
+The format string uses special tokens:
+
+- `y` - Years
+- `M` - Months
+- `d` - Days
+- `w` - Weeks
+- `h` - Hours
+- `m` - Minutes
+- `s` - Seconds
+- `S` - Milliseconds
+- `a` - Absolute value modifier
+
+**Examples:**
+
+```typescript
+"mm:ss" // 01:30
+"hh:mm:ss" // 01:01:30
+"d'd' h'h' m'm'" // 1d 2h 30m
+```
+
+## See Also
+
+- [Formatting Numbers](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-numbers/)
+- [Formatting Dates](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-dates/)
+- [Formatting Durations](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-durations/)

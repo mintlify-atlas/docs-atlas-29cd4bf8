@@ -1,0 +1,617 @@
+---
+title: Tooltips
+description: Learn how to create, customize, and configure tooltips in amCharts 5 to display contextual information.
+---
+
+## Overview
+
+Tooltips in amCharts 5 display contextual information when users hover over or interact with chart elements. The `Tooltip` class extends `Container` and provides a pointing mechanism, automatic positioning, and rich content formatting.
+
+## Basic Tooltips
+
+### Adding a Tooltip to a Series
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{categoryX}: {valueY}"
+    })
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:158-623`
+
+### Tooltip on Individual Elements
+
+```typescript
+const circle = root.container.children.push(
+  am5.Circle.new(root, {
+    radius: 20,
+    fill: am5.color(0x3366cc),
+    tooltipText: "This is a circle"
+  })
+);
+```
+
+## Tooltip Content
+
+### Text Content
+
+Set tooltip text using `labelText`:
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "Category: {categoryX}\nValue: {valueY}"
+    })
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:28-31`
+
+### HTML Content (v5.2.11+)
+
+Use HTML for rich formatting:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelHTML: `
+        <div style="padding: 10px;">
+          <strong>{categoryX}</strong><br/>
+          <span style="color: #3366cc;">Value: {valueY}</span>
+        </div>
+      `
+    })
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:33-38`
+
+### Data Placeholders
+
+Use curly braces to insert data values:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "[bold]{categoryX}[/]\n{valueY}\n{openValueY} - {closeValueY}"
+});
+
+// Available placeholders depend on your data:
+// {categoryX}, {valueY}, {openValueY}, {closeValueY}, etc.
+```
+
+## Tooltip Appearance
+
+### Colors
+
+#### Get Fill from Target
+
+Make tooltip background match the hovered element:
+
+```typescript
+const series = chart.series.push(
+  am5xy.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+series.slices.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{category}: {value}",
+  getFillFromSprite: true  // Use slice color for tooltip background
+}));
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:61-67`
+
+#### Custom Colors
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}"
+});
+
+// Customize background
+tooltip.get("background").setAll({
+  fill: am5.color(0x000000),
+  fillOpacity: 0.8,
+  stroke: am5.color(0xffffff),
+  strokeWidth: 1
+});
+
+// Customize label
+tooltip.label.setAll({
+  fill: am5.color(0xffffff),
+  fontSize: 14
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:347-442`
+
+#### Auto Text Color
+
+Automatically adjust text color for contrast:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  getFillFromSprite: true,
+  autoTextColor: true  // Automatically use white or black text
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:100-105`
+
+### Pointer Orientation
+
+Control which direction the tooltip pointer faces:
+
+```typescript
+// Point left
+const leftTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "left"
+});
+
+// Point right
+const rightTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "right"
+});
+
+// Point up
+const upTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "up"
+});
+
+// Point down
+const downTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "down"
+});
+
+// Auto vertical (up or down based on position)
+const verticalTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "vertical"
+});
+
+// Auto horizontal (left or right based on position)
+const horizontalTooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  pointerOrientation: "horizontal"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:54-58`
+
+## Tooltip Positioning
+
+### Point To Location
+
+Manually position the tooltip:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "Static Tooltip",
+  pointTo: { x: 200, y: 100 }
+});
+
+tooltip.show();
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:108-111`
+
+### Bounds
+
+Constrain tooltip within specific bounds:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  bounds: {
+    left: 50,
+    top: 50,
+    right: 550,
+    bottom: 350
+  }
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:95-98`
+
+## Animation
+
+### Animation Duration
+
+Control how fast the tooltip moves:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  animationDuration: 200  // milliseconds
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:113-117`
+
+### Animation Easing
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}",
+  animationDuration: 300,
+  animationEasing: am5.ease.out(am5.ease.cubic)
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:119-123`
+
+## Advanced Features
+
+### Keep Target Hovered
+
+Keep the target element highlighted when hovering over tooltip (v5.2.14+):
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueY}",
+      keepTargetHover: true  // Target stays hovered when over tooltip
+    })
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:131-137`
+
+### Screen Reader Announcements (v5.9.2+)
+
+Enable automatic screen reader announcements:
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{categoryX}: {valueY}",
+  labelAriaLabel: "{categoryX}: {valueY} units",
+  readerAnnounce: true  // Announce to screen readers
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:140-146`
+
+## Accessing Tooltip Elements
+
+### Tooltip Label
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueY}"
+    })
+  })
+);
+
+// Access and customize the label
+const tooltip = series.get("tooltip");
+if (tooltip) {
+  tooltip.label.setAll({
+    fontSize: 16,
+    fontWeight: "bold",
+    fill: am5.color(0xffffff)
+  });
+}
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:240-247`
+
+### Tooltip Background
+
+```typescript
+const tooltip = series.get("tooltip");
+if (tooltip) {
+  const background = tooltip.get("background");
+  background.setAll({
+    fill: am5.color(0x2c3e50),
+    fillOpacity: 0.9,
+    stroke: am5.color(0x3498db),
+    strokeWidth: 2,
+    cornerRadiusTL: 5,
+    cornerRadiusTR: 5,
+    cornerRadiusBL: 5,
+    cornerRadiusBR: 5
+  });
+}
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Tooltip.ts:185-204`
+
+## Shared Tooltips
+
+### Multiple Series Tooltip
+
+Show data from multiple series in one tooltip:
+
+```typescript
+// Enable tooltips on cursor instead of series
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+
+cursor.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "[bold]{categoryX}[/]\nSeries 1: {valueY}\nSeries 2: {valueY2}"
+}));
+
+// Disable individual series tooltips
+series1.set("tooltip", undefined);
+series2.set("tooltip", undefined);
+```
+
+## Conditional Tooltips
+
+### Show/Hide Based on Data
+
+```typescript
+series.columns.template.adapters.add("tooltipText", (text, target) => {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    const value = dataItem.get("valueY");
+    
+    // Only show tooltip for values over 100
+    if (value > 100) {
+      return "{categoryX}: {valueY}";
+    }
+  }
+  return undefined;  // No tooltip
+});
+```
+
+### Dynamic Tooltip Content
+
+```typescript
+series.columns.template.adapters.add("tooltipText", (text, target) => {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    const value = dataItem.get("valueY");
+    
+    if (value > 100) {
+      return "[bold green]{categoryX}[/]\n✓ Above target: {valueY}";
+    } else {
+      return "[bold red]{categoryX}[/]\n✗ Below target: {valueY}";
+    }
+  }
+  return text;
+});
+```
+
+## Tooltip Events
+
+### Manually Show/Hide
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "Manual Tooltip"
+});
+
+// Show tooltip
+tooltip.show();
+
+// Hide tooltip
+tooltip.hide();
+
+// Show with animation duration
+tooltip.show(500);  // 500ms animation
+
+// Hide with animation duration
+tooltip.hide(500);  // 500ms animation
+```
+
+## Styling Examples
+
+### Modern Tooltip Style
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{categoryX}\n{valueY}",
+  getFillFromSprite: false,
+  autoTextColor: false
+});
+
+tooltip.get("background").setAll({
+  fill: am5.color(0x000000),
+  fillOpacity: 0.85,
+  stroke: am5.color(0x3498db),
+  strokeWidth: 2,
+  shadowColor: am5.color(0x000000),
+  shadowBlur: 10,
+  shadowOffsetX: 3,
+  shadowOffsetY: 3,
+  shadowOpacity: 0.3
+});
+
+tooltip.label.setAll({
+  fill: am5.color(0xffffff),
+  fontSize: 14,
+  fontFamily: "Arial, sans-serif"
+});
+```
+
+### Minimal Tooltip Style
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: "{valueY}"
+});
+
+tooltip.get("background").setAll({
+  fill: am5.color(0xffffff),
+  fillOpacity: 0.95,
+  stroke: am5.color(0xcccccc),
+  strokeWidth: 1,
+  strokeOpacity: 0.5
+});
+
+tooltip.label.setAll({
+  fill: am5.color(0x333333),
+  fontSize: 12
+});
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep Content Concise">
+    Show only the most relevant information:
+    
+    ```typescript
+    // Good: Focused content
+    const tooltip = am5.Tooltip.new(root, {
+      labelText: "{categoryX}: {valueY}"
+    });
+    
+    // Avoid: Too much information
+    // labelText: "{categoryX}\n{valueY}\n{openValueY}\n{highValueY}\n{lowValueY}\n..."
+    ```
+  </Accordion>
+
+  <Accordion title="Use Appropriate Colors">
+    Ensure sufficient contrast for readability:
+    
+    ```typescript
+    const tooltip = am5.Tooltip.new(root, {
+      labelText: "{valueY}",
+      autoTextColor: true,  // Automatically adjust text color
+      getFillFromSprite: true
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Consider Mobile Users">
+    Ensure tooltips work well on touch devices:
+    
+    ```typescript
+    const tooltip = am5.Tooltip.new(root, {
+      labelText: "{categoryX}: {valueY}",
+      keepTargetHover: true,  // Better for touch interactions
+      pointerOrientation: "vertical"  // More reliable on mobile
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Format Numbers Appropriately">
+    Use number formatters in tooltip text:
+    
+    ```typescript
+    root.numberFormatter.setAll({
+      numberFormat: "#,###.00"
+    });
+    
+    const tooltip = am5.Tooltip.new(root, {
+      labelText: "{categoryX}: {valueY.formatNumber('#,###.00')}"
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Optimize Performance">
+    Reuse tooltip instances when possible:
+    
+    ```typescript
+    // Create one tooltip and share it
+    const sharedTooltip = am5.Tooltip.new(root, {
+      labelText: "{categoryX}: {valueY}"
+    });
+    
+    series1.set("tooltip", sharedTooltip);
+    series2.set("tooltip", sharedTooltip);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Common Patterns
+
+### Percentage Tooltip
+
+```typescript
+const series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{category}: {value} ({valuePercentTotal.formatNumber('0.00')}%)"
+    })
+  })
+);
+```
+
+### Date Formatting Tooltip
+
+```typescript
+root.dateFormatter.setAll({
+  dateFormat: "yyyy-MM-dd",
+  dateFields: ["valueX"]
+});
+
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueX.formatDate()}: {valueY}"
+    })
+  })
+);
+```
+
+### Multi-Line Tooltip
+
+```typescript
+const tooltip = am5.Tooltip.new(root, {
+  labelText: `[bold fontSize: 16px]{categoryX}[/]
+[fontSize: 12px]Value: {valueY}
+Change: {change}%
+Status: {status}[/]`
+});
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Labels" icon="text" href="/customization/labels">
+    Learn about text formatting and styling
+  </Card>
+  <Card title="Colors" icon="palette" href="/customization/colors">
+    Customize tooltip colors and backgrounds
+  </Card>
+</CardGroup>

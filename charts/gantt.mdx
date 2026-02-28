@@ -1,0 +1,343 @@
+---
+title: Gantt Chart
+description: Create project management Gantt charts with task dependencies and timelines
+---
+
+Gantt charts visualize project schedules, tasks, and their dependencies over time, making them essential for project management and planning.
+
+## When to Use Gantt Charts
+
+Use Gantt charts when you need to:
+- Plan and track project schedules
+- Visualize task dependencies and relationships
+- Show project timelines and milestones
+- Manage resources and allocations
+- Track project progress over time
+- Coordinate team activities and deadlines
+
+## Creating a Gantt Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5gantt from "@amcharts/amcharts5/gantt";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create Gantt chart
+const gantt = root.container.children.push(
+  am5gantt.Gantt.new(root, {
+    editable: true,
+    durationUnit: "day",
+    sidebarWidth: am5.percent(30)
+  })
+);
+
+// Set data
+const data = [
+  {
+    category: "Task 1",
+    start: new Date(2024, 0, 1).getTime(),
+    end: new Date(2024, 0, 10).getTime(),
+    task: "Design phase"
+  },
+  {
+    category: "Task 2",
+    start: new Date(2024, 0, 8).getTime(),
+    end: new Date(2024, 0, 20).getTime(),
+    task: "Development",
+    dependencies: ["Task 1"]
+  },
+  {
+    category: "Task 3",
+    start: new Date(2024, 0, 18).getTime(),
+    end: new Date(2024, 0, 28).getTime(),
+    task: "Testing",
+    dependencies: ["Task 2"]
+  }
+];
+
+gantt.series.data.setAll(data);
+```
+
+## Configuration Options
+
+### Chart Settings
+
+<Info>
+Control the Gantt chart's behavior and appearance with these core settings.
+</Info>
+
+- **editable** (`boolean`) - Enable UI editing (default: true)
+- **durationUnit** - Unit for duration calculation ("year" | "month" | "week" | "day" | "hour" | "minute" | "second")
+- **sidebarWidth** (`number | Percent`) - Width of category column (default: 30%)
+- **snapThreshold** (`number`) - Threshold for snapping bars (0-1, default: 0.5)
+
+```typescript
+const gantt = root.container.children.push(
+  am5gantt.Gantt.new(root, {
+    editable: true,
+    durationUnit: "day",
+    sidebarWidth: am5.percent(25),
+    snapThreshold: 0.3
+  })
+);
+```
+
+### Weekends and Holidays
+
+```typescript
+const gantt = root.container.children.push(
+  am5gantt.Gantt.new(root, {
+    weekends: [0, 6], // Sunday and Saturday
+    excludeWeekends: true,
+    holidays: [
+      new Date(2024, 0, 1), // New Year's Day
+      new Date(2024, 11, 25) // Christmas
+    ]
+  })
+);
+```
+
+## Data Structure
+
+### Task Data
+
+Each task requires these fields:
+
+```typescript
+const taskData = {
+  category: "Task Name",        // Task identifier
+  task: "Task Description",     // Display name
+  start: timestamp,             // Start date (Unix timestamp)
+  end: timestamp,               // End date (Unix timestamp)
+  duration: 10,                 // Optional: duration in durationUnit
+  dependencies: ["Task1"],      // Array of category IDs this depends on
+  color: am5.color(0xff0000),  // Optional: custom color
+  disabled: false               // Optional: disabled state
+};
+```
+
+### Hierarchical Tasks
+
+```typescript
+const data = [
+  {
+    category: "Phase 1",
+    task: "Planning Phase",
+    children: [
+      {
+        category: "Task 1.1",
+        task: "Requirements",
+        start: new Date(2024, 0, 1).getTime(),
+        end: new Date(2024, 0, 5).getTime()
+      },
+      {
+        category: "Task 1.2",
+        task: "Design",
+        start: new Date(2024, 0, 6).getTime(),
+        end: new Date(2024, 0, 10).getTime()
+      }
+    ]
+  }
+];
+```
+
+## Axes and Timeline
+
+### Date Axis Configuration
+
+The chart automatically creates date axes. Customize grid intervals:
+
+```typescript
+gantt.set("gridIntervals", {
+  day: [{ timeUnit: "day", count: 1 }],
+  week: [{ timeUnit: "week", count: 1 }],
+  month: [{ timeUnit: "month", count: 1 }]
+});
+```
+
+### Category Axis
+
+Customize the category (Y) axis:
+
+```typescript
+const categoryAxis = gantt.yAxis;
+
+categoryAxis.get("renderer").labels.template.setAll({
+  fontSize: 12,
+  fill: am5.color(0x000000)
+});
+```
+
+## Task Bars
+
+### Customize Appearance
+
+```typescript
+const series = gantt.series;
+
+// Configure task rectangles
+series.columns.template.setAll({
+  height: am5.percent(80),
+  strokeWidth: 2,
+  strokeOpacity: 0,
+  cornerRadiusTL: 4,
+  cornerRadiusTR: 4,
+  cornerRadiusBL: 4,
+  cornerRadiusBR: 4
+});
+
+// Add hover effect
+series.columns.template.states.create("hover", {
+  fillOpacity: 0.8
+});
+```
+
+### Task Dependencies
+
+Dependency arrows are automatically created:
+
+```typescript
+// Customize dependency lines
+series.links.template.setAll({
+  stroke: am5.color(0x999999),
+  strokeWidth: 2,
+  strokeOpacity: 0.5
+});
+```
+
+## Controls and Toolbar
+
+### Add Button
+
+Add new tasks:
+
+```typescript
+gantt.addButton.events.on("click", function() {
+  const newTask = {
+    category: "New Task",
+    task: "New Task",
+    start: new Date().getTime(),
+    end: new Date(Date.now() + 86400000 * 7).getTime()
+  };
+  
+  gantt.series.data.push(newTask);
+});
+```
+
+### Color Picker
+
+Customize task colors:
+
+```typescript
+gantt.colorPickerButton.events.on("selected", function(ev) {
+  const color = ev.color;
+  const selectedDataItems = gantt.series.getSelectedDataItems();
+  
+  selectedDataItems.forEach(function(dataItem) {
+    dataItem.set("fill", color);
+  });
+});
+```
+
+### Expand/Collapse
+
+```typescript
+// Expand all
+gantt.expandButton.events.on("click", function() {
+  gantt.series.dataItems.forEach(function(dataItem) {
+    dataItem.set("collapsed", false);
+  });
+});
+
+// Collapse all
+gantt.collapseButton.events.on("click", function() {
+  gantt.series.dataItems.forEach(function(dataItem) {
+    if (dataItem.get("children")?.length > 0) {
+      dataItem.set("collapsed", true);
+    }
+  });
+});
+```
+
+## Interactive Features
+
+### Drag and Drop
+
+Tasks can be dragged when `editable: true`:
+
+```typescript
+// Listen for task changes
+gantt.series.columns.template.events.on("dragged", function(ev) {
+  const dataItem = ev.target.dataItem;
+  console.log("Task moved:", dataItem.get("category"));
+});
+```
+
+### Resizing
+
+```typescript
+// Listen for duration changes
+gantt.series.columns.template.events.on("resized", function(ev) {
+  const dataItem = ev.target.dataItem;
+  console.log("Duration changed:", dataItem.get("category"));
+});
+```
+
+## Tooltips
+
+```typescript
+series.columns.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{task}\nStart: {start.formatDate()}\nEnd: {end.formatDate()}\nDuration: {duration} days"
+}));
+```
+
+## Scrollbars
+
+```typescript
+// Horizontal scrollbar (already included)
+gantt.scrollbarX.setAll({
+  orientation: "horizontal"
+});
+
+// Vertical scrollbar
+gantt.scrollbarY.setAll({
+  orientation: "vertical"
+});
+```
+
+## Events
+
+```typescript
+// Date marked/unmarked
+gantt.events.on("datemarked", function(ev) {
+  console.log("Date marked:", new Date(ev.date));
+});
+
+gantt.events.on("dateunmarked", function(ev) {
+  console.log("Date unmarked");
+});
+
+// Values changed
+gantt.events.on("valueschanged", function() {
+  console.log("Task values updated");
+});
+```
+
+## Key Classes
+
+- `Gantt` - Main Gantt chart class from `@amcharts/amcharts5/gantt`
+- `GanttSeries` - Task series (automatically created)
+- `GanttDateAxis` - Date axis for timeline
+- `GanttCategoryAxis` - Category axis for tasks
+
+<Tip>
+Set `linkNewTasks: true` to automatically create dependencies between consecutively added tasks.
+</Tip>
+
+<Note>
+Gantt charts require a valid license. Make sure you have appropriate licensing for production use.
+</Note>

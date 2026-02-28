@@ -1,0 +1,598 @@
+---
+title: 'Map Series'
+description: 'Series types for displaying geographic data on maps'
+icon: 'layer-group'
+---
+
+## Overview
+
+Map series are used to display different types of geographic data on a MapChart. amCharts 5 provides several series types for different use cases.
+
+## MapPolygonSeries
+
+Creates a map series for displaying polygons (countries, states, regions).
+
+### Creating a MapPolygonSeries
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow,
+    fill: am5.color(0x095256),
+    stroke: am5.color(0xffffff)
+  })
+);
+```
+
+### Settings
+
+<ResponseField name="geoJSON" type="GeoJSON.GeoJSON">
+  Map data in GeoJSON format.
+
+  ```typescript
+  polygonSeries.set("geoJSON", am5geodata_worldLow);
+  ```
+</ResponseField>
+
+<ResponseField name="reverseGeodata" type="boolean" default="false">
+  If set to `true`, the order of coordinates in GeoJSON will be flipped.
+
+  Some GeoJSON software produces coordinates in reverse order, so if your custom map appears garbled, try this setting.
+</ResponseField>
+
+<ResponseField name="include" type="string[]">
+  An array of map object IDs from geodata to include in the map.
+
+  If set, only those objects listed in `include` will be shown.
+
+  ```typescript
+  polygonSeries.set("include", ["US", "CA", "MX"]);
+  ```
+</ResponseField>
+
+<ResponseField name="exclude" type="string[]">
+  An array of map object IDs from geodata to omit when showing the map.
+
+  ```typescript
+  polygonSeries.set("exclude", ["AQ"]); // Exclude Antarctica
+  ```
+</ResponseField>
+
+<ResponseField name="valueField" type="string">
+  A field in series data that holds the map object's numeric value.
+
+  It can be used in tooltips, heat rules, etc.
+
+  ```typescript
+  polygonSeries.set("valueField", "value");
+  ```
+</ResponseField>
+
+<ResponseField name="geodataNames" type="{ [index: string]: string }">
+  Names of geodata items to replace from loaded geodata.
+
+  Can be used to override built-in English names for countries.
+
+  ```typescript
+  import am5geodata_lang_ES from '@amcharts/amcharts5-geodata/lang/es';
+  polygonSeries.set("geodataNames", am5geodata_lang_ES);
+  ```
+
+  See [Map translations](https://www.amcharts.com/docs/v5/charts/map-chart/map-translations/) for more info.
+</ResponseField>
+
+<ResponseField name="affectsBounds" type="boolean" default="true">
+  If `true`, this series will affect the calculated bounds shown in the MapChart.
+
+  Set to `false` to ignore a series while calculating the bounds (useful for background series).
+</ResponseField>
+
+### Properties
+
+<ResponseField name="mapPolygons" type="ListTemplate<MapPolygon>">
+  A ListTemplate of all polygons in the series.
+
+  Use `mapPolygons.template` to configure polygon appearance.
+
+  ```typescript
+  polygonSeries.mapPolygons.template.setAll({
+    tooltipText: "{name}",
+    fill: am5.color(0x095256),
+    strokeWidth: 1
+  });
+  ```
+</ResponseField>
+
+### Methods
+
+<ResponseField name="zoomToDataItem(dataItem, rotate?)" type="Animation<any> | undefined">
+  Centers and zooms in on the specific polygon.
+
+  <Expandable title="Parameters">
+    <ResponseField name="dataItem" type="DataItem<IMapPolygonSeriesDataItem>" required>
+      Target data item
+    </ResponseField>
+    <ResponseField name="rotate" type="boolean">
+      If `true`, the map will rotate so this polygon is centered (useful with geoOrthographic projection)
+    </ResponseField>
+  </Expandable>
+
+  See [Zooming to clicked object](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Zooming_to_clicked_object) for more info.
+
+  ```typescript
+  polygonSeries.mapPolygons.template.events.on("click", (ev) => {
+    polygonSeries.zoomToDataItem(ev.target.dataItem);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="zoomToDataItems(dataItems, rotate?)" type="Animation<any> | undefined">
+  Zooms the map so that all polygons in the array are visible.
+
+  <Expandable title="Parameters">
+    <ResponseField name="dataItems" type="Array<DataItem<IMapPolygonSeriesDataItem>>" required>
+      An array of data items to zoom to
+    </ResponseField>
+    <ResponseField name="rotate" type="boolean">
+      Rotate the map so it is centered on the selected items
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const items = [dataItem1, dataItem2, dataItem3];
+  polygonSeries.zoomToDataItems(items);
+  ```
+</ResponseField>
+
+<ResponseField name="getPolygonByPoint(point)" type="MapPolygon | undefined">
+  Returns a MapPolygon that is under specific X/Y point.
+
+  <Expandable title="Parameters">
+    <ResponseField name="point" type="IPoint" required>
+      Screen coordinates
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const polygon = polygonSeries.getPolygonByPoint({ x: 100, y: 200 });
+  ```
+</ResponseField>
+
+<ResponseField name="getPolygonByGeoPoint(point)" type="MapPolygon | undefined">
+  Returns a MapPolygon that contains the specified geographical point.
+
+  <Expandable title="Parameters">
+    <ResponseField name="point" type="IGeoPoint" required>
+      Geographical coordinates
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const polygon = polygonSeries.getPolygonByGeoPoint(
+    { longitude: -73.9352, latitude: 40.7306 }
+  );
+  ```
+</ResponseField>
+
+### Data Item Fields
+
+<ResponseField name="geometry" type="GeoJSON.Polygon | GeoJSON.MultiPolygon">
+  GeoJSON geometry of the polygon.
+</ResponseField>
+
+<ResponseField name="mapPolygon" type="MapPolygon">
+  Related MapPolygon object.
+</ResponseField>
+
+---
+
+## MapPointSeries
+
+Creates a map series for displaying markers on the map.
+
+### Creating a MapPointSeries
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {
+    latitudeField: "latitude",
+    longitudeField: "longitude"
+  })
+);
+
+pointSeries.bullets.push(() => {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: am5.color(0xff0000)
+    })
+  });
+});
+
+pointSeries.data.setAll([
+  { latitude: 40.7306, longitude: -73.9352, title: "New York" },
+  { latitude: 51.5074, longitude: -0.1278, title: "London" }
+]);
+```
+
+### Settings
+
+<ResponseField name="latitudeField" type="string">
+  A field in data that holds the point's latitude.
+
+  ```typescript
+  pointSeries.set("latitudeField", "lat");
+  ```
+</ResponseField>
+
+<ResponseField name="longitudeField" type="string">
+  A field in data that holds the point's longitude.
+
+  ```typescript
+  pointSeries.set("longitudeField", "lon");
+  ```
+</ResponseField>
+
+<ResponseField name="polygonIdField" type="string">
+  A field in data that holds an ID of a related polygon.
+
+  If set, the point will be positioned in the visual center of the target polygon.
+
+  ```typescript
+  pointSeries.set("polygonIdField", "countryId");
+  ```
+</ResponseField>
+
+<ResponseField name="clipFront" type="boolean">
+  If set to `true`, will hide all points that are in the visible range of the map.
+</ResponseField>
+
+<ResponseField name="clipBack" type="boolean" default="true">
+  If set to `true`, will hide all points that are in the invisible range of the map.
+
+  For example, on the side of the globe facing away from the viewer when used with Orthographic projection.
+
+  Note: not all projections have an invisible side.
+</ResponseField>
+
+<ResponseField name="autoScale" type="boolean" default="false">
+  If set to `true`, bullets will resize when zooming the MapChart.
+</ResponseField>
+
+### Methods
+
+<ResponseField name="zoomToDataItem(dataItem, zoomLevel, rotate?)" type="Animation<any> | undefined">
+  Centers the map to a specific series data item and zooms to the specified level.
+
+  <Expandable title="Parameters">
+    <ResponseField name="dataItem" type="DataItem<IMapPointSeriesDataItem>" required>
+      Map point
+    </ResponseField>
+    <ResponseField name="zoomLevel" type="number" required>
+      Target zoom level
+    </ResponseField>
+    <ResponseField name="rotate" type="boolean">
+      If `true`, the map will rotate so this point is centered (useful with geoOrthographic projection)
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  pointSeries.zoomToDataItem(dataItem, 4, true);
+  ```
+</ResponseField>
+
+<ResponseField name="zoomToDataItems(dataItems, rotate?)" type="Animation<any> | undefined">
+  Zooms the map so that all points in the array are visible.
+
+  <Expandable title="Parameters">
+    <ResponseField name="dataItems" type="Array<DataItem<IMapPointSeriesDataItem>>" required>
+      An array of data items to zoom to
+    </ResponseField>
+    <ResponseField name="rotate" type="boolean">
+      Rotate the map so it is centered on the selected items
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  pointSeries.zoomToDataItems([dataItem1, dataItem2]);
+  ```
+</ResponseField>
+
+### Data Item Fields
+
+<ResponseField name="geometry" type="GeoJSON.Point | GeoJSON.MultiPoint">
+  GeoJSON geometry of the point.
+</ResponseField>
+
+<ResponseField name="longitude" type="number">
+  Longitude of the point.
+</ResponseField>
+
+<ResponseField name="latitude" type="number">
+  Latitude of the point.
+</ResponseField>
+
+<ResponseField name="positionOnLine" type="number">
+  Relative position (0-1) on a MapLine to place the point on.
+</ResponseField>
+
+<ResponseField name="autoRotate" type="boolean">
+  Automatically rotate the point bullet to face the direction of the line it is attached to.
+</ResponseField>
+
+<ResponseField name="autoRotateAngle" type="number">
+  The angle will be added to the automatically-calculated angle. Can be used to reverse the direction.
+</ResponseField>
+
+<ResponseField name="lineDataItem" type="DataItem<IMapLineSeriesDataItem>">
+  A data item from a MapLineSeries the point is attached to.
+</ResponseField>
+
+<ResponseField name="lineId" type="string">
+  An ID of a MapLine the point is attached to.
+</ResponseField>
+
+<ResponseField name="polygonDataItem" type="DataItem<IMapPolygonSeriesDataItem>">
+  A data item from a MapPolygonSeries to use for positioning of the point.
+</ResponseField>
+
+<ResponseField name="polygonId" type="string">
+  An ID of the MapPolygon to use for centering the point.
+</ResponseField>
+
+<ResponseField name="fixed" type="boolean" default="false">
+  If set to `true`, the point will be drawn according to its `x` and `y` coordinates, not its latitude and longitude.
+
+  Fixed points will not move together with the map, and cannot be used to connect points on a MapLineSeries.
+</ResponseField>
+
+---
+
+## MapLineSeries
+
+Creates a map series for displaying lines on the map.
+
+### Creating a MapLineSeries
+
+```typescript
+const lineSeries = chart.series.push(
+  am5map.MapLineSeries.new(root, {
+    stroke: am5.color(0xff0000),
+    strokeWidth: 2
+  })
+);
+
+lineSeries.mapLines.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2
+});
+```
+
+### Settings
+
+<ResponseField name="clipBack" type="boolean">
+  If set to `true`, will hide line segments that are in the invisible range of the map.
+
+  For example, on the side of the globe facing away from the viewer when used with Orthographic projection.
+
+  Note: not all projections have an invisible side.
+</ResponseField>
+
+<ResponseField name="lineType" type="'curved' | 'straight'" default="curved">
+  A line type.
+
+  - `"curved"` (default) - connects points using shortest distance, which will result in curved lines based on map projection
+  - `"straight"` - connects points using visually straight lines, and will not cross the -180/180 longitude
+
+  ```typescript
+  lineSeries.set("lineType", "straight");
+  ```
+</ResponseField>
+
+### Properties
+
+<ResponseField name="mapLines" type="ListTemplate<MapLine>">
+  A ListTemplate of all lines in the series.
+
+  Use `mapLines.template` to configure line appearance.
+
+  ```typescript
+  lineSeries.mapLines.template.setAll({
+    stroke: am5.color(0x000000),
+    strokeWidth: 2,
+    strokeDasharray: [2, 2]
+  });
+  ```
+</ResponseField>
+
+### Data Item Fields
+
+<ResponseField name="geometry" type="GeoJSON.LineString | GeoJSON.MultiLineString">
+  GeoJSON geometry of the line.
+</ResponseField>
+
+<ResponseField name="mapLine" type="MapLine">
+  Related MapLine object.
+</ResponseField>
+
+<ResponseField name="pointsToConnect" type="Array<DataItem<IMapPointSeriesDataItem>>">
+  An array of data items from MapPointSeries to use as line end-points.
+
+  Note: fixed points cannot be used here.
+
+  ```typescript
+  lineSeries.data.push({
+    pointsToConnect: [point1DataItem, point2DataItem]
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="lineType" type="'curved' | 'straight'" default="curved">
+  A line type for this specific data item.
+</ResponseField>
+
+---
+
+## GraticuleSeries
+
+A MapChart series to draw a map grid (lines of latitude and longitude).
+
+### Creating a GraticuleSeries
+
+```typescript
+const graticuleSeries = chart.series.push(
+  am5map.GraticuleSeries.new(root, {
+    step: 10
+  })
+);
+
+graticuleSeries.mapLines.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeOpacity: 0.1
+});
+```
+
+### Settings
+
+<ResponseField name="step" type="number" default="10">
+  Place a grid line every Xth latitude/longitude.
+
+  ```typescript
+  graticuleSeries.set("step", 15);
+  ```
+</ResponseField>
+
+<ResponseField name="clipExtent" type="boolean">
+  If set to `true`, the graticule will be clipped to the visible map bounds.
+</ResponseField>
+
+See [Graticule series](https://www.amcharts.com/docs/v5/charts/map-chart/graticule-series/) for more info.
+
+---
+
+## ClusteredPointSeries
+
+Extends MapPointSeries to automatically group nearby points into clusters.
+
+### Creating a ClusteredPointSeries
+
+```typescript
+const clusteredSeries = chart.series.push(
+  am5map.ClusteredPointSeries.new(root, {
+    minDistance: 30,
+    latitudeField: "latitude",
+    longitudeField: "longitude"
+  })
+);
+
+clusteredSeries.set("clusteredBullet", (root, series, dataItem) => {
+  const container = am5.Container.new(root, {});
+  
+  const circle = container.children.push(
+    am5.Circle.new(root, {
+      radius: 20,
+      fill: am5.color(0xff0000),
+      centerX: am5.p50,
+      centerY: am5.p50
+    })
+  );
+  
+  const label = container.children.push(
+    am5.Label.new(root, {
+      text: "{count}",
+      fill: am5.color(0xffffff),
+      centerX: am5.p50,
+      centerY: am5.p50
+    })
+  );
+  
+  return am5.Bullet.new(root, { sprite: container });
+});
+```
+
+### Settings
+
+<ResponseField name="minDistance" type="number" default="20">
+  Bullets that are closer than X pixels apart will be automatically grouped.
+
+  See [Minimal distance](https://www.amcharts.com/docs/v5/charts/map-chart/clustered-point-series/#Minimal_distance) for more info.
+</ResponseField>
+
+<ResponseField name="groupIdField" type="string" default="groupID">
+  Series data can contain a field with an ID of a virtual group the bullet belongs to.
+
+  For example, we might want bullets to group only with other bullets from the same continent.
+
+  `groupIdField` specifies which field in source data holds group IDs.
+
+  See [Group segregation](https://www.amcharts.com/docs/v5/charts/map-chart/clustered-point-series/#Group_segregation) for more info.
+</ResponseField>
+
+<ResponseField name="clusteredBullet" type="(root, series, dataItem) => Bullet | undefined">
+  Set this to a Bullet instance which will be used to show groups.
+
+  See [Group bullet](https://www.amcharts.com/docs/v5/charts/map-chart/clustered-point-series/#Group_bullet) for more info.
+</ResponseField>
+
+<ResponseField name="singleBullet" type="(root, series, dataItem) => Bullet | undefined">
+  Set this to a Bullet instance which will be used to show single (non-clustered) points.
+</ResponseField>
+
+<ResponseField name="stopClusterZoom" type="number">
+  If set, clustering will stop when zoom level reaches this value.
+
+  See [Stop clustering](https://www.amcharts.com/docs/v5/charts/map-chart/clustered-point-series/#Stop_clustering) for more info.
+</ResponseField>
+
+<ResponseField name="scatterDistance" type="number">
+  Distance in pixels between scattered bullets when cluster is opened.
+
+  See [Cluster scatter](https://www.amcharts.com/docs/v5/charts/map-chart/clustered-point-series/#Cluster_scatter) for more info.
+</ResponseField>
+
+<ResponseField name="scatterRadius" type="number">
+  Radius in pixels for scattering bullets when cluster is opened.
+</ResponseField>
+
+## Common Series Settings
+
+All map series inherit from the base `MapSeries` class and share these common settings:
+
+<ResponseField name="geoJSON" type="GeoJSON.GeoJSON">
+  Map data in GeoJSON format.
+</ResponseField>
+
+<ResponseField name="include" type="string[]">
+  An array of map object IDs from geodata to include in the map.
+</ResponseField>
+
+<ResponseField name="exclude" type="string[]">
+  An array of map object IDs from geodata to omit when showing the map.
+</ResponseField>
+
+<ResponseField name="valueField" type="string">
+  A field in series data that will hold the map object's numeric value.
+</ResponseField>
+
+<ResponseField name="geodataNames" type="{ [index: string]: string }">
+  Names of geodata items to replace from loaded geodata.
+</ResponseField>
+
+<ResponseField name="affectsBounds" type="boolean" default="true">
+  Whether this series affects the calculated bounds shown in the MapChart.
+</ResponseField>
+
+## Events
+
+<ResponseField name="geodataprocessed" type="{}">
+  Invoked when geodata is finished loading and processed.
+
+  ```typescript
+  polygonSeries.events.on("geodataprocessed", () => {
+    console.log("Geodata loaded");
+  });
+  ```
+</ResponseField>

@@ -1,0 +1,259 @@
+---
+title: 'Slice'
+description: 'Draws a slice (pie/donut segment) shape'
+icon: 'chart-pie'
+---
+
+## Overview
+
+The `Slice` class draws a slice shape, commonly used in pie and donut charts. It extends the `Graphics` base class and provides properties for controlling radius, arc, angles, and more.
+
+## Class Definition
+
+```typescript
+export class Slice extends Graphics
+```
+
+## Settings Interface
+
+```typescript
+export interface ISliceSettings extends IGraphicsSettings
+```
+
+## Properties
+
+<ResponseField name="radius" type="number">
+  Radius in pixels.
+  
+  This defines the outer radius of the slice.
+</ResponseField>
+
+<ResponseField name="arc" type="number">
+  Slice "width" in degrees.
+  
+  The angular width of the slice. For example, 90 degrees creates a quarter circle.
+</ResponseField>
+
+<ResponseField name="innerRadius" type="number">
+  Inner radius of the slice in pixels.
+  
+  Set this to create a donut-style slice. A value of 0 creates a pie slice.
+</ResponseField>
+
+<ResponseField name="startAngle" type="number">
+  Start angle in degrees.
+  
+  The angle at which the slice begins. 0 degrees is at the top (12 o'clock position).
+</ResponseField>
+
+<ResponseField name="cornerRadius" type="number">
+  Slice corner radius in pixels.
+  
+  Rounds the corners of the slice edges.
+</ResponseField>
+
+<ResponseField name="shiftRadius" type="number">
+  Slice "pull out" radius in pixels.
+  
+  Use this to pull a slice out from the center (exploded slice effect).
+</ResponseField>
+
+<ResponseField name="dRadius" type="number">
+  Number of pixels to add to whatever slice's `radius` value is.
+  
+  Negative numbers can also be used. This is useful for relative adjustments.
+</ResponseField>
+
+<ResponseField name="dInnerRadius" type="number">
+  Number of pixels to add to whatever slice's `innerRadius` value is.
+  
+  Negative numbers can also be used. This is useful for relative adjustments.
+</ResponseField>
+
+## Public Properties
+
+<ResponseField name="ix" type="number">
+  The x component of the slice's middle angle direction vector.
+  
+  This is calculated automatically and used for positioning tooltips and applying shift radius.
+</ResponseField>
+
+<ResponseField name="iy" type="number">
+  The y component of the slice's middle angle direction vector.
+  
+  This is calculated automatically and used for positioning tooltips and applying shift radius.
+</ResponseField>
+
+## Inherited Properties
+
+As `Slice` extends `Graphics`, it inherits all graphics properties including:
+
+<ResponseField name="fill" type="Color">
+  Fill color.
+  
+  [Learn more about colors, gradients and patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/)
+</ResponseField>
+
+<ResponseField name="stroke" type="Color">
+  Stroke (border) color.
+  
+  [Learn more about colors, gradients and patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/)
+</ResponseField>
+
+<ResponseField name="strokeWidth" type="number">
+  Width of the stroke (border) in pixels.
+</ResponseField>
+
+<ResponseField name="fillOpacity" type="number">
+  Opacity of the fill. 0 - fully transparent; 1 - fully opaque.
+</ResponseField>
+
+<ResponseField name="strokeOpacity" type="number">
+  Opacity of the stroke (border). 0 - fully transparent; 1 - fully opaque.
+</ResponseField>
+
+<ResponseField name="fillPattern" type="Pattern">
+  Fill pattern.
+  
+  [Learn more about patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/patterns/)
+</ResponseField>
+
+<ResponseField name="strokePattern" type="Pattern">
+  Stroke (border) pattern.
+  
+  [Learn more about patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/patterns/)
+</ResponseField>
+
+<ResponseField name="fillGradient" type="Gradient">
+  Fill gradient.
+  
+  [Learn more about gradients](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/gradients/)
+</ResponseField>
+
+<ResponseField name="strokeGradient" type="Gradient">
+  Stroke (border) gradient.
+  
+  [Learn more about gradients](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/gradients/)
+</ResponseField>
+
+<ResponseField name="strokeDasharray" type="number[] | number">
+  Stroke (border) dash settings.
+  
+  [Learn more about dashed lines](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/#Dashed_lines)
+</ResponseField>
+
+<ResponseField name="strokeDashoffset" type="number">
+  Stroke (border) dash offset.
+  
+  [Learn more about dashed lines](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/#Dashed_lines)
+</ResponseField>
+
+<ResponseField name="shadowColor" type="Color | null">
+  Color of the element's shadow.
+  
+  For this to work at least one of the following needs to be set as well: `shadowBlur`, `shadowOffsetX`, `shadowOffsetY`.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowBlur" type="number">
+  Blurriness of the shadow. The bigger the number, the more blurry shadow will be.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOffsetX" type="number">
+  Horizontal shadow offset in pixels.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOffsetY" type="number">
+  Vertical shadow offset in pixels.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOpacity" type="number">
+  Opacity of the shadow (0-1).
+  
+  If not set, will use the same as `fillOpacity` of the element.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+## Example Usage
+
+### Pie Slice
+
+```typescript
+import { Slice } from "@amcharts/amcharts5";
+
+// Create a pie slice (quarter circle)
+let pieSlice = Slice.new(root, {
+  radius: 100,
+  startAngle: 0,
+  arc: 90,
+  innerRadius: 0,
+  fill: am5.color(0xff0000),
+  stroke: am5.color(0xffffff),
+  strokeWidth: 2
+});
+```
+
+### Donut Slice
+
+```typescript
+// Create a donut slice
+let donutSlice = Slice.new(root, {
+  radius: 100,
+  innerRadius: 60,
+  startAngle: 90,
+  arc: 120,
+  fill: am5.color(0x0000ff),
+  cornerRadius: 5
+});
+```
+
+### Exploded Slice
+
+```typescript
+// Create an exploded slice (pulled out from center)
+let explodedSlice = Slice.new(root, {
+  radius: 100,
+  innerRadius: 50,
+  startAngle: 0,
+  arc: 60,
+  shiftRadius: 20,
+  fill: am5.color(0x00ff00)
+});
+```
+
+### Dynamic Radius Adjustment
+
+```typescript
+// Create a slice with dynamic radius adjustment
+let dynamicSlice = Slice.new(root, {
+  radius: 100,
+  innerRadius: 60,
+  startAngle: 0,
+  arc: 45,
+  dRadius: 10,  // Adds 10px to radius
+  dInnerRadius: -5,  // Subtracts 5px from innerRadius
+  fill: am5.color(0xff00ff)
+});
+```
+
+## Notes
+
+- The slice uses the d3-shape arc generator internally for rendering.
+- If `innerRadius` is negative, it's treated as relative to the outer radius.
+- The `shiftRadius` property automatically updates the `dx` and `dy` properties to shift the slice outward from the center.
+- Full circle (360 degrees) with `innerRadius` of 0 is treated specially for tooltip positioning.
+- The corner radius is only applied when the arc is greater than 0.1 degrees to avoid rendering issues.
+
+## See Also
+
+- [Graphics documentation](https://www.amcharts.com/docs/v5/concepts/common-elements/graphics/)
+- [Circle](/api/shapes/circle) - For full circle shapes
+- [Pie Charts](https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/) - For using slices in pie charts

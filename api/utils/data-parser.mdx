@@ -1,0 +1,305 @@
+---
+title: Data Parser
+---
+
+Data parsers are utility classes that convert raw data strings into structured JavaScript objects. amCharts 5 provides parsers for JSON and CSV formats.
+
+## JSONParser
+
+Parses JSON string into structured data.
+
+### Static Methods
+
+#### parse()
+
+```typescript
+static parse(input: string, options?: IJSONParserOptions): any
+```
+
+Parses JSON string into JavaScript object or array.
+
+<ParamField path="input" type="string" required>
+  JSON string to parse
+</ParamField>
+
+<ParamField path="options" type="IJSONParserOptions">
+  Parser options
+</ParamField>
+
+<ResponseField name="return" type="any">
+  Parsed data (object or array)
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { JSONParser } from "@amcharts/amcharts5";
+
+const jsonString = '[{"country":"USA","value":100},{"country":"China","value":200}]';
+const data = JSONParser.parse(jsonString);
+
+console.log(data);
+// [
+//   { country: "USA", value: 100 },
+//   { country: "China", value: 200 }
+// ]
+```
+
+### Options
+
+#### IJSONParserOptions
+
+<ParamField path="reverse" type="boolean" default="false">
+  Reverse the order of parsed data array.
+</ParamField>
+
+**Example:**
+
+```typescript
+const data = JSONParser.parse(jsonString, { reverse: true });
+// Data will be in reverse order
+```
+
+## CSVParser
+
+Parses CSV (Comma-Separated Values) string into structured data.
+
+### Static Methods
+
+#### parse()
+
+```typescript
+static parse(input: string, options?: ICSVParserOptions): any[]
+```
+
+Parses CSV string into an array of objects.
+
+<ParamField path="input" type="string" required>
+  CSV string to parse
+</ParamField>
+
+<ParamField path="options" type="ICSVParserOptions">
+  Parser options
+</ParamField>
+
+<ResponseField name="return" type="any[]">
+  Array of parsed data objects
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+const csvString = `country,value
+USA,100
+China,200
+Brazil,150`;
+
+const data = CSVParser.parse(csvString, {
+  useColumnNames: true
+});
+
+console.log(data);
+// [
+//   { country: "USA", value: "100" },
+//   { country: "China", value: "200" },
+//   { country: "Brazil", value: "150" }
+// ]
+```
+
+#### CSVToArray()
+
+```typescript
+static CSVToArray(data: string, delimiter: string): any[][]
+```
+
+Low-level method that converts CSV string to a 2D array without creating objects.
+
+<ParamField path="data" type="string" required>
+  CSV string to parse
+</ParamField>
+
+<ParamField path="delimiter" type="string" required>
+  Delimiter character (usually ",")
+</ParamField>
+
+<ResponseField name="return" type="any[][]">
+  2D array of values
+</ResponseField>
+
+**Example:**
+
+```typescript
+const csvString = "USA,100\nChina,200";
+const array = CSVParser.CSVToArray(csvString, ",");
+
+console.log(array);
+// [
+//   ["USA", "100"],
+//   ["China", "200"]
+// ]
+```
+
+### Options
+
+#### ICSVParserOptions
+
+<ParamField path="delimiter" type="string" default="','">
+  Delimiter used for columns. Common values are "," (comma) and "\t" (tab).
+</ParamField>
+
+<ParamField path="reverse" type="boolean" default="false">
+  Reverse the order of parsed data.
+</ParamField>
+
+<ParamField path="skipRows" type="number" default="0">
+  Skip first X rows. Useful for skipping header rows when not using column names.
+</ParamField>
+
+<ParamField path="skipEmpty" type="boolean" default="true">
+  Skip empty rows in the CSV data.
+</ParamField>
+
+<ParamField path="useColumnNames" type="boolean" default="false">
+  Use the first row to name the columns. When true, the first row becomes property names for the resulting objects.
+</ParamField>
+
+**Example:**
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+const csvString = `# This is a comment
+country,value
+USA,100
+China,200
+
+Brazil,150`;
+
+const data = CSVParser.parse(csvString, {
+  delimiter: ",",
+  skipRows: 1,           // Skip the comment row
+  skipEmpty: true,       // Skip the empty row
+  useColumnNames: true,  // First row becomes property names
+  reverse: false
+});
+
+console.log(data);
+// [
+//   { country: "USA", value: "100" },
+//   { country: "China", value: "200" },
+//   { country: "Brazil", value: "150" }
+// ]
+```
+
+## Usage with Charts
+
+### Loading External JSON Data
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { JSONParser } from "@amcharts/amcharts5";
+
+fetch("https://example.com/data.json")
+  .then(response => response.text())
+  .then(jsonString => {
+    const data = JSONParser.parse(jsonString);
+    series.data.setAll(data);
+  });
+```
+
+### Loading External CSV Data
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { CSVParser } from "@amcharts/amcharts5";
+
+fetch("https://example.com/data.csv")
+  .then(response => response.text())
+  .then(csvString => {
+    const data = CSVParser.parse(csvString, {
+      useColumnNames: true,
+      delimiter: ","
+    });
+    series.data.setAll(data);
+  });
+```
+
+### Tab-Delimited Data
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+const tsvString = "country\tvalue\nUSA\t100\nChina\t200";
+
+const data = CSVParser.parse(tsvString, {
+  delimiter: "\t",  // Tab character
+  useColumnNames: true
+});
+
+series.data.setAll(data);
+```
+
+### Advanced CSV Parsing
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+// CSV with quoted values and special characters
+const csvString = `name,description,value
+"Product A","Contains, comma",100
+"Product B","Contains ""quotes""",200`;
+
+const data = CSVParser.parse(csvString, {
+  useColumnNames: true
+});
+
+console.log(data);
+// [
+//   { name: "Product A", description: "Contains, comma", value: "100" },
+//   { name: "Product B", description: 'Contains "quotes"', value: "200" }
+// ]
+```
+
+## Type Conversion
+
+Note that both parsers return string values for CSV data. You may need to convert values to appropriate types:
+
+```typescript
+import { CSVParser } from "@amcharts/amcharts5";
+
+const csvString = "country,value\nUSA,100\nChina,200";
+const data = CSVParser.parse(csvString, { useColumnNames: true });
+
+// Convert string values to numbers
+const processedData = data.map(item => ({
+  country: item.country,
+  value: Number(item.value)
+}));
+
+series.data.setAll(processedData);
+```
+
+## Error Handling
+
+```typescript
+import { JSONParser } from "@amcharts/amcharts5";
+
+try {
+  const data = JSONParser.parse(invalidJsonString);
+  if (data === undefined) {
+    console.error("Failed to parse JSON");
+  } else {
+    series.data.setAll(data);
+  }
+} catch (error) {
+  console.error("Error parsing data:", error);
+}
+```
+
+## See Also
+
+- [Loading External Data](https://www.amcharts.com/docs/v5/concepts/data/#Loading_external_data)
+- [Parsing Data](https://www.amcharts.com/docs/v5/concepts/data/#Parsing)
+- [Data Processors](https://www.amcharts.com/docs/v5/concepts/data/#Pre_processing_data)

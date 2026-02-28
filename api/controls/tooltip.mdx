@@ -1,0 +1,257 @@
+---
+title: 'Tooltip'
+description: 'Contextual tooltip that appears on hover'
+icon: 'message'
+---
+
+## Overview
+
+The `Tooltip` class creates a contextual popup that displays information when hovering over chart elements. It automatically positions itself relative to a target element and includes a pointer.
+
+## Constructor
+
+```typescript
+Tooltip.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="ITooltipSettings">
+  Configuration settings for the tooltip
+</ParamField>
+
+## Settings
+
+### Content Settings
+
+<ParamField path="labelText" type="string">
+  Text to use for the tooltip's label.
+</ParamField>
+
+<ParamField path="labelHTML" type="string">
+  HTML content to use for the tooltip's label.
+</ParamField>
+
+<ParamField path="labelAriaLabel" type="string">
+  Screen reader content for the label. Used with `readerAnnounce`. If set, its contents will be read by screen readers when the tooltip is shown.
+</ParamField>
+
+### Appearance Settings
+
+<ParamField path="pointerOrientation" type="'left' | 'right' | 'up' | 'down' | 'vertical' | 'horizontal'">
+  Direction of the tooltip pointer.
+  
+  - `vertical` - Automatically points up or down based on position
+  - `horizontal` - Automatically points left or right based on position
+  - `up`, `down`, `left`, `right` - Fixed direction
+</ParamField>
+
+<ParamField path="getFillFromSprite" type="boolean" default="true">
+  If `true`, will use the same `fill` color for its background as its `tooltipTarget`.
+</ParamField>
+
+<ParamField path="getFillGradientFromSprite" type="boolean" default="false">
+  If `true`, will use the same `fillGradient` for its background as its `tooltipTarget`.
+</ParamField>
+
+<ParamField path="getLabelFillFromSprite" type="boolean" default="false">
+  If `true`, will use the same `fill` color for label text as its `tooltipTarget`.
+</ParamField>
+
+<ParamField path="getStrokeFromSprite" type="boolean" default="false">
+  If `true`, will use the same `stroke` color as its `tooltipTarget`.
+</ParamField>
+
+<ParamField path="autoTextColor" type="boolean" default="true">
+  If `true`, tooltip will automatically adjust text color for better visibility on its background.
+</ParamField>
+
+### Position Settings
+
+<ParamField path="pointTo" type="IPoint">
+  Screen coordinates the tooltip should point to. Object with `x` and `y` properties.
+</ParamField>
+
+<ParamField path="bounds" type="IBounds">
+  Screen bounds to constrain the tooltip within. Prevents tooltip from going off-screen.
+</ParamField>
+
+<ParamField path="tooltipTarget" type="Sprite">
+  Target element the tooltip is shown for.
+</ParamField>
+
+### Animation Settings
+
+<ParamField path="animationDuration" type="number">
+  Duration in milliseconds for tooltip position changes (e.g., when jumping between targets).
+</ParamField>
+
+<ParamField path="animationEasing" type="(t: Time) => Time">
+  Easing function for tooltip animations.
+</ParamField>
+
+### Behavior Settings
+
+<ParamField path="keepTargetHover" type="boolean">
+  If `true`, the tooltip's target element will be considered hovered when the mouse is over the tooltip itself.
+</ParamField>
+
+<ParamField path="readerAnnounce" type="boolean" default="false">
+  If `true`, the tooltip contents will be read by screen readers when displayed or changed.
+</ParamField>
+
+## Properties
+
+### label
+
+<ResponseField name="label" type="Label">
+  The `Label` element for the tooltip (read-only).
+</ResponseField>
+
+```typescript
+const tooltip = Tooltip.new(root, {});
+tooltip.label.set("fontSize", 14);
+```
+
+## Methods
+
+### updateBackgroundColor()
+
+Updates the tooltip's background color based on its target element and color settings.
+
+```typescript
+updateBackgroundColor(): void
+```
+
+This method is automatically called when the tooltip is shown or when `tooltipTarget` changes.
+
+## Events
+
+Tooltip inherits all `Container` events and adds visibility tracking:
+
+- `visible` - Fired when tooltip visibility changes
+
+## Examples
+
+### Basic Tooltip
+
+```typescript
+import { Tooltip } from "@amcharts/amcharts5";
+
+const tooltip = Tooltip.new(root, {
+  labelText: "Value: {value}"
+});
+
+series.set("tooltip", tooltip);
+```
+
+### HTML Tooltip
+
+```typescript
+const htmlTooltip = Tooltip.new(root, {
+  labelHTML: `
+    <div style="padding: 10px;">
+      <strong>{category}</strong><br/>
+      Value: {value}
+    </div>
+  `
+});
+```
+
+### Tooltip with Custom Styling
+
+```typescript
+const styledTooltip = Tooltip.new(root, {
+  labelText: "{category}: {value}",
+  getFillFromSprite: false,
+  autoTextColor: false
+});
+
+styledTooltip.get("background").setAll({
+  fill: am5.color(0x000000),
+  fillOpacity: 0.8
+});
+
+styledTooltip.label.setAll({
+  fill: am5.color(0xffffff),
+  fontSize: 12
+});
+```
+
+### Tooltip with Fixed Orientation
+
+```typescript
+const fixedTooltip = Tooltip.new(root, {
+  labelText: "Always points up",
+  pointerOrientation: "up"
+});
+```
+
+### Animated Tooltip
+
+```typescript
+const animatedTooltip = Tooltip.new(root, {
+  labelText: "{value}",
+  animationDuration: 300,
+  animationEasing: am5.ease.out(am5.ease.cubic)
+});
+```
+
+### Accessible Tooltip
+
+```typescript
+const accessibleTooltip = Tooltip.new(root, {
+  labelText: "{category}: {value}",
+  labelAriaLabel: "Category {category} has value {value}",
+  readerAnnounce: true
+});
+```
+
+### Tooltip that Keeps Target Hovered
+
+```typescript
+const interactiveTooltip = Tooltip.new(root, {
+  labelHTML: '<a href="#">Click for details</a>',
+  keepTargetHover: true
+});
+```
+
+## Using with Chart Elements
+
+Most chart elements support tooltips through the `tooltip` setting:
+
+```typescript
+// On a series
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    tooltip: Tooltip.new(root, {
+      labelText: "{category}: {valueY}"
+    })
+  })
+);
+
+// On individual data items
+series.columns.template.set("tooltip", Tooltip.new(root, {
+  labelText: "Value: {valueY}"
+}));
+```
+
+## Pointer Positioning
+
+The tooltip automatically positions its pointer based on:
+
+- `pointerOrientation` setting
+- Available space on screen
+- `bounds` constraints
+- The `pointTo` coordinates
+
+For `vertical` and `horizontal` orientations, the tooltip intelligently chooses the best direction.
+
+## Related
+
+- [Container](/api/core/container)
+- [Label](/api/controls/label)
+- [Tooltip documentation](https://www.amcharts.com/docs/v5/concepts/common-elements/tooltips/)
+- [Tooltip colors](https://www.amcharts.com/docs/v5/concepts/common-elements/tooltips/#Colors)

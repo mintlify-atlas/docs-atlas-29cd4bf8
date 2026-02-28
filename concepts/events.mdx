@@ -1,0 +1,501 @@
+---
+title: Events
+description: Handle user interactions and system events in amCharts 5
+---
+
+Events in amCharts 5 enable you to respond to user interactions and system occurrences. Every sprite, chart, and component has an event dispatcher that allows you to listen to various events.
+
+## Basic Event Handling
+
+Listen to events using the `events.on()` method:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const root = am5.Root.new("chartdiv");
+
+const rectangle = am5.Rectangle.new(root, {
+  width: 100,
+  height: 50,
+  fill: am5.color(0x0000ff),
+  interactive: true
+});
+
+rectangle.events.on("click", (ev) => {
+  console.log("Rectangle clicked!", ev.point);
+});
+```
+
+<Note>
+Make sure to set `interactive: true` on elements that should respond to user interactions.
+</Note>
+
+## Pointer Events
+
+Handle mouse and touch interactions:
+
+### Click Events
+
+```typescript
+sprite.events.on("click", (ev) => {
+  console.log("Clicked at:", ev.point.x, ev.point.y);
+  console.log("Original event:", ev.originalEvent);
+  console.log("Target:", ev.target);
+});
+
+sprite.events.on("dblclick", (ev) => {
+  console.log("Double clicked!");
+});
+
+sprite.events.on("rightclick", (ev) => {
+  console.log("Right clicked!");
+  ev.originalEvent.preventDefault();  // Prevent context menu
+});
+```
+
+### Hover Events
+
+```typescript
+sprite.events.on("pointerover", (ev) => {
+  console.log("Pointer entered");
+  sprite.set("opacity", 0.7);
+});
+
+sprite.events.on("pointerout", (ev) => {
+  console.log("Pointer left");
+  sprite.set("opacity", 1);
+});
+```
+
+### Drag Events
+
+```typescript
+const draggable = am5.Circle.new(root, {
+  radius: 30,
+  fill: am5.color(0xff0000),
+  draggable: true
+});
+
+draggable.events.on("dragstart", (ev) => {
+  console.log("Drag started at:", ev.point);
+});
+
+draggable.events.on("dragged", (ev) => {
+  console.log("Dragging, position:", draggable.x(), draggable.y());
+});
+
+draggable.events.on("dragstop", (ev) => {
+  console.log("Drag stopped");
+});
+```
+
+### Pointer Down/Up Events
+
+```typescript
+sprite.events.on("pointerdown", (ev) => {
+  console.log("Pointer button pressed");
+});
+
+sprite.events.on("pointerup", (ev) => {
+  console.log("Pointer button released");
+});
+
+sprite.events.on("globalpointerup", (ev) => {
+  console.log("Pointer released anywhere in window");
+});
+```
+
+## Mouse Wheel Events
+
+```typescript
+const container = am5.Container.new(root, {
+  wheelable: true,
+  interactive: true
+});
+
+container.events.on("wheel", (ev) => {
+  const wheelEvent = ev.originalEvent;
+  console.log("Wheel delta:", wheelEvent.deltaY);
+  wheelEvent.preventDefault();
+});
+```
+
+## Focus Events
+
+Handle keyboard focus:
+
+```typescript
+const button = am5.Rectangle.new(root, {
+  focusable: true,
+  interactive: true
+});
+
+button.events.on("focus", (ev) => {
+  console.log("Element focused");
+  button.set("strokeWidth", 2);
+});
+
+button.events.on("blur", (ev) => {
+  console.log("Element lost focus");
+  button.set("strokeWidth", 0);
+});
+```
+
+## Data Events
+
+Listen to data changes:
+
+```typescript
+series.data.events.on("push", (ev) => {
+  console.log("New data added:", ev.newValue);
+});
+
+series.data.events.on("setIndex", (ev) => {
+  console.log("Data updated at index:", ev.index);
+  console.log("Old value:", ev.oldValue);
+  console.log("New value:", ev.newValue);
+});
+
+series.data.events.on("removeIndex", (ev) => {
+  console.log("Data removed from index:", ev.index);
+});
+
+series.data.events.on("clear", () => {
+  console.log("All data cleared");
+});
+```
+
+## Chart Events
+
+```typescript
+series.events.on("datavalidated", () => {
+  console.log("Data has been validated and processed");
+});
+
+chart.events.on("boundschanged", () => {
+  console.log("Chart bounds changed");
+});
+```
+
+## Root Events
+
+Frame-based events:
+
+```typescript
+root.events.on("framestarted", (ev) => {
+  console.log("Frame started:", ev.timestamp);
+});
+
+root.events.on("frameended", (ev) => {
+  console.log("Frame ended:", ev.timestamp);
+});
+```
+
+## One-time Events
+
+Listen to an event only once:
+
+```typescript
+sprite.events.once("click", (ev) => {
+  console.log("This will only fire once");
+});
+
+// After first click, this listener is automatically removed
+```
+
+## Removing Event Listeners
+
+Event listeners return disposers that can be used to remove them:
+
+```typescript
+const disposer = sprite.events.on("click", (ev) => {
+  console.log("Clicked");
+});
+
+// Remove listener
+disposer.dispose();
+
+// Or remove all listeners of a type
+sprite.events.off("click");
+
+// Or remove specific listener
+function handleClick(ev) {
+  console.log("Clicked");
+}
+
+sprite.events.on("click", handleClick);
+sprite.events.off("click", handleClick);
+```
+
+## Event Context
+
+Specify the context (this) for event handlers:
+
+```typescript
+class ChartController {
+  constructor() {
+    this.clickCount = 0;
+  }
+  
+  handleClick(ev) {
+    this.clickCount++;  // 'this' refers to ChartController instance
+    console.log("Total clicks:", this.clickCount);
+  }
+}
+
+const controller = new ChartController();
+
+sprite.events.on("click", controller.handleClick, controller);
+```
+
+## Stopping Event Propagation
+
+Prevent events from bubbling to parent elements:
+
+```typescript
+childSprite.events.on("click", (ev) => {
+  console.log("Child clicked");
+  ev.target.events.stopParentDispatch();  // Stop propagation
+});
+
+parentContainer.events.on("click", (ev) => {
+  console.log("This won't fire if child stopped propagation");
+});
+```
+
+## Enabling/Disabling Events
+
+Temporarily disable event dispatching:
+
+```typescript
+// Disable all events
+sprite.events.disable();
+
+// Re-enable all events
+sprite.events.enable();
+
+// Disable specific event type
+sprite.events.disableType("click");
+
+// Re-enable specific event type
+sprite.events.enableType("click");
+
+// Check if event type is enabled
+if (sprite.events.isEnabled("click")) {
+  console.log("Click events are enabled");
+}
+```
+
+## Checking for Listeners
+
+```typescript
+// Check if any listeners exist
+if (sprite.events.hasListeners()) {
+  console.log("Sprite has event listeners");
+}
+
+// Check for specific event type
+if (sprite.events.hasListenersByType("click")) {
+  console.log("Sprite has click listeners");
+}
+
+// Check for specific listener
+if (sprite.events.has("click", handleClick)) {
+  console.log("Specific click handler exists");
+}
+```
+
+## Debounced Events
+
+Delay event execution to reduce frequency:
+
+```typescript
+sprite.events.onDebounced("click", (ev) => {
+  console.log("Debounced click - fires after 500ms of no clicks");
+}, 500);  // 500ms debounce delay
+```
+
+## Animation Events
+
+Listen to animation lifecycle:
+
+```typescript
+const animation = sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000
+});
+
+animation.events.on("started", () => {
+  console.log("Animation started");
+});
+
+animation.events.on("progress", (ev) => {
+  console.log("Progress:", ev.progress);
+});
+
+animation.events.on("ended", () => {
+  console.log("Animation completed");
+});
+
+animation.events.on("stopped", () => {
+  console.log("Animation stopped (completed or interrupted)");
+});
+```
+
+## Practical Examples
+
+### Interactive Legend
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+legend.itemContainers.template.events.on("click", (ev) => {
+  const dataItem = ev.target.dataItem;
+  const series = dataItem.dataContext;
+  
+  if (series.isHidden()) {
+    series.show();
+  } else {
+    series.hide();
+  }
+});
+```
+
+### Tooltip on Click
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+series.columns.template.events.on("click", (ev) => {
+  const dataItem = ev.target.dataItem;
+  const value = dataItem.get("valueY");
+  const category = dataItem.get("categoryX");
+  
+  alert(`${category}: ${value}`);
+});
+```
+
+### Highlight on Hover
+
+```typescript
+series.columns.template.events.on("pointerover", (ev) => {
+  ev.target.set("fillOpacity", 0.7);
+});
+
+series.columns.template.events.on("pointerout", (ev) => {
+  ev.target.set("fillOpacity", 1);
+});
+```
+
+### Custom Cursor Tracking
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+
+cursor.events.on("selectended", (ev) => {
+  const xAxis = chart.xAxes.getIndex(0);
+  const xRange = xAxis.getPrivate("selectionMin", 0);
+  const xRangeEnd = xAxis.getPrivate("selectionMax", 0);
+  
+  console.log("Selected range:", xRange, "to", xRangeEnd);
+});
+```
+
+### Export Button
+
+```typescript
+const exportButton = am5.Button.new(root, {
+  label: am5.Label.new(root, {
+    text: "Export"
+  })
+});
+
+exportButton.events.on("click", () => {
+  exporting.download("png");
+});
+```
+
+### Data Point Click Handler
+
+```typescript
+series.events.on("dataitemchanged", (ev) => {
+  console.log("Data item changed:", ev.oldDataItem, ev.newDataItem);
+});
+
+series.bullets.push(() => {
+  const circle = am5.Circle.new(root, {
+    radius: 5,
+    fill: series.get("fill"),
+    interactive: true
+  });
+  
+  circle.events.on("click", (ev) => {
+    const dataItem = ev.target.dataItem;
+    console.log("Point clicked:", dataItem.dataContext);
+  });
+  
+  return am5.Bullet.new(root, {
+    sprite: circle
+  });
+});
+```
+
+### Responsive Behavior
+
+```typescript
+root.events.on("frameended", () => {
+  const width = root.width();
+  const height = root.height();
+  
+  if (width < 600) {
+    // Mobile layout
+    legend.setAll({
+      layout: root.verticalLayout,
+      x: am5.percent(50),
+      centerX: am5.percent(50)
+    });
+  } else {
+    // Desktop layout
+    legend.setAll({
+      layout: root.horizontalLayout,
+      x: am5.percent(50),
+      centerX: am5.percent(50)
+    });
+  }
+});
+```
+
+## Best Practices
+
+1. **Dispose Listeners**: Always dispose event listeners when no longer needed
+2. **Use Once for One-time Events**: Use `once()` instead of manually removing listeners
+3. **Set Interactive**: Remember to set `interactive: true` on elements that need it
+4. **Avoid Memory Leaks**: Remove listeners when disposing components
+5. **Use Context**: Specify context to maintain proper `this` binding
+6. **Debounce Frequent Events**: Use debouncing for events that fire rapidly
+7. **Check Before Removing**: Check if listeners exist before attempting to remove them
+
+<Warning>
+Not disposing of event listeners can cause memory leaks, especially in single-page applications where charts are created and destroyed dynamically.
+</Warning>
+
+<Tip>
+Use the returned disposer from `events.on()` to easily clean up listeners when a component is destroyed.
+</Tip>
+
+<Info>
+Event bubbling works from child to parent in the sprite hierarchy. Use `stopParentDispatch()` to prevent this behavior.
+</Info>

@@ -1,80 +1,560 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Quick Start"
+description: "Create your first amCharts 5 chart in minutes"
 ---
 
-## Get started in three steps
+## Create Your First Chart
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through creating a working line chart with amCharts 5. By the end, you'll have a fully interactive chart with animations.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Set up your HTML">
+    Create an HTML file with a container div for your chart:
+    
+    ```html index.html
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>My First amCharts 5 Chart</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 20px;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        #chartdiv {
+          width: 100%;
+          height: 500px;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="chartdiv"></div>
+      <script type="module" src="./index.js"></script>
+    </body>
+    </html>
+    ```
+    
+    <Info>
+      The `chartdiv` element will be the container for your chart. You can customize its size with CSS.
+    </Info>
+  </Step>
+  
+  <Step title="Import amCharts 5 modules">
+    In your JavaScript/TypeScript file, import the required modules:
+    
+    ```typescript index.js
+    import * as am5 from "@amcharts/amcharts5";
+    import * as am5xy from "@amcharts/amcharts5/xy";
+    import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+    ```
+    
+    <Note>
+      We're importing three modules: the core library, XY chart components, and the Animated theme for smooth transitions.
+    </Note>
+  </Step>
+  
+  <Step title="Create the Root element">
+    Every amCharts 5 visualization starts with a Root element:
+    
+    ```typescript
+    // Create root element
+    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+    const root = am5.Root.new("chartdiv");
+    ```
+    
+    The Root manages the chart's rendering, themes, and lifecycle. It connects to the DOM element with ID `chartdiv`.
+  </Step>
+  
+  <Step title="Apply a theme">
+    Set themes to control the visual appearance and animations:
+    
+    ```typescript
+    // Set themes
+    // https://www.amcharts.com/docs/v5/concepts/themes/
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+    ```
+    
+    <Tip>
+      The Animated theme adds smooth animations to your chart. You can combine multiple themes or create custom ones.
+    </Tip>
+  </Step>
+  
+  <Step title="Create an XY Chart">
+    Create the chart instance and add it to the root container:
+    
+    ```typescript
+    // Create chart
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/
+    const chart = root.container.children.push(am5xy.XYChart.new(root, {
+      panX: false,
+      panY: false,
+      wheelX: "panX",
+      wheelY: "zoomX"
+    }));
+    ```
+    
+    This creates an XY chart with mouse wheel zoom enabled on the X axis.
+  </Step>
+  
+  <Step title="Add axes">
+    Create X and Y axes for your data:
+    
+    ```typescript
+    // Create axes
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+    const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+      maxDeviation: 0.5,
+      baseInterval: {
+        timeUnit: "day",
+        count: 1
+      },
+      renderer: am5xy.AxisRendererX.new(root, {
+        minorGridEnabled: true
+      }),
+      tooltip: am5.Tooltip.new(root, {})
+    }));
+    
+    const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+      maxDeviation: 1,
+      renderer: am5xy.AxisRendererY.new(root, {})
+    }));
+    ```
+    
+    We're using a DateAxis for time-based data on the X axis and a ValueAxis for numeric data on the Y axis.
+  </Step>
+  
+  <Step title="Create a series">
+    Add a line series to visualize your data:
+    
+    ```typescript
+    // Add series
+    // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+    const series = chart.series.push(am5xy.LineSeries.new(root, {
+      name: "Series",
+      xAxis: xAxis,
+      yAxis: yAxis,
+      valueYField: "value",
+      valueXField: "date",
+      tooltip: am5.Tooltip.new(root, {
+        labelText: "{valueX}: {valueY}"
+      })
+    }));
+    ```
+    
+    The series defines how data is displayed. Here, `valueYField` and `valueXField` map to properties in your data objects.
+  </Step>
+  
+  <Step title="Add data">
+    Generate sample data and set it on the series:
+    
+    ```typescript
+    // Generate random data
+    let date = new Date();
+    date.setHours(0, 0, 0, 0);
+    let value = 100;
+    
+    function generateData() {
+      value = Math.round((Math.random() * 10 - 5) + value);
+      am5.time.add(date, "day", 1);
+      return {
+        date: date.getTime(),
+        value: value
+      };
+    }
+    
+    function generateDatas(count) {
+      const data = [];
+      for (let i = 0; i < count; ++i) {
+        data.push(generateData());
+      }
+      return data;
+    }
+    
+    // Set data
+    const data = generateDatas(50);
+    series.data.setAll(data);
+    ```
+    
+    <Info>
+      Replace this with your own data. Each object should have properties matching the `valueXField` and `valueYField` configured in the series.
+    </Info>
+  </Step>
+  
+  <Step title="Trigger animations">
+    Make the chart animate on load:
+    
+    ```typescript
+    // Make stuff animate on load
+    // https://www.amcharts.com/docs/v5/concepts/animations/#Forcing_appearance_animation
+    series.appear(1000);
+    chart.appear(1000, 100);
+    ```
+    
+    This triggers the initial animation, making the chart smoothly appear on screen.
+  </Step>
+</Steps>
+
+## Complete Code Example
+
+Here's the complete working code:
+
+<CodeGroup>
+```typescript Line Chart
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Set themes
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+
+// Specify date fields for tooltip formatting
+root.dateFormatter.setAll({
+  dateFields: ["valueX"]
+});
+
+// Create chart
+const chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: false,
+  panY: false,
+  wheelX: "panX",
+  wheelY: "zoomX"
+}));
+
+// Add cursor
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+cursor.lineY.set("visible", false);
+
+// Generate random data
+let date = new Date();
+date.setHours(0, 0, 0, 0);
+let value = 100;
+
+function generateData() {
+  value = Math.round((Math.random() * 10 - 5) + value);
+  am5.time.add(date, "day", 1);
+  return {
+    date: date.getTime(),
+    value: value
+  };
+}
+
+function generateDatas(count) {
+  const data = [];
+  for (let i = 0; i < count; ++i) {
+    data.push(generateData());
+  }
+  return data;
+}
+
+// Create axes
+const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+  maxDeviation: 0.5,
+  baseInterval: {
+    timeUnit: "day",
+    count: 1
+  },
+  renderer: am5xy.AxisRendererX.new(root, {
+    minorGridEnabled: true,
+    pan: "zoom"
+  }),
+  tooltip: am5.Tooltip.new(root, {})
+}));
+
+const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  maxDeviation: 1,
+  renderer: am5xy.AxisRendererY.new(root, {
+    pan: "zoom"
+  })
+}));
+
+// Add series
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  name: "Series",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date",
+  tooltip: am5.Tooltip.new(root, {
+    labelText: "{valueX}: {valueY}"
+  })
+}));
+
+// Add scrollbar
+chart.set("scrollbarX", am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+}));
+
+// Set data
+const data = generateDatas(50);
+series.data.setAll(data);
+
+// Make stuff animate on load
+series.appear(1000);
+chart.appear(1000, 100);
+```
+
+```typescript Column Chart
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Set themes
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+
+// Create chart
+const chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: false,
+  panY: false,
+  wheelX: "panX",
+  wheelY: "zoomX"
+}));
+
+// Add cursor
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+cursor.lineY.set("visible", false);
+
+// Create axes
+const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+  maxDeviation: 0,
+  baseInterval: {
+    timeUnit: "day",
+    count: 1
+  },
+  renderer: am5xy.AxisRendererX.new(root, {
+    minorGridEnabled: true
+  }),
+  tooltip: am5.Tooltip.new(root, {})
+}));
+
+const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {})
+}));
+
+// Add series
+const series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  name: "Series",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date",
+  tooltip: am5.Tooltip.new(root, {
+    labelText: "{valueY}"
+  })
+}));
+
+// Add scrollbar
+chart.set("scrollbarX", am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+}));
+
+// Generate and set data
+let date = new Date();
+date.setHours(0, 0, 0, 0);
+let value = 100;
+
+function generateData() {
+  value = Math.round((Math.random() * 10 - 5) + value);
+  am5.time.add(date, "day", 1);
+  return {
+    date: date.getTime(),
+    value: value
+  };
+}
+
+const data = [];
+for (let i = 0; i < 50; i++) {
+  data.push(generateData());
+}
+
+series.data.setAll(data);
+
+// Make stuff animate on load
+series.appear(1000);
+chart.appear(1000, 100);
+```
+
+```typescript Pie Chart
+import * as am5 from "@amcharts/amcharts5";
+import * as am5percent from "@amcharts/amcharts5/percent";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Set themes
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+
+// Create chart
+const chart = root.container.children.push(am5percent.PieChart.new(root, {
+  layout: root.verticalLayout
+}));
+
+// Create series
+const series = chart.series.push(am5percent.PieSeries.new(root, {
+  valueField: "value",
+  categoryField: "category"
+}));
+
+// Set data
+series.data.setAll([
+  { value: 10, category: "One" },
+  { value: 9, category: "Two" },
+  { value: 6, category: "Three" },
+  { value: 5, category: "Four" },
+  { value: 4, category: "Five" },
+  { value: 3, category: "Six" },
+  { value: 1, category: "Seven" }
+]);
+
+// Create legend
+const legend = chart.children.push(am5.Legend.new(root, {
+  centerX: am5.percent(50),
+  x: am5.percent(50),
+  marginTop: 15,
+  marginBottom: 15
+}));
+
+legend.data.setAll(series.dataItems);
+
+// Play initial series animation
+series.appear(1000, 100);
+```
+</CodeGroup>
+
+## Understanding the Code
+
+Let's break down the key concepts:
 
 <AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+  <Accordion title="Root Element" icon="tree">
+    The `Root` is the foundation of every amCharts 5 chart. It:
+    - Connects to a DOM element
+    - Manages themes and rendering
+    - Handles chart lifecycle and disposal
+    - Provides shared resources like formatters and colors
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
+    ```typescript
+    const root = am5.Root.new("chartdiv");
+    ```
   </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+  
+  <Accordion title="Chart Instance" icon="chart-line">
+    The chart container organizes axes, series, and other visual elements:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
+    ```typescript
+    const chart = root.container.children.push(
+      am5xy.XYChart.new(root, {
+        panX: false,  // Disable horizontal panning
+        panY: false,  // Disable vertical panning
+        wheelX: "panX",  // Mouse wheel scrolls horizontally
+        wheelY: "zoomX"  // Mouse wheel zooms on X axis
+      })
+    );
+    ```
+  </Accordion>
+  
+  <Accordion title="Axes" icon="ruler">
+    Axes define the coordinate system and scale for your data:
+    
+    - **DateAxis**: For time-based data
+    - **ValueAxis**: For numeric data
+    - **CategoryAxis**: For categorical data
+    
+    ```typescript
+    const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+      baseInterval: { timeUnit: "day", count: 1 }
+    }));
+    ```
+  </Accordion>
+  
+  <Accordion title="Series" icon="wave-square">
+    Series visualize your data. Each series type renders data differently:
+    
+    - **LineSeries**: Connects data points with lines
+    - **ColumnSeries**: Displays vertical bars
+    - **PieSeries**: Shows proportional slices
+    
+    ```typescript
+    const series = chart.series.push(am5xy.LineSeries.new(root, {
+      xAxis: xAxis,
+      yAxis: yAxis,
+      valueYField: "value",  // Maps to data.value
+      valueXField: "date"    // Maps to data.date
+    }));
+    ```
+  </Accordion>
+  
+  <Accordion title="Data Format" icon="database">
+    Data is an array of objects with properties matching your field configurations:
+    
+    ```typescript
+    const data = [
+      { date: 1609459200000, value: 100 },
+      { date: 1609545600000, value: 105 },
+      { date: 1609632000000, value: 98 }
+    ];
+    
+    series.data.setAll(data);
+    ```
   </Accordion>
 </AccordionGroup>
 
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
+## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card
+    title="Core Concepts"
+    icon="book"
+    href="/concepts/root"
+  >
+    Learn about Root, Sprites, Containers, and more
+  </Card>
+  
+  <Card
+    title="XY Charts"
+    icon="chart-line"
+    href="/charts/xy-chart"
+  >
+    Explore different series types and axes
+  </Card>
+  
+  <Card
+    title="Customization"
+    icon="palette"
+    href="/customization/colors"
+  >
+    Customize colors, themes, and appearance
+  </Card>
+  
+  <Card
+    title="Data Loading"
+    icon="file-import"
+    href="/data/loading"
+  >
+    Load data from JSON, CSV, and APIs
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+<Tip>
+  Try modifying the code examples above to experiment with different chart types, colors, and configurations!
+</Tip>

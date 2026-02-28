@@ -1,0 +1,226 @@
+---
+title: 'Line'
+description: 'Draws a line shape'
+icon: 'minus'
+---
+
+## Overview
+
+The `Line` class draws a line shape connecting multiple points. It extends the `Graphics` base class and supports both simple point arrays and segmented lines.
+
+## Class Definition
+
+```typescript
+export class Line extends Graphics
+```
+
+## Settings Interface
+
+```typescript
+export interface ILineSettings extends IGraphicsSettings
+```
+
+## Properties
+
+<ResponseField name="points" type="Array<IPoint>">
+  A list of IPoint (x/y coordinates) points for the line.
+  
+  Each `IPoint` has the structure:
+  ```typescript
+  interface IPoint {
+    x: number;
+    y: number;
+  }
+  ```
+</ResponseField>
+
+<ResponseField name="segments" type="Array<Array<Array<IPoint>>>">
+  A list of IPoint arrays for different segments of the line.
+  
+  This allows you to create multi-segment lines with gaps or different styling.
+  
+  @since 5.1.4
+</ResponseField>
+
+## Inherited Properties
+
+As `Line` extends `Graphics`, it inherits all graphics properties including:
+
+<ResponseField name="stroke" type="Color">
+  Stroke (line) color.
+  
+  [Learn more about colors, gradients and patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/)
+</ResponseField>
+
+<ResponseField name="strokeWidth" type="number">
+  Width of the stroke (line) in pixels.
+</ResponseField>
+
+<ResponseField name="strokeOpacity" type="number">
+  Opacity of the stroke (line). 0 - fully transparent; 1 - fully opaque.
+</ResponseField>
+
+<ResponseField name="strokePattern" type="Pattern">
+  Stroke (line) pattern.
+  
+  [Learn more about patterns](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/patterns/)
+</ResponseField>
+
+<ResponseField name="strokeGradient" type="Gradient">
+  Stroke (line) gradient.
+  
+  [Learn more about gradients](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/gradients/)
+</ResponseField>
+
+<ResponseField name="strokeDasharray" type="number[] | number">
+  Stroke (line) dash settings.
+  
+  [Learn more about dashed lines](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/#Dashed_lines)
+</ResponseField>
+
+<ResponseField name="strokeDashoffset" type="number">
+  Stroke (line) dash offset.
+  
+  [Learn more about dashed lines](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/#Dashed_lines)
+</ResponseField>
+
+<ResponseField name="shadowColor" type="Color | null">
+  Color of the element's shadow.
+  
+  For this to work at least one of the following needs to be set as well: `shadowBlur`, `shadowOffsetX`, `shadowOffsetY`.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowBlur" type="number">
+  Blurriness of the shadow. The bigger the number, the more blurry shadow will be.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOffsetX" type="number">
+  Horizontal shadow offset in pixels.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOffsetY" type="number">
+  Vertical shadow offset in pixels.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="shadowOpacity" type="number">
+  Opacity of the shadow (0-1).
+  
+  If not set, will use the same as `strokeOpacity` of the element.
+  
+  [Learn more about shadows](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/shadows/)
+</ResponseField>
+
+<ResponseField name="draw" type="(display: IGraphics, graphics: Graphics) => void">
+  Drawing function.
+  
+  Must use renderer (`display` parameter) methods to draw.
+  
+  [Learn more about custom draw functions](https://www.amcharts.com/docs/v5/concepts/common-elements/graphics/#Custom_draw_functions)
+</ResponseField>
+
+<ResponseField name="lineJoin" type='"miter" | "round" | "bevel"' default='"miter"'>
+  A method to be used on anchor points (joints) of the multi-point line.
+  
+  [Learn more about lineJoin](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin)
+  
+  @since 5.2.10
+</ResponseField>
+
+<ResponseField name="lineCap" type='"butt" | "round" | "square"' default='"butt"'>
+  This setting determines the shape used to draw the end points of lines.
+  
+  [Learn more about lineCap](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineCap)
+  
+  @since 5.10.8
+</ResponseField>
+
+<ResponseField name="nonScalingStroke" type="boolean" default="false">
+  Indicates if stroke of a Graphics should stay the same when its scale changes.
+  
+  Note: This doesn't take into account parent container scale changes.
+</ResponseField>
+
+## Example Usage
+
+### Simple Line
+
+```typescript
+import { Line } from "@amcharts/amcharts5";
+
+// Create a line connecting multiple points
+let line = Line.new(root, {
+  points: [
+    { x: 0, y: 0 },
+    { x: 50, y: 100 },
+    { x: 100, y: 50 },
+    { x: 150, y: 150 }
+  ],
+  stroke: am5.color(0xff0000),
+  strokeWidth: 3
+});
+```
+
+### Dashed Line
+
+```typescript
+// Create a dashed line
+let dashedLine = Line.new(root, {
+  points: [
+    { x: 0, y: 0 },
+    { x: 100, y: 100 }
+  ],
+  stroke: am5.color(0x0000ff),
+  strokeWidth: 2,
+  strokeDasharray: [5, 5]
+});
+```
+
+### Segmented Line
+
+```typescript
+// Create a line with multiple segments
+let segmentedLine = Line.new(root, {
+  segments: [
+    [[
+      [{ x: 0, y: 0 }, { x: 50, y: 50 }]
+    ]],
+    [[
+      [{ x: 100, y: 0 }, { x: 150, y: 50 }]
+    ]]
+  ],
+  stroke: am5.color(0x00ff00),
+  strokeWidth: 2
+});
+```
+
+### Simple Line Using Width/Height
+
+```typescript
+// When no points or segments are provided, draws from (0,0) to (width, height)
+let simpleLine = Line.new(root, {
+  width: 100,
+  height: 100,
+  stroke: am5.color(0x000000),
+  strokeWidth: 1
+});
+```
+
+## Notes
+
+- If neither `points` nor `segments` is provided, and no custom `draw` function is set, the line will be drawn from (0, 0) to (width, height).
+- The `segments` property allows for more complex multi-segment lines with gaps.
+- Lines are re-rendered when `points`, `segments`, width, or height changes.
+
+## See Also
+
+- [Graphics documentation](https://www.amcharts.com/docs/v5/concepts/common-elements/graphics/)
+- [Polygon](/api/shapes/polygon) - For closed polygon shapes
+- [Rectangle](/api/shapes/rectangle) - For rectangular shapes

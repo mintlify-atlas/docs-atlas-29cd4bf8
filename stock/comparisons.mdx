@@ -1,0 +1,402 @@
+---
+title: "Stock Comparisons"
+description: "Compare multiple securities on a single stock chart with automatic percent scale adjustment"
+---
+
+## Introduction
+
+Stock charts support comparing multiple securities by overlaying their price movements on the same chart. Comparisons automatically switch to percent scale mode to normalize different price ranges.
+
+## Adding Comparison Series
+
+Add a comparison series using `addComparingSeries()`:
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create comparison series
+const comparingSeries = am5xy.LineSeries.new(root, {
+  name: "AAPL",
+  valueYField: "Close",
+  valueXField: "Date",
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  calculateAggregates: true,
+  legendValueText: "{valueY.formatNumber('#.00')}"
+});
+
+// Add to stock chart
+const compSeries = stockChart.addComparingSeries(comparingSeries);
+
+// Load data
+compSeries.data.setAll(appleData);
+```
+
+<Info>
+Comparison series are typically line series for clearer visual distinction from the main candlestick series.
+</Info>
+
+## Percent Scale Mode
+
+When comparison series are added, the chart automatically switches to percent scale mode:
+
+```typescript
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    autoSetPercentScale: true // Default
+  })
+);
+```
+
+Percent scale normalizes all series to show percentage change from a common starting point.
+
+### Manual Percent Scale
+
+Manually control percent scale mode:
+
+```typescript
+// Enable percent scale
+stockChart.setPercentScale(true);
+
+// Disable percent scale
+stockChart.setPercentScale(false);
+```
+
+## Percent Scale Settings
+
+Customize how the main series appears in percent scale mode:
+
+```typescript
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    percentScaleSeriesSettings: {
+      valueYShow: "valueYChangeSelectionPercent",
+      openValueYShow: "openValueYChangeSelectionPercent",
+      highValueYShow: "highValueYChangeSelectionPercent",
+      lowValueYShow: "lowValueYChangeSelectionPercent"
+    },
+    percentScaleValueAxisSettings: {
+      numberFormat: "#.00'%'",
+      extraMin: 0.1,
+      extraMax: 0.1
+    }
+  })
+);
+```
+
+## Comparison Control
+
+Add a comparison control to the toolbar for user-friendly comparisons:
+
+```typescript
+const comparisonControl = am5stock.ComparisonControl.new(root, {
+  stockChart: stockChart
+});
+```
+
+### Searchable Comparison Control
+
+Implement search functionality:
+
+```typescript
+const comparisonControl = am5stock.ComparisonControl.new(root, {
+  stockChart: stockChart,
+  searchable: true,
+  searchCallback: (query) => {
+    // Get already compared series
+    const compared = stockChart.getPrivate("comparedSeries", []);
+    const main = stockChart.get("stockSeries");
+    
+    // Build list of available securities
+    const securities = [
+      { label: "Apple", subLabel: "AAPL", id: "AAPL" },
+      { label: "Microsoft", subLabel: "MSFT", id: "MSFT" },
+      { label: "Alphabet", subLabel: "GOOG", id: "GOOG" },
+      { label: "Amazon", subLabel: "AMZN", id: "AMZN" },
+      { label: "Tesla", subLabel: "TSLA", id: "TSLA" },
+      { label: "NVIDIA", subLabel: "NVDA", id: "NVDA" },
+      { label: "Netflix", subLabel: "NFLX", id: "NFLX" }
+    ];
+    
+    // Filter by search query
+    const filtered = securities.filter(item => 
+      item.label.toLowerCase().includes(query.toLowerCase()) ||
+      item.subLabel.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    // Mark already-compared items as disabled
+    const comparedIds = compared.map(s => s.get("name"));
+    filtered.forEach(item => {
+      if (comparedIds.includes(item.id) || main.get("name") === item.id) {
+        item.disabled = true;
+      }
+    });
+    
+    return filtered;
+  }
+});
+
+toolbar.controls.push(comparisonControl);
+```
+
+### Handle Selection
+
+Respond to comparison selection:
+
+```typescript
+comparisonControl.events.on("selected", (ev) => {
+  addComparisonSeries(ev.item.id);
+});
+
+function addComparisonSeries(ticker) {
+  const series = am5xy.LineSeries.new(root, {
+    name: ticker,
+    valueYField: "Close",
+    valueXField: "Date",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    calculateAggregates: true,
+    legendValueText: "{valueY.formatNumber('#.00')}"
+  });
+  
+  const comparingSeries = stockChart.addComparingSeries(series);
+  
+  // Load data for the ticker
+  fetch(`/api/data/${ticker}`)
+    .then(response => response.json())
+    .then(data => {
+      comparingSeries.data.setAll(data);
+    });
+}
+```
+
+## Removing Comparisons
+
+Remove a comparison series:
+
+```typescript
+stockChart.removeComparingSeries(comparingSeries);
+```
+
+When all comparisons are removed and `autoSetPercentScale` is enabled, the chart automatically exits percent scale mode.
+
+## Comparison Series Settings
+
+Apply custom settings to all comparison series:
+
+```typescript
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    comparingSeriesSettings: {
+      strokeWidth: 2,
+      valueYShow: "valueYChangeSelectionPercent"
+    }
+  })
+);
+```
+
+## Legend Integration
+
+Comparison series automatically appear in the stock legend with close buttons:
+
+```typescript
+const valueLegend = mainPanel.plotContainer.children.push(
+  am5stock.StockLegend.new(root, {
+    stockChart: stockChart
+  })
+);
+
+valueLegend.data.setAll([valueSeries, volumeSeries]);
+```
+
+When a comparison series is added, it appears in the legend with a close button that removes the comparison.
+
+## Complete Comparison Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+// Create root and stock chart
+const root = am5.Root.new("chartdiv");
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    autoSetPercentScale: true
+  })
+);
+
+// Create main panel with axes and series
+const mainPanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {})
+);
+
+const valueAxis = mainPanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+const dateAxis = mainPanel.xAxes.push(
+  am5xy.GaplessDateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const valueSeries = mainPanel.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "MSFT",
+    valueXField: "Date",
+    valueYField: "Close",
+    highValueYField: "High",
+    lowValueYField: "Low",
+    openValueYField: "Open",
+    xAxis: dateAxis,
+    yAxis: valueAxis
+  })
+);
+
+stockChart.set("stockSeries", valueSeries);
+
+// Add legend
+const valueLegend = mainPanel.plotContainer.children.push(
+  am5stock.StockLegend.new(root, {
+    stockChart: stockChart
+  })
+);
+valueLegend.data.setAll([valueSeries]);
+
+// Add comparison control
+const comparisonControl = am5stock.ComparisonControl.new(root, {
+  stockChart: stockChart,
+  searchable: true,
+  searchCallback: (query) => {
+    const tickers = [
+      { label: "Apple", subLabel: "AAPL", id: "AAPL" },
+      { label: "Alphabet", subLabel: "GOOG", id: "GOOG" },
+      { label: "Amazon", subLabel: "AMZN", id: "AMZN" }
+    ];
+    
+    return tickers.filter(item => 
+      item.label.toLowerCase().includes(query.toLowerCase())
+    );
+  }
+});
+
+comparisonControl.events.on("selected", (ev) => {
+  const series = am5xy.LineSeries.new(root, {
+    name: ev.item.id,
+    valueYField: "Close",
+    valueXField: "Date",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    calculateAggregates: true
+  });
+  
+  const comparingSeries = stockChart.addComparingSeries(series);
+  
+  // Load data
+  fetch(`/api/data/${ev.item.id}`)
+    .then(response => response.json())
+    .then(data => comparingSeries.data.setAll(data));
+});
+
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  controls: [comparisonControl]
+});
+
+// Load main series data
+valueSeries.data.setAll(msftData);
+```
+
+## Accessing Compared Series
+
+Get list of currently compared series:
+
+```typescript
+const comparedSeries = stockChart.getPrivate("comparedSeries", []);
+console.log("Comparing", comparedSeries.length, "securities");
+
+comparedSeries.forEach(series => {
+  console.log(series.get("name"));
+});
+```
+
+## Comparison Limits
+
+Limit the number of comparisons:
+
+```typescript
+const comparisonControl = am5stock.ComparisonControl.new(root, {
+  stockChart: stockChart,
+  searchable: true,
+  searchCallback: (query) => {
+    const compared = stockChart.getPrivate("comparedSeries", []);
+    
+    // Limit to 5 comparisons
+    if (compared.length >= 5) {
+      return [{
+        label: "Maximum 5 comparisons already selected",
+        id: "limit",
+        info: true
+      }];
+    }
+    
+    return getSecurities(query);
+  }
+});
+```
+
+## Comparison Colors
+
+Comparison series automatically get different colors from the chart's color set. Customize individual series colors:
+
+```typescript
+const series = am5xy.LineSeries.new(root, {
+  name: ticker,
+  valueYField: "Close",
+  valueXField: "Date",
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  stroke: am5.color(0xFF0000),
+  fill: am5.color(0xFF0000)
+});
+```
+
+## Events
+
+Monitor comparison state:
+
+```typescript
+stockChart.onPrivate("comparing", (comparing) => {
+  if (comparing) {
+    console.log("Chart is in comparison mode");
+  } else {
+    console.log("Chart is in normal mode");
+  }
+});
+```
+
+## Data Requirements
+
+Comparison series must have:
+- Same date field as main series
+- At least a close value
+- Data covering similar time range
+
+```typescript
+const comparisonData = [
+  { Date: 1617192000000, Close: 123.45 },
+  { Date: 1617278400000, Close: 125.67 },
+  // ...
+];
+```
+
+## Related Topics
+
+- [Stock Charts Overview](/stock/overview) - Basic stock chart setup
+- [Toolbar](/stock/toolbar) - Add ComparisonControl to toolbar
+- [Indicators](/stock/indicators) - Technical indicators work with comparisons

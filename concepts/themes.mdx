@@ -1,0 +1,475 @@
+---
+title: Themes
+description: Customize chart appearance with themes in amCharts 5
+---
+
+Themes in amCharts 5 allow you to define reusable style rules that apply to all chart elements. They provide a powerful way to maintain consistent styling across your visualizations.
+
+## Applying Themes
+
+Themes must be applied to the Root element before creating any chart elements:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+const root = am5.Root.new("chartdiv");
+
+// Apply themes
+root.setThemes([
+  am5themes_Animated.new(root),
+  am5themes_Dark.new(root)
+]);
+```
+
+<Warning>
+Themes must be set before creating any chart elements. Elements created before themes are applied won't receive theme styling.
+</Warning>
+
+## Built-in Themes
+
+amCharts 5 includes several pre-built themes:
+
+### Animated Theme
+
+Adds smooth animations to all chart elements:
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+```
+
+### Dark Theme
+
+Dark color scheme for better visibility in dark interfaces:
+
+```typescript
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+root.setThemes([
+  am5themes_Dark.new(root)
+]);
+```
+
+### Material Theme
+
+Follows Material Design guidelines:
+
+```typescript
+import am5themes_Material from "@amcharts/amcharts5/themes/Material";
+
+root.setThemes([
+  am5themes_Material.new(root)
+]);
+```
+
+### Responsive Theme
+
+Adapts to different screen sizes:
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+root.setThemes([
+  am5themes_Responsive.new(root)
+]);
+```
+
+### Other Built-in Themes
+
+```typescript
+import am5themes_Dataviz from "@amcharts/amcharts5/themes/Dataviz";
+import am5themes_Frozen from "@amcharts/amcharts5/themes/Frozen";
+import am5themes_Kelly from "@amcharts/amcharts5/themes/Kelly";
+import am5themes_Microchart from "@amcharts/amcharts5/themes/Microchart";
+import am5themes_Moonrise from "@amcharts/amcharts5/themes/Moonrise";
+import am5themes_Spirited from "@amcharts/amcharts5/themes/Spirited";
+```
+
+## Combining Themes
+
+Multiple themes can be applied together. Later themes override earlier ones:
+
+```typescript
+root.setThemes([
+  am5themes_Animated.new(root),  // Applied first
+  am5themes_Dark.new(root)       // Overrides Animated where conflicts occur
+]);
+```
+
+## Creating Custom Themes
+
+Create your own theme by extending the Theme class:
+
+```typescript
+import { Theme } from "@amcharts/amcharts5";
+
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Define rules for different element types
+    this.rule("Label").setAll({
+      fontSize: 14,
+      fill: am5.color(0x333333)
+    });
+    
+    this.rule("Graphics").setAll({
+      strokeWidth: 2
+    });
+  }
+}
+
+// Apply custom theme
+root.setThemes([
+  MyTheme.new(root)
+]);
+```
+
+## Theme Rules
+
+Rules target specific element types and tags:
+
+### Basic Rules
+
+```typescript
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Apply to all Labels
+    this.rule("Label").setAll({
+      fontSize: 16,
+      fontFamily: "Arial"
+    });
+    
+    // Apply to all ColumnSeries
+    this.rule("ColumnSeries").setAll({
+      strokeWidth: 1,
+      strokeOpacity: 0.5
+    });
+  }
+}
+```
+
+### Tagged Rules
+
+Target elements with specific tags:
+
+```typescript
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Apply to Labels with "title" tag
+    this.rule("Label", ["title"]).setAll({
+      fontSize: 24,
+      fontWeight: "bold",
+      fill: am5.color(0x000000)
+    });
+    
+    // Apply to Labels with "subtitle" tag
+    this.rule("Label", ["subtitle"]).setAll({
+      fontSize: 16,
+      fill: am5.color(0x666666)
+    });
+    
+    // Apply to ColumnSeries with "profit" tag
+    this.rule("ColumnSeries", ["profit"]).setAll({
+      fill: am5.color(0x00ff00)
+    });
+  }
+}
+```
+
+### Using Tags in Elements
+
+```typescript
+const title = am5.Label.new(root, {
+  text: "Chart Title",
+  themeTags: ["title"]  // This label will receive "title" theme rules
+});
+
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Profit",
+    themeTags: ["profit"],  // This series will receive "profit" theme rules
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+```
+
+## Color Sets
+
+Define color palettes in themes:
+
+```typescript
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Define color set for series
+    this.rule("ColorSet").setAll({
+      colors: [
+        am5.color(0x0088ff),
+        am5.color(0xff0088),
+        am5.color(0x88ff00),
+        am5.color(0xff8800),
+        am5.color(0x8800ff)
+      ]
+    });
+  }
+}
+```
+
+## Advanced Theming
+
+### Hierarchical Rules
+
+```typescript
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Style all chart backgrounds
+    this.rule("XYChart").setAll({
+      paddingLeft: 20,
+      paddingRight: 20
+    });
+    
+    // Style axis renderers
+    this.rule("AxisRenderer").setAll({
+      minGridDistance: 50
+    });
+    
+    // Style axis labels
+    this.rule("AxisLabel").setAll({
+      fontSize: 12,
+      fill: am5.color(0x666666)
+    });
+  }
+}
+```
+
+### Multiple Tags
+
+```typescript
+class MyTheme extends Theme {
+  setupDefaultRules() {
+    // Apply to elements with BOTH "large" AND "bold" tags
+    this.rule("Label", ["large", "bold"]).setAll({
+      fontSize: 24,
+      fontWeight: "bold"
+    });
+  }
+}
+
+// Use in element
+const label = am5.Label.new(root, {
+  text: "Large Bold Text",
+  themeTags: ["large", "bold"]
+});
+```
+
+## Practical Examples
+
+### Corporate Theme
+
+```typescript
+class CorporateTheme extends Theme {
+  setupDefaultRules() {
+    const brandBlue = am5.color(0x003366);
+    const brandOrange = am5.color(0xff6600);
+    const lightGray = am5.color(0xf5f5f5);
+    
+    // Typography
+    this.rule("Label").setAll({
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
+      fontSize: 14,
+      fill: am5.color(0x333333)
+    });
+    
+    this.rule("Label", ["heading"]).setAll({
+      fontSize: 24,
+      fontWeight: "bold",
+      fill: brandBlue
+    });
+    
+    // Chart backgrounds
+    this.rule("Rectangle", ["background"]).setAll({
+      fill: lightGray,
+      fillOpacity: 0.5
+    });
+    
+    // Color palette
+    this.rule("ColorSet").setAll({
+      colors: [
+        brandBlue,
+        brandOrange,
+        am5.color(0x999999),
+        am5.color(0x66ccff),
+        am5.color(0xffcc66)
+      ]
+    });
+    
+    // Series styling
+    this.rule("LineSeries").setAll({
+      strokeWidth: 3
+    });
+    
+    this.rule("ColumnSeries").setAll({
+      strokeWidth: 0
+    });
+  }
+}
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  CorporateTheme.new(root)
+]);
+```
+
+### Minimalist Theme
+
+```typescript
+class MinimalistTheme extends Theme {
+  setupDefaultRules() {
+    // Hide grid lines
+    this.rule("Grid").setAll({
+      strokeOpacity: 0.1
+    });
+    
+    // Minimal axis styling
+    this.rule("AxisRenderer").setAll({
+      strokeOpacity: 0.2
+    });
+    
+    // Clean labels
+    this.rule("Label").setAll({
+      fontSize: 12,
+      fill: am5.color(0x666666)
+    });
+    
+    // Subtle tooltips
+    this.rule("Tooltip").setAll({
+      background: am5.Rectangle.new(root, {
+        fill: am5.color(0xffffff),
+        fillOpacity: 0.95,
+        strokeOpacity: 0.1
+      })
+    });
+    
+    // Monochrome color scheme
+    this.rule("ColorSet").setAll({
+      colors: [
+        am5.color(0x000000),
+        am5.color(0x333333),
+        am5.color(0x666666),
+        am5.color(0x999999),
+        am5.color(0xcccccc)
+      ]
+    });
+  }
+}
+```
+
+### Accessibility Theme
+
+```typescript
+class AccessibleTheme extends Theme {
+  setupDefaultRules() {
+    // High contrast colors
+    this.rule("ColorSet").setAll({
+      colors: [
+        am5.color(0x0000ff),  // Blue
+        am5.color(0xff0000),  // Red
+        am5.color(0x00ff00),  // Green
+        am5.color(0xffff00),  // Yellow
+        am5.color(0xff00ff)   // Magenta
+      ]
+    });
+    
+    // Larger text
+    this.rule("Label").setAll({
+      fontSize: 16
+    });
+    
+    // Thicker lines
+    this.rule("LineSeries").setAll({
+      strokeWidth: 4
+    });
+    
+    // Enhanced focus indicators
+    this.rule("Graphics", ["focusable"]).setAll({
+      focusable: true
+    });
+  }
+}
+```
+
+## Dynamic Theme Switching
+
+```typescript
+let isDarkMode = false;
+
+function toggleTheme() {
+  isDarkMode = !isDarkMode;
+  
+  if (isDarkMode) {
+    root.setThemes([
+      am5themes_Animated.new(root),
+      am5themes_Dark.new(root)
+    ]);
+  } else {
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+  }
+}
+
+// Trigger theme change
+document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+```
+
+<Note>
+Changing themes after chart creation will re-apply all theme rules to existing elements.
+</Note>
+
+## Theme Inheritance
+
+Extend existing themes:
+
+```typescript
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+class MyDarkTheme extends am5themes_Dark {
+  setupDefaultRules() {
+    super.setupDefaultRules();  // Apply Dark theme rules first
+    
+    // Add custom rules
+    this.rule("Label").setAll({
+      fontFamily: "Roboto"
+    });
+  }
+}
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  MyDarkTheme.new(root)
+]);
+```
+
+## Best Practices
+
+1. **Apply Themes Early**: Set themes before creating any chart elements
+2. **Use Theme Tags**: Tag elements for targeted styling
+3. **Combine Thoughtfully**: Order themes from general to specific
+4. **Create Reusable Themes**: Build a library of themes for your organization
+5. **Test Accessibility**: Ensure sufficient color contrast
+6. **Document Custom Themes**: Comment your theme rules for maintainability
+7. **Use Color Sets**: Define consistent color palettes
+
+<Tip>
+Combine the Animated theme with other themes for smooth transitions when switching between theme styles.
+</Tip>
+
+<Warning>
+Avoiding setting theme-related properties directly on elements if you want them to respect theme rules.
+</Warning>

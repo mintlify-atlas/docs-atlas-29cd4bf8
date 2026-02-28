@@ -1,0 +1,435 @@
+---
+title: 'Indicators'
+description: 'Technical indicators for stock chart analysis'
+icon: 'chart-mixed'
+---
+
+## Overview
+
+Indicators are analytical tools that help visualize trends, momentum, volatility, and other market characteristics. amCharts 5 Stock provides a comprehensive set of built-in technical indicators.
+
+## Base Classes
+
+### Indicator
+
+Base class for all stock chart indicators.
+
+```typescript
+import { Indicator } from "@amcharts/amcharts5/stock";
+```
+
+#### Settings
+
+<ParamField path="stockChart" type="StockChart" required>
+  Instance of the target StockChart.
+</ParamField>
+
+<ParamField path="stockSeries" type="XYSeries" required>
+  Main series the indicator is based on.
+</ParamField>
+
+<ParamField path="volumeSeries" type="XYSeries">
+  Volume series the indicator uses, if required.
+</ParamField>
+
+<ParamField path="legend" type="StockLegend">
+  If set, the indicator will add itself to this legend.
+</ParamField>
+
+<ParamField path="period" type="number">
+  Period for calculations (e.g., number of data points to consider).
+</ParamField>
+
+<ParamField path="field" type="string">
+  Value field to use for calculations.
+  
+  Options: `"open"`, `"close"`, `"low"`, `"high"`, `"hl/2"`, `"hlc/3"`, `"hlcc/4"`, `"ohlc/4"`
+</ParamField>
+
+<ParamField path="name" type="string">
+  Indicator name (e.g., "Moving Average").
+</ParamField>
+
+<ParamField path="shortName" type="string">
+  Short name for the indicator (e.g., "MA"), mainly used in the legend.
+</ParamField>
+
+<ParamField path="seriesColor" type="Color">
+  Color to use for the indicator series.
+</ParamField>
+
+<ParamField path="autoOpenSettings" type="boolean" default="true" since="5.10.6">
+  Whether indicator settings modal should open automatically when the indicator is added via IndicatorControl.
+</ParamField>
+
+#### Properties
+
+<ResponseField name="series" type="XYSeries">
+  The indicator's data series.
+</ResponseField>
+
+#### Methods
+
+##### prepareData()
+
+Prepares and calculates indicator data.
+
+```typescript
+prepareData(): void
+```
+
+##### markDataDirty()
+
+Marks indicator data as dirty, triggering recalculation.
+
+```typescript
+markDataDirty(): void
+```
+
+##### hide()
+
+Hides the indicator.
+
+```typescript
+hide(duration?: number): Promise<any>
+```
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+##### show()
+
+Shows the indicator.
+
+```typescript
+show(duration?: number): Promise<any>
+```
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### ChartIndicator
+
+Base class for indicators that are displayed in their own panel.
+
+```typescript
+import { ChartIndicator } from "@amcharts/amcharts5/stock";
+```
+
+Extends `Indicator` and adds:
+
+<ResponseField name="panel" type="StockPanel">
+  The panel where the indicator is displayed.
+</ResponseField>
+
+<ResponseField name="xAxis" type="DateAxis<AxisRenderer>">
+  The indicator's X axis.
+</ResponseField>
+
+<ResponseField name="yAxis" type="ValueAxis<AxisRenderer>">
+  The indicator's Y axis.
+</ResponseField>
+
+<ResponseField name="cursor" type="XYCursor">
+  The indicator panel's cursor.
+</ResponseField>
+
+<ResponseField name="legend" type="StockLegend">
+  The indicator panel's legend.
+</ResponseField>
+
+## Built-in Indicators
+
+### MovingAverage
+
+Calculates various types of moving averages.
+
+```typescript
+import { MovingAverage } from "@amcharts/amcharts5/stock";
+
+const ma = stockChart.indicators.push(
+  MovingAverage.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 50,
+    type: "simple",
+    seriesColor: am5.color(0x0000ff)
+  })
+);
+```
+
+<ParamField path="type" type="string" default="simple">
+  Type of moving average.
+  
+  Options: `"simple"`, `"weighted"`, `"exponential"`, `"dema"`, `"tema"`
+</ParamField>
+
+<ParamField path="offset" type="number" default="0">
+  Number of periods to offset the moving average.
+</ParamField>
+
+### BollingerBands
+
+Displays Bollinger Bands with upper, middle, and lower bands.
+
+```typescript
+import { BollingerBands } from "@amcharts/amcharts5/stock";
+
+const bb = stockChart.indicators.push(
+  BollingerBands.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 20,
+    standardDeviations: 2
+  })
+);
+```
+
+<ParamField path="standardDeviations" type="number">
+  Number of standard deviations for the bands.
+</ParamField>
+
+<ParamField path="upperColor" type="Color">
+  Color for the upper band.
+</ParamField>
+
+<ParamField path="lowerColor" type="Color">
+  Color for the lower band.
+</ParamField>
+
+<ResponseField name="upperBandSeries" type="LineSeries">
+  Series for the upper band.
+</ResponseField>
+
+<ResponseField name="lowerBandSeries" type="LineSeries">
+  Series for the lower band.
+</ResponseField>
+
+### MACD
+
+Moving Average Convergence Divergence indicator.
+
+```typescript
+import { MACD } from "@amcharts/amcharts5/stock";
+
+const macd = stockChart.indicators.push(
+  MACD.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    fastPeriod: 12,
+    slowPeriod: 26,
+    signalPeriod: 9
+  })
+);
+```
+
+<ParamField path="fastPeriod" type="number">
+  Period for the fast moving average.
+</ParamField>
+
+<ParamField path="slowPeriod" type="number">
+  Period for the slow moving average.
+</ParamField>
+
+<ParamField path="signalPeriod" type="number">
+  Period for the signal line.
+</ParamField>
+
+<ParamField path="increasingColor" type="Color">
+  Color for increasing histogram bars.
+</ParamField>
+
+<ParamField path="decreasingColor" type="Color">
+  Color for decreasing histogram bars.
+</ParamField>
+
+<ParamField path="signalColor" type="Color">
+  Color for the signal line.
+</ParamField>
+
+<ResponseField name="signalSeries" type="LineSeries">
+  Series for the signal line.
+</ResponseField>
+
+<ResponseField name="differenceSeries" type="ColumnSeries">
+  Series for the MACD histogram.
+</ResponseField>
+
+### Other Built-in Indicators
+
+amCharts 5 includes many additional indicators:
+
+- **AccelerationBands** - Acceleration Bands indicator
+- **AccumulationDistribution** - Accumulation/Distribution indicator
+- **AccumulativeSwingIndex** - Accumulative Swing Index
+- **Aroon** - Aroon indicator
+- **AverageTrueRange** - Average True Range (ATR)
+- **AwesomeOscillator** - Awesome Oscillator
+- **BullBearPower** - Bull/Bear Power indicator
+- **ChaikinMoneyFlow** - Chaikin Money Flow
+- **ChaikinOscillator** - Chaikin Oscillator
+- **CommodityChannelIndex** - Commodity Channel Index (CCI)
+- **DisparityIndex** - Disparity Index
+- **HeikinAshi** - Heikin-Ashi candlesticks
+- **MACross** - Moving Average Crossover
+- **MedianPrice** - Median Price indicator
+- **Momentum** - Momentum indicator
+- **MovingAverageDeviation** - Moving Average Deviation
+- **MovingAverageEnvelope** - Moving Average Envelope
+- **OnBalanceVolume** - On Balance Volume (OBV)
+- **OverboughtOversold** - Overbought/Oversold indicator
+- **PVT** - Price Volume Trend
+- **RelativeStrengthIndex** - Relative Strength Index (RSI)
+- **StandardDeviation** - Standard Deviation
+- **StochasticMomentumIndex** - Stochastic Momentum Index
+- **StochasticOscillator** - Stochastic Oscillator
+- **SuperTrend** - SuperTrend indicator
+- **Trix** - Triple Exponential Average
+- **TypicalPrice** - Typical Price indicator
+- **Volume** - Volume indicator
+- **VolumeProfile** - Volume Profile
+- **VWAP** - Volume Weighted Average Price
+- **WilliamsR** - Williams %R
+- **ZigZag** - ZigZag indicator
+
+## Editable Settings
+
+Indicators can define editable settings that appear in the settings modal:
+
+```typescript
+export interface IIndicatorEditableSetting {
+  key: string;              // Setting key
+  name: string;             // Display name
+  type: "color" | "number" | "dropdown" | "checkbox" | "text";
+  minValue?: number;        // Minimum value for number inputs
+  options?: Array<string | { // Options for dropdowns
+    value: number | string,
+    text: string
+  }>;
+}
+```
+
+## Creating Custom Indicators
+
+To create a custom indicator:
+
+1. Extend `Indicator` or `ChartIndicator`
+2. Implement the `prepareData()` method
+3. Define `_editableSettings` for user customization
+4. Register the class with `registerClass()`
+
+```typescript
+import { Indicator, registerClass } from "@amcharts/amcharts5/stock";
+import { LineSeries } from "@amcharts/amcharts5/xy";
+
+export class MyIndicator extends Indicator {
+  public static className = "MyIndicator";
+  public static classNames = Indicator.classNames.concat([MyIndicator.className]);
+  
+  declare public series: LineSeries;
+  
+  public _editableSettings = [{
+    key: "period",
+    name: "Period",
+    type: "number" as const
+  }];
+  
+  protected _afterNew() {
+    super._afterNew();
+    
+    const stockSeries = this.get("stockSeries");
+    const chart = stockSeries.chart;
+    
+    if (chart) {
+      this.series = chart.series.push(
+        LineSeries.new(this._root, {
+          valueXField: "valueX",
+          valueYField: "myValue",
+          xAxis: stockSeries.get("xAxis"),
+          yAxis: stockSeries.get("yAxis"),
+          groupDataDisabled: true
+        })
+      );
+      
+      this._handleLegend(this.series);
+    }
+  }
+  
+  public prepareData() {
+    if (this.series) {
+      const stockSeries = this.get("stockSeries");
+      const dataItems = stockSeries.dataItems;
+      const period = this.get("period", 14);
+      
+      // Calculate indicator values
+      const data = [];
+      for (let i = 0; i < dataItems.length; i++) {
+        // Your calculation logic here
+        data.push({
+          valueX: dataItems[i].get("valueX"),
+          myValue: /* calculated value */
+        });
+      }
+      
+      this.series.data.setAll(data);
+    }
+  }
+}
+
+// Register for serialization
+registerClass("MyIndicator", MyIndicator);
+```
+
+## Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5stock from "@amcharts/amcharts5/stock";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+
+// Create chart and series (see StockChart example)
+
+// Add Moving Average
+const sma = stockChart.indicators.push(
+  am5stock.MovingAverage.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 20,
+    type: "simple",
+    seriesColor: am5.color(0xff6600)
+  })
+);
+
+// Add Bollinger Bands
+const bb = stockChart.indicators.push(
+  am5stock.BollingerBands.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 20,
+    standardDeviations: 2,
+    upperColor: am5.color(0x00ff00),
+    lowerColor: am5.color(0xff0000)
+  })
+);
+
+// Add MACD in separate panel
+const macd = stockChart.indicators.push(
+  am5stock.MACD.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    fastPeriod: 12,
+    slowPeriod: 26,
+    signalPeriod: 9
+  })
+);
+```
+
+## See Also
+
+- [Indicators documentation](https://www.amcharts.com/docs/v5/charts/stock/indicators/)
+- [StockChart API](/api/stock/stock-chart)
+- [Creating custom indicators](https://www.amcharts.com/docs/v5/charts/stock/indicators/#Creating_custom_indicators)

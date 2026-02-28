@@ -1,0 +1,506 @@
+---
+title: "Accessibility"
+description: "Make your amCharts 5 visualizations accessible to all users"
+---
+
+## Overview
+
+amCharts 5 includes comprehensive accessibility features to ensure your data visualizations are usable by everyone, including users who rely on assistive technologies like screen readers.
+
+## Enabling Accessibility
+
+Accessibility features are enabled by default. You can control this with the `accessible` setting.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Accessibility enabled by default
+let root = am5.Root.new("chartdiv", {
+  accessible: true  // Default
+});
+
+// Disable accessibility if needed
+let rootNoA11y = am5.Root.new("chartdiv2", {
+  accessible: false
+});
+```
+
+<Warning>
+Once accessibility is disabled during Root initialization, it cannot be re-enabled on that Root instance. You would need to create a new Root instance.
+</Warning>
+
+## Root Element Accessibility
+
+### Making Root Focusable
+
+Allow keyboard users to focus on the chart container.
+
+```typescript
+let root = am5.Root.new("chartdiv", {
+  focusable: true,
+  ariaLabel: "Sales Performance Dashboard",
+  role: "region"
+});
+```
+
+### Focus Padding
+
+Control the visual spacing around focused elements.
+
+```typescript
+let root = am5.Root.new("chartdiv", {
+  focusable: true,
+  focusPadding: 4  // Pixels between element and focus indicator (default: 2)
+});
+```
+
+### ARIA Labels and Roles
+
+```typescript
+let root = am5.Root.new("chartdiv", {
+  focusable: true,
+  ariaLabel: "Annual Revenue Chart",
+  role: "img"  // Can be any valid ARIA role
+});
+```
+
+## Element Accessibility
+
+### ARIA Labels
+
+Provide descriptive labels for all interactive elements.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Add accessible label to series
+let series = chart.series.push(am5xy.LineSeries.new(root, {
+  name: "Revenue",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  categoryXField: "category",
+  ariaLabel: "Revenue trend over the past 12 months"
+}));
+
+// Add label to chart
+chart.set("ariaLabel", "Monthly revenue comparison chart");
+```
+
+### Roles
+
+Define the purpose of elements using ARIA roles.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let button = am5.Button.new(root, {
+  label: am5.Label.new(root, { text: "Export" }),
+  role: "button",
+  ariaLabel: "Export chart data to CSV"
+});
+
+let tooltip = am5.Tooltip.new(root, {
+  role: "tooltip",
+  ariaLive: "polite"
+});
+```
+
+<Info>
+amCharts 5 supports all standard ARIA roles including: `button`, `checkbox`, `slider`, `toolbar`, `tooltip`, `alert`, and many more.
+</Info>
+
+### ARIA Live Regions
+
+Notify screen readers of dynamic content changes.
+
+```typescript
+let label = am5.Label.new(root, {
+  text: "Loading...",
+  role: "status",
+  ariaLive: "polite"  // Options: "off", "polite", "assertive"
+});
+
+// Update dynamically
+label.set("text", "Data loaded successfully");
+```
+
+### Checkbox States
+
+For interactive elements that can be checked/unchecked.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let legendItem = am5.Container.new(root, {
+  role: "checkbox",
+  ariaLabel: "Revenue series",
+  ariaChecked: true,  // true, false, or undefined
+  interactive: true
+});
+
+// Update checked state
+legendItem.events.on("click", function() {
+  let isChecked = legendItem.get("ariaChecked");
+  legendItem.set("ariaChecked", !isChecked);
+});
+```
+
+## Keyboard Navigation
+
+### Tab Index
+
+Control the tab order of interactive elements.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Set global tab index for the root
+root.tabindex = 0;  // Default
+
+// Control tab order for specific elements
+let button1 = am5.Button.new(root, {
+  tabindexOrder: 1,
+  ariaLabel: "First button"
+});
+
+let button2 = am5.Button.new(root, {
+  tabindexOrder: 2,
+  ariaLabel: "Second button"
+});
+```
+
+### Focusable Elements
+
+Make elements keyboard-focusable.
+
+```typescript
+let circle = am5.Circle.new(root, {
+  radius: 20,
+  fill: am5.color(0x095256),
+  focusable: true,  // Makes element keyboard-focusable
+  ariaLabel: "Data point: 150 units"
+});
+
+// Disable focus for specific elements
+let decoration = am5.Circle.new(root, {
+  radius: 5,
+  focusable: false  // Not interactive, skip in tab order
+});
+```
+
+### Focusable Groups
+
+Group related elements for keyboard navigation.
+
+```typescript
+let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  categoryXField: "category",
+  focusableGroup: "series"
+}));
+
+// All columns in the series will be navigable as a group
+```
+
+## Screen Reader Support
+
+### Reader Alerts
+
+Announce important information to screen reader users.
+
+```typescript
+// Trigger a screen reader announcement
+root.readerAlert("Data has been updated");
+
+// Use with events
+series.events.on("datavalidated", function() {
+  root.readerAlert("Chart data loaded successfully");
+});
+```
+
+### Descriptive Text
+
+Provide meaningful descriptions for data visualizations.
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+let chart = root.container.children.push(am5xy.XYChart.new(root, {
+  ariaLabel: "Bar chart showing quarterly sales from Q1 to Q4 2024"
+}));
+
+let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  name: "Sales",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "sales",
+  categoryXField: "quarter",
+  ariaLabel: "Sales data series with values ranging from $10,000 to $50,000"
+}));
+```
+
+## Legend Accessibility
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let legend = chart.children.push(am5.Legend.new(root, {
+  centerX: am5.percent(50),
+  x: am5.percent(50),
+  ariaLabel: "Chart legend"
+}));
+
+legend.data.setAll(chart.series.values);
+
+// Legend items automatically get appropriate ARIA attributes:
+// - role="checkbox"
+// - ariaChecked state
+// - ariaLabel with series name
+```
+
+<Note>
+Legend items automatically announce their state to screen readers: "Series Name shown" or "Series Name hidden".
+</Note>
+
+## Tooltip Accessibility
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let tooltip = am5.Tooltip.new(root, {
+  role: "tooltip",
+  ariaLive: "polite",
+  labelAriaLabel: "Data point information"
+});
+
+series.set("tooltip", tooltip);
+```
+
+## Value Descriptions
+
+Provide context for numeric values.
+
+```typescript
+let slider = am5.Slider.new(root, {
+  start: 0.5,
+  role: "slider",
+  ariaLabel: "Opacity control",
+  ariaValueNow: 50,
+  ariaValueMin: 0,
+  ariaValueMax: 100,
+  ariaValueText: "50 percent opacity"
+});
+```
+
+## Orientation Information
+
+Specify the orientation of elements for assistive technologies.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let scrollbar = am5.Scrollbar.new(root, {
+  orientation: "horizontal",
+  ariaOrientation: "horizontal"
+});
+```
+
+## Hiding Decorative Elements
+
+Hide purely decorative elements from screen readers.
+
+```typescript
+let decorativeCircle = am5.Circle.new(root, {
+  radius: 10,
+  fill: am5.color(0xcccccc),
+  ariaHidden: true  // Hide from assistive technologies
+});
+```
+
+## Control Relationships
+
+Indicate which elements control others.
+
+```typescript
+let button = am5.Button.new(root, {
+  ariaLabel: "Toggle data view",
+  ariaControls: "data-panel"  // ID of controlled element
+});
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Provide Meaningful Labels">
+    Always provide descriptive `ariaLabel` attributes for interactive elements. Avoid generic labels like "chart" or "button".
+    
+    ```typescript
+    // Bad
+    chart.set("ariaLabel", "Chart");
+    
+    // Good
+    chart.set("ariaLabel", "Quarterly revenue comparison for 2024 showing growth from Q1 to Q4");
+    ```
+  </Accordion>
+  
+  <Accordion title="Announce Dynamic Changes">
+    Use `root.readerAlert()` to notify users of important changes.
+    
+    ```typescript
+    series.events.on("datavalidated", function() {
+      const total = series.data.values.reduce((sum, item) => sum + item.value, 0);
+      root.readerAlert(`Data updated. Total value: ${total}`);
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Logical Tab Order">
+    Ensure interactive elements have a logical tab order using `tabindexOrder`.
+    
+    ```typescript
+    exportButton.set("tabindexOrder", 1);
+    printButton.set("tabindexOrder", 2);
+    closeButton.set("tabindexOrder", 3);
+    ```
+  </Accordion>
+  
+  <Accordion title="Keyboard Shortcuts">
+    Provide keyboard alternatives for all mouse interactions.
+    
+    ```typescript
+    element.events.on("click", handleClick);
+    element.events.on("keydown", function(ev) {
+      if (ev.originalEvent.key === "Enter" || ev.originalEvent.key === " ") {
+        handleClick(ev);
+      }
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Test with Screen Readers">
+    Test your charts with popular screen readers:
+    - NVDA (Windows)
+    - JAWS (Windows)
+    - VoiceOver (macOS, iOS)
+    - TalkBack (Android)
+  </Accordion>
+</AccordionGroup>
+
+## Complete Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root with accessibility features
+let root = am5.Root.new("chartdiv", {
+  accessible: true,
+  focusable: true,
+  ariaLabel: "Annual Sales Performance Dashboard",
+  role: "region",
+  focusPadding: 4
+});
+
+root.setThemes([am5themes_Animated.new(root)]);
+
+// Create chart
+let chart = root.container.children.push(am5xy.XYChart.new(root, {
+  ariaLabel: "Bar chart showing sales by region",
+  panX: false,
+  panY: false
+}));
+
+// Create axes
+let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+  categoryField: "region",
+  renderer: am5xy.AxisRendererX.new(root, {}),
+  ariaLabel: "Regions"
+}));
+
+let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {}),
+  ariaLabel: "Sales in thousands of dollars"
+}));
+
+// Create series
+let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  name: "Sales",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "sales",
+  categoryXField: "region",
+  ariaLabel: "Regional sales data with values from $25,000 to $95,000",
+  focusableGroup: "columns"
+}));
+
+// Configure tooltips for accessibility
+let tooltip = am5.Tooltip.new(root, {
+  role: "tooltip",
+  ariaLive: "polite"
+});
+series.set("tooltip", tooltip);
+series.columns.template.set("tooltipText", "{categoryX}: ${valueY}");
+
+// Make columns focusable
+series.columns.template.setAll({
+  focusable: true,
+  ariaLabel: "{categoryX}: {valueY} thousand dollars"
+});
+
+// Set data
+let data = [
+  { region: "North", sales: 45 },
+  { region: "South", sales: 67 },
+  { region: "East", sales: 89 },
+  { region: "West", sales: 52 }
+];
+
+xAxis.data.setAll(data);
+series.data.setAll(data);
+
+// Announce when data is loaded
+series.events.on("datavalidated", function() {
+  root.readerAlert("Sales data for 4 regions has been loaded");
+});
+
+// Add accessible legend
+let legend = chart.children.push(am5.Legend.new(root, {
+  centerX: am5.percent(50),
+  x: am5.percent(50),
+  ariaLabel: "Chart legend - toggle series visibility"
+}));
+
+legend.data.setAll(chart.series.values);
+```
+
+## Testing Accessibility
+
+### Automated Testing
+
+Use tools like:
+- axe DevTools
+- WAVE Browser Extension
+- Lighthouse Accessibility Audit
+
+### Manual Testing
+
+1. Navigate using only keyboard (Tab, Enter, Arrow keys)
+2. Test with screen readers
+3. Verify color contrast ratios
+4. Check focus indicators are visible
+5. Ensure all interactive elements are reachable
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="ARIA Roles" icon="universal-access" href="https://www.w3.org/WAI/ARIA/apg/">
+    W3C ARIA Authoring Practices Guide
+  </Card>
+  <Card title="Keyboard Navigation" icon="keyboard" href="/concepts/events">
+    Learn about keyboard event handling
+  </Card>
+</CardGroup>

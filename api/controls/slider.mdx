@@ -1,0 +1,334 @@
+---
+title: 'Slider'
+description: 'Single-value slider control'
+icon: 'sliders'
+---
+
+## Overview
+
+The `Slider` class creates a single-value slider control. It extends `Scrollbar` but only shows a start grip, making it suitable for selecting a single position rather than a range.
+
+## Constructor
+
+```typescript
+Slider.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="ISliderSettings">
+  Configuration settings for the slider
+</ParamField>
+
+## Settings
+
+Slider inherits all settings from `Scrollbar`:
+
+### Orientation
+
+<ParamField path="orientation" type="'horizontal' | 'vertical'" required>
+  Orientation of the slider.
+</ParamField>
+
+### Value Settings
+
+<ParamField path="start" type="number">
+  The slider position, where 0 is the beginning and 1 is the end. The `end` value is automatically synchronized to match `start`.
+</ParamField>
+
+### Animation Settings
+
+<ParamField path="animationDuration" type="number">
+  Number of milliseconds to play animations for when the slider position changes.
+</ParamField>
+
+<ParamField path="animationEasing" type="(t: Time) => Time">
+  Easing function to use for animations.
+</ParamField>
+
+## Properties
+
+### startGrip
+
+<ResponseField name="startGrip" type="Button">
+  The draggable grip button for adjusting the slider position.
+</ResponseField>
+
+```typescript
+slider.startGrip.setAll({
+  scale: 1.5,
+  fill: am5.color(0xff0000)
+});
+```
+
+### endGrip
+
+<ResponseField name="endGrip" type="Button">
+  End grip (hidden by default). Set to `visible: false` automatically.
+</ResponseField>
+
+### thumb
+
+<ResponseField name="thumb" type="RoundedRectangle">
+  The thumb element (hidden by default). Set to `visible: false` automatically.
+</ResponseField>
+
+## Methods
+
+### updateGrips()
+
+Updates the grip position based on the current `start` value. Automatically synchronizes `end` to match `start`.
+
+```typescript
+updateGrips(): void
+```
+
+## Events
+
+### rangechanged
+
+Fired when the slider position changes.
+
+```typescript
+slider.events.on("rangechanged", function(ev) {
+  console.log("Position:", ev.start);
+  // Note: ev.start and ev.end will be the same value
+});
+```
+
+<ResponseField name="start" type="number">
+  New position (0-1)
+</ResponseField>
+
+<ResponseField name="end" type="number">
+  Same as start (automatically synchronized)
+</ResponseField>
+
+<ResponseField name="grip" type="'start' | undefined">
+  Always "start" when dragging the grip
+</ResponseField>
+
+### released
+
+Fired when the user releases the grip after dragging.
+
+```typescript
+slider.events.on("released", function(ev) {
+  console.log("Slider released at position:", slider.get("start"));
+});
+```
+
+## Examples
+
+### Basic Horizontal Slider
+
+```typescript
+import { Slider } from "@amcharts/amcharts5";
+
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0.5
+});
+
+chart.plotContainer.children.push(slider);
+```
+
+### Vertical Slider
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "vertical",
+  start: 0.3,
+  height: 200
+});
+```
+
+### Slider with Custom Styling
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0.5
+});
+
+slider.startGrip.setAll({
+  scale: 2,
+  opacity: 1
+});
+
+slider.get("background").setAll({
+  fill: am5.color(0xe0e0e0),
+  fillOpacity: 1
+});
+```
+
+### Slider with Value Tracking
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0
+});
+
+const valueLabel = am5.Label.new(root, {
+  text: "0%",
+  x: am5.percent(50),
+  centerX: am5.percent(50)
+});
+
+slider.events.on("rangechanged", function(ev) {
+  const percent = Math.round(ev.start * 100);
+  valueLabel.set("text", percent + "%");
+});
+```
+
+### Animated Slider
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0.2,
+  animationDuration: 300,
+  animationEasing: am5.ease.out(am5.ease.quad)
+});
+
+// Programmatically animate to a new position
+slider.animate({
+  key: "start",
+  to: 0.8,
+  duration: 1000,
+  easing: am5.ease.inOut(am5.ease.cubic)
+});
+```
+
+### Slider for Timeline Control
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0,
+  width: am5.percent(100),
+  height: 40
+});
+
+slider.events.on("rangechanged", function(ev) {
+  const totalDuration = 10000; // 10 seconds
+  const currentTime = ev.start * totalDuration;
+  
+  // Update animation or data based on time
+  updateVisualization(currentTime);
+});
+```
+
+### Slider with Stepped Values
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0
+});
+
+const steps = 10;
+
+slider.events.on("rangechanged", function(ev) {
+  const steppedValue = Math.round(ev.start * steps) / steps;
+  
+  // Only update if different from current stepped value
+  if (slider.get("start") !== steppedValue) {
+    slider.set("start", steppedValue);
+  }
+});
+```
+
+### Slider with Min/Max Range
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0.5
+});
+
+const minValue = 0.2;
+const maxValue = 0.8;
+
+slider.events.on("rangechanged", function(ev) {
+  let value = ev.start;
+  
+  if (value < minValue) {
+    slider.set("start", minValue);
+  } else if (value > maxValue) {
+    slider.set("start", maxValue);
+  }
+});
+```
+
+### Slider with Custom Background Track
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0.5,
+  background: am5.RoundedRectangle.new(root, {
+    fill: am5.color(0x000000),
+    fillOpacity: 0.1,
+    cornerRadiusTL: 10,
+    cornerRadiusTR: 10,
+    cornerRadiusBL: 10,
+    cornerRadiusBR: 10
+  })
+});
+
+slider.startGrip.set("icon", am5.Graphics.new(root, {
+  svgPath: "M0,0 L10,10 L0,20 Z",
+  fill: am5.color(0xffffff)
+}));
+```
+
+## Differences from Scrollbar
+
+The Slider differs from Scrollbar in the following ways:
+
+1. **Single Value**: Only the `start` value matters; `end` is automatically synchronized
+2. **Hidden Elements**: The `endGrip` and `thumb` are hidden by default
+3. **Single Grip**: Only the start grip is visible and interactive
+4. **Use Case**: Designed for selecting a single position, not a range
+
+## Programmatic Control
+
+```typescript
+const slider = Slider.new(root, {
+  orientation: "horizontal",
+  start: 0
+});
+
+// Set position immediately
+slider.set("start", 0.75);
+
+// Animate to position
+slider.animate({
+  key: "start",
+  to: 0.25,
+  duration: 500
+});
+
+// Get current position
+const position = slider.get("start");
+```
+
+## Accessibility
+
+The slider grip includes ARIA attributes for screen readers:
+
+- `ariaLabel` - "From X%"
+- `ariaValueNow` - Current value as percentage
+- `ariaValueText` - Text representation
+- `ariaValueMin` - "0"
+- `ariaValueMax` - "100"
+
+## Related
+
+- [Scrollbar](/api/controls/scrollbar)
+- [Button](/api/controls/button)
+- [Container](/api/core/container)

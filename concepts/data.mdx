@@ -1,0 +1,519 @@
+---
+title: Working with Data
+description: Understanding how to load, update, and manage chart data in amCharts 5
+---
+
+Data is the foundation of any chart. amCharts 5 provides flexible and powerful data management through the Component class and its data handling mechanisms.
+
+## Setting Data
+
+Most chart components accept data through the `data` property:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+
+// Create a chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {})
+);
+
+// Create a series
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Set data
+series.data.setAll([
+  { date: new Date(2021, 0, 1).getTime(), value: 100 },
+  { date: new Date(2021, 0, 2).getTime(), value: 150 },
+  { date: new Date(2021, 0, 3).getTime(), value: 120 },
+  { date: new Date(2021, 0, 4).getTime(), value: 180 }
+]);
+```
+
+## Data Structure
+
+### Simple Array Data
+
+```typescript
+const data = [
+  { category: "A", value: 100 },
+  { category: "B", value: 200 },
+  { category: "C", value: 150 }
+];
+
+series.data.setAll(data);
+```
+
+### Nested Data
+
+```typescript
+const data = [
+  {
+    country: "USA",
+    sales: 1000,
+    details: {
+      region: "North America",
+      growth: 12.5
+    }
+  },
+  {
+    country: "UK",
+    sales: 800,
+    details: {
+      region: "Europe",
+      growth: 8.3
+    }
+  }
+];
+```
+
+## Field Mapping
+
+Map data fields to chart properties:
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Revenue",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "revenue",      // Maps to data.revenue
+    categoryXField: "month",     // Maps to data.month
+    strokeField: "lineColor",    // Maps to data.lineColor
+    fillField: "barColor"        // Maps to data.barColor
+  })
+);
+
+const data = [
+  { 
+    month: "Jan", 
+    revenue: 5000,
+    lineColor: am5.color(0xff0000),
+    barColor: am5.color(0xffcccc)
+  },
+  { 
+    month: "Feb", 
+    revenue: 6000,
+    lineColor: am5.color(0x00ff00),
+    barColor: am5.color(0xccffcc)
+  }
+];
+
+series.data.setAll(data);
+```
+
+## Data Operations
+
+### Adding Data
+
+```typescript
+// Add single item
+series.data.push({
+  date: new Date(2021, 0, 5).getTime(),
+  value: 200
+});
+
+// Add multiple items
+series.data.pushAll([
+  { date: new Date(2021, 0, 6).getTime(), value: 210 },
+  { date: new Date(2021, 0, 7).getTime(), value: 190 }
+]);
+```
+
+### Updating Data
+
+```typescript
+// Update specific index
+series.data.setIndex(0, {
+  date: new Date(2021, 0, 1).getTime(),
+  value: 110  // Updated value
+});
+
+// Replace all data
+series.data.setAll(newData);
+```
+
+### Removing Data
+
+```typescript
+// Remove at index
+series.data.removeIndex(2);
+
+// Clear all data
+series.data.clear();
+```
+
+### Inserting Data
+
+```typescript
+// Insert at specific position
+series.data.insertIndex(1, {
+  date: new Date(2021, 0, 1, 12).getTime(),
+  value: 125
+});
+```
+
+## Live Data Updates
+
+### Incremental Updates
+
+```typescript
+// Add new data point every second
+setInterval(() => {
+  series.data.push({
+    date: Date.now(),
+    value: Math.random() * 100
+  });
+  
+  // Keep only last 50 points
+  if (series.data.length > 50) {
+    series.data.removeIndex(0);
+  }
+}, 1000);
+```
+
+### Batch Updates
+
+```typescript
+function updateData() {
+  const newData = fetchDataFromAPI();
+  series.data.setAll(newData);
+}
+
+// Update every 5 seconds
+setInterval(updateData, 5000);
+```
+
+## Data Items
+
+Each data point creates a `DataItem`:
+
+```typescript
+// Access data items
+const dataItem = series.dataItems[0];
+
+// Get data context (original data)
+const originalData = dataItem.dataContext;
+
+// Get processed values
+const value = dataItem.get("valueY");
+const category = dataItem.get("categoryX");
+
+// Update data item
+dataItem.set("valueY", 150);
+dataItem.animate({
+  key: "valueY",
+  to: 200,
+  duration: 1000
+});
+
+// Show/hide data item
+dataItem.hide();
+dataItem.show();
+```
+
+## Data Processors
+
+Process data automatically:
+
+```typescript
+import * as am5plugins_json from "@amcharts/amcharts5/plugins/json";
+
+// Parse JSON configuration
+am5plugins_json.JsonParser.new(root).parse({
+  refs: [{
+    data: [
+      { country: "France", sales: 100000 },
+      { country: "Spain", sales: 160000 },
+      { country: "UK", sales: 80000 }
+    ]
+  }],
+  type: "PieChart",
+  // ... chart config
+}, {
+  parent: root.container
+});
+```
+
+## Data Events
+
+Listen to data changes:
+
+```typescript
+series.data.events.on("push", (ev) => {
+  console.log("Data added:", ev.newValue);
+});
+
+series.data.events.on("setIndex", (ev) => {
+  console.log("Data updated at index:", ev.index, ev.newValue);
+});
+
+series.data.events.on("removeIndex", (ev) => {
+  console.log("Data removed at index:", ev.index);
+});
+
+series.data.events.on("clear", () => {
+  console.log("All data cleared");
+});
+```
+
+## Data Validation
+
+Handle data validation:
+
+```typescript
+series.events.on("datavalidated", () => {
+  console.log("Data has been validated and processed");
+  console.log("Total data items:", series.dataItems.length);
+});
+```
+
+## Template Fields
+
+Use data to configure visual properties:
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Configure columns using data
+series.columns.template.setAll({
+  templateField: "columnSettings"
+});
+
+const data = [
+  {
+    category: "A",
+    value: 100,
+    columnSettings: {
+      fill: am5.color(0xff0000),
+      stroke: am5.color(0x990000)
+    }
+  },
+  {
+    category: "B",
+    value: 200,
+    columnSettings: {
+      fill: am5.color(0x00ff00),
+      stroke: am5.color(0x009900)
+    }
+  }
+];
+
+series.data.setAll(data);
+```
+
+## Working with Time Series
+
+```typescript
+const data = [];
+const startDate = new Date(2021, 0, 1);
+
+for (let i = 0; i < 365; i++) {
+  const date = new Date(startDate);
+  date.setDate(date.getDate() + i);
+  
+  data.push({
+    date: date.getTime(),
+    value: Math.random() * 100
+  });
+}
+
+series.data.setAll(data);
+```
+
+## Data Grouping
+
+Group data by intervals:
+
+```typescript
+const dateAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {}),
+    groupData: true,
+    groupCount: 100  // Group to approximately 100 points
+  })
+);
+
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    valueYField: "value",
+    valueXField: "date",
+    groupDataCallback: (dataItem, interval) => {
+      // Custom grouping logic
+      return {
+        value: dataItem.get("valueY"),
+        date: dataItem.get("valueX")
+      };
+    }
+  })
+);
+```
+
+## Async Data Loading
+
+```typescript
+async function loadData() {
+  try {
+    const response = await fetch('https://api.example.com/data');
+    const data = await response.json();
+    series.data.setAll(data);
+  } catch (error) {
+    console.error('Failed to load data:', error);
+  }
+}
+
+loadData();
+```
+
+## CSV Data
+
+```typescript
+const csvData = `date,value
+2021-01-01,100
+2021-01-02,150
+2021-01-03,120`;
+
+// Parse CSV (you'll need a CSV parser)
+const data = parseCSV(csvData);
+series.data.setAll(data);
+```
+
+## Practical Examples
+
+### Real-time Stock Chart
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Stock Price",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    valueYField: "price",
+    valueXField: "timestamp"
+  })
+);
+
+function updateStockPrice() {
+  const newPrice = {
+    timestamp: Date.now(),
+    price: Math.random() * 100 + 50
+  };
+  
+  series.data.push(newPrice);
+  
+  // Keep last 100 points
+  if (series.data.length > 100) {
+    series.data.removeIndex(0);
+  }
+}
+
+setInterval(updateStockPrice, 1000);
+```
+
+### Dynamic Category Updates
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: categoryAxis,
+    yAxis: valueAxis,
+    valueYField: "sales",
+    categoryXField: "month"
+  })
+);
+
+const data = [
+  { month: "Jan", sales: 1000 },
+  { month: "Feb", sales: 1200 },
+  { month: "Mar", sales: 900 }
+];
+
+series.data.setAll(data);
+
+// Update specific month
+function updateMonth(monthIndex, newSales) {
+  const item = series.dataItems[monthIndex];
+  item.animate({
+    key: "valueY",
+    to: newSales,
+    duration: 500
+  });
+}
+
+updateMonth(1, 1500);  // Update February
+```
+
+### Multi-Series Data
+
+```typescript
+const sharedData = [
+  { date: new Date(2021, 0, 1).getTime(), seriesA: 100, seriesB: 80 },
+  { date: new Date(2021, 0, 2).getTime(), seriesA: 150, seriesB: 120 },
+  { date: new Date(2021, 0, 3).getTime(), seriesA: 120, seriesB: 140 }
+];
+
+const seriesA = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series A",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    valueYField: "seriesA",
+    valueXField: "date"
+  })
+);
+
+const seriesB = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series B",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    valueYField: "seriesB",
+    valueXField: "date"
+  })
+);
+
+seriesA.data.setAll(sharedData);
+seriesB.data.setAll(sharedData);
+```
+
+## Best Practices
+
+1. **Use setAll() for Initial Data**: It's more efficient than multiple push() calls
+2. **Batch Updates**: Group data changes together rather than updating one at a time
+3. **Clean Up Old Data**: Remove old data points in real-time scenarios to prevent memory issues
+4. **Validate Data**: Ensure data is in the correct format before setting
+5. **Handle Missing Values**: Use null or undefined for missing data points
+6. **Use Data Events Sparingly**: Too many listeners can impact performance
+7. **Animate Smoothly**: Use data item animations for smooth transitions
+
+<Tip>
+For large datasets (>10,000 points), consider using data grouping to improve performance.
+</Tip>
+
+<Warning>
+Modifying data directly on the array can cause synchronization issues. Always use the data collection methods.
+</Warning>
+
+<Note>
+Data items are automatically created and disposed by the component. You rarely need to create them manually.
+</Note>

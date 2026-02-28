@@ -1,0 +1,253 @@
+---
+title: Root Element
+description: Understanding the Root element in amCharts 5
+---
+
+The Root element is the foundation of every amCharts 5 chart. It manages the chart instance, handles rendering, animations, themes, and provides access to global utilities.
+
+## Creating a Root
+
+Every chart starts with creating a Root element attached to a DOM element:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+```
+
+The Root can be attached to:
+- An element ID (string): `Root.new("chartdiv")`
+- An HTMLElement: `Root.new(document.getElementById("chartdiv"))`
+
+<Note>
+Always use the `.new()` method to create instances. Direct instantiation with `new Root()` will throw an error.
+</Note>
+
+## Root Settings
+
+The Root accepts various configuration options:
+
+```typescript
+const root = am5.Root.new("chartdiv", {
+  useSafeResolution: true,
+  accessible: true,
+  focusable: true,
+  ariaLabel: "My Interactive Chart",
+  tooltipContainerBounds: {
+    top: 10,
+    left: 10,
+    right: 10,
+    bottom: 10
+  }
+});
+```
+
+### Key Settings
+
+| Setting | Type | Description | Default |
+|---------|------|-------------|----------|
+| `useSafeResolution` | boolean | Use memory-safe resolution on platforms like Safari | `true` |
+| `accessible` | boolean | Enable accessibility features | `true` |
+| `focusable` | boolean | Make root element focusable | `false` |
+| `ariaLabel` | string | ARIA label for screen readers | - |
+| `tooltipContainerBounds` | object | Margins for tooltips to extend outside chart | - |
+
+## Root Properties
+
+### Container
+
+The main content container where your chart elements go:
+
+```typescript
+const root = am5.Root.new("chartdiv");
+
+// Add a chart to the root container
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    // chart settings
+  })
+);
+```
+
+### Locale and Formatters
+
+```typescript
+import am5locales_de_DE from "@amcharts/amcharts5/locales/de_DE";
+
+// Set locale
+root.locale = am5locales_de_DE;
+
+// Use UTC time
+root.utc = true;
+
+// Set timezone
+root.timezone = "America/Vancouver";
+
+// Access formatters
+root.numberFormatter.set("numberFormat", "#,###.00");
+root.dateFormatter.set("dateFormat", "yyyy-MM-dd");
+```
+
+### Performance Control
+
+```typescript
+// Limit frame rate
+root.fps = 30;
+
+// Disable automatic resizing
+root.autoResize = false;
+
+// Manually trigger resize
+root.resize();
+```
+
+## Themes
+
+Apply themes to customize the appearance of all chart elements:
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  am5themes_Dark.new(root)
+]);
+```
+
+<Info>
+Themes are applied in the order they're listed. Later themes can override settings from earlier ones.
+</Info>
+
+## Events
+
+The Root dispatches frame events for each render cycle:
+
+```typescript
+root.events.on("framestarted", (ev) => {
+  console.log("Frame started at:", ev.timestamp);
+});
+
+root.events.on("frameended", (ev) => {
+  console.log("Frame ended at:", ev.timestamp);
+});
+```
+
+## Dimensions
+
+Access root dimensions:
+
+```typescript
+const width = root.width();
+const height = root.height();
+
+console.log(`Chart size: ${width}x${height}`);
+```
+
+## Disposing
+
+Always dispose of the root when you're done to free up resources:
+
+```typescript
+// Clean up
+root.dispose();
+
+// Check if disposed
+if (root.isDisposed()) {
+  console.log("Root has been disposed");
+}
+```
+
+<Warning>
+Failing to dispose of Root elements can lead to memory leaks, especially in single-page applications.
+</Warning>
+
+## Coordinate Conversion
+
+Convert between document and root coordinates:
+
+```typescript
+// Document point to root coordinates
+const rootPoint = root.documentPointToRoot({ x: 100, y: 100 });
+
+// Root coordinates to document
+const docPoint = root.rootPointToDocument({ x: 50, y: 50 });
+```
+
+## Accessibility
+
+The Root provides comprehensive accessibility support:
+
+```typescript
+const root = am5.Root.new("chartdiv", {
+  accessible: true,
+  focusable: true,
+  ariaLabel: "Sales Performance Chart",
+  role: "img"
+});
+
+// Announce to screen readers
+root.readerAlert("Chart data has been updated");
+
+// Set global tab index
+root.tabindex = 0;
+```
+
+## Advanced: Custom Size Calculation
+
+Provide custom logic for calculating chart size:
+
+```typescript
+const root = am5.Root.new("chartdiv", {
+  calculateSize: (dimensions) => {
+    // Custom sizing logic
+    return {
+      width: Math.min(dimensions.width, 1200),
+      height: Math.min(dimensions.height, 800)
+    };
+  }
+});
+```
+
+## Interface Colors
+
+Access predefined interface colors:
+
+```typescript
+const interfaceColors = root.interfaceColors;
+
+const bgColor = interfaceColors.get("background");
+const gridColor = interfaceColors.get("grid");
+```
+
+## Best Practices
+
+1. **One Root per Container**: Each DOM element should have only one Root instance
+2. **Always Dispose**: Call `root.dispose()` when removing charts
+3. **Set Themes Early**: Apply themes before creating chart elements
+4. **Use Events Wisely**: Frame events fire frequently; use them sparingly
+5. **Consider Performance**: Set `fps` limit on lower-end devices
+
+## Common Patterns
+
+### Responsive Charts
+
+```typescript
+const root = am5.Root.new("chartdiv");
+
+// Auto-resize is enabled by default
+window.addEventListener("resize", () => {
+  root.resize();
+});
+```
+
+### Multiple Charts
+
+```typescript
+const root1 = am5.Root.new("chart1");
+const root2 = am5.Root.new("chart2");
+
+// Each root is independent
+// Remember to dispose both when done
+```

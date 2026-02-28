@@ -1,0 +1,315 @@
+---
+title: Radar Chart
+description: Create circular charts to display multivariate data on radial axes
+---
+
+Radar charts (also called spider charts or web charts) display data on a circular grid with multiple axes radiating from a center point, ideal for comparing multiple variables.
+
+## When to Use Radar Charts
+
+Use radar charts when you need to:
+- Compare multiple variables across items
+- Display multivariate observations
+- Show performance metrics across categories
+- Visualize strengths and weaknesses
+- Create spider or web diagrams
+- Display cyclical data (weather, seasonal patterns)
+
+## Creating a Radar Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5radar from "@amcharts/amcharts5/radar";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create radar chart
+const chart = root.container.children.push(
+  am5radar.RadarChart.new(root, {
+    panX: false,
+    panY: false,
+    wheelX: "none",
+    wheelY: "none",
+    radius: am5.percent(80),
+    innerRadius: am5.percent(20)
+  })
+);
+
+// Create circular axis (categories)
+const xAxis = chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: am5radar.AxisRendererCircular.new(root, {})
+  })
+);
+
+xAxis.data.setAll([
+  { category: "Category A" },
+  { category: "Category B" },
+  { category: "Category C" },
+  { category: "Category D" },
+  { category: "Category E" }
+]);
+
+// Create radial axis (values)
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5radar.AxisRendererRadial.new(root, {})
+  })
+);
+
+// Create series
+const series = chart.series.push(
+  am5radar.RadarLineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    fill: am5.color(0x095256),
+    stroke: am5.color(0x095256)
+  })
+);
+
+// Add area fill
+series.strokes.template.setAll({
+  strokeWidth: 2
+});
+
+series.fills.template.setAll({
+  fillOpacity: 0.3,
+  visible: true
+});
+
+// Set data
+series.data.setAll([
+  { category: "Category A", value: 80 },
+  { category: "Category B", value: 65 },
+  { category: "Category C", value: 90 },
+  { category: "Category D", value: 50 },
+  { category: "Category E", value: 75 }
+]);
+
+// Add cursor
+chart.set("cursor", am5radar.RadarCursor.new(root, {}));
+```
+
+## Configuration Options
+
+### Chart Radius
+
+<Info>
+Control the size and inner hole of the radar chart.
+</Info>
+
+- **radius** (`number | Percent`) - Outer radius of the chart (default: 80%)
+- **innerRadius** (`number | Percent`) - Inner radius creating a hole in the center
+- **startAngle** (`number`) - Start angle in degrees (default: -90)
+- **endAngle** (`number`) - End angle in degrees (default: 270)
+
+```typescript
+const chart = root.container.children.push(
+  am5radar.RadarChart.new(root, {
+    radius: am5.percent(90),
+    innerRadius: am5.percent(30),
+    startAngle: -90,
+    endAngle: 270
+  })
+);
+```
+
+### Creating a Semi-Circle Radar
+
+```typescript
+const chart = root.container.children.push(
+  am5radar.RadarChart.new(root, {
+    startAngle: 180,
+    endAngle: 360
+  })
+);
+```
+
+## Series Types
+
+### Radar Line Series
+
+```typescript
+const series = chart.series.push(
+  am5radar.RadarLineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Configure appearance
+series.strokes.template.setAll({
+  strokeWidth: 3,
+  stroke: am5.color(0x095256)
+});
+
+series.fills.template.setAll({
+  fillOpacity: 0.2,
+  visible: true
+});
+```
+
+### Radar Column Series
+
+```typescript
+const series = chart.series.push(
+  am5radar.RadarColumnSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+series.columns.template.setAll({
+  strokeOpacity: 0,
+  cornerRadius: 5
+});
+```
+
+## Multiple Series
+
+Compare multiple data sets:
+
+```typescript
+const series1 = chart.series.push(
+  am5radar.RadarLineSeries.new(root, {
+    name: "Series 1",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value1",
+    categoryXField: "category",
+    stroke: am5.color(0x095256),
+    fill: am5.color(0x095256)
+  })
+);
+
+const series2 = chart.series.push(
+  am5radar.RadarLineSeries.new(root, {
+    name: "Series 2",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value2",
+    categoryXField: "category",
+    stroke: am5.color(0xff0000),
+    fill: am5.color(0xff0000)
+  })
+);
+
+const data = [
+  { category: "A", value1: 80, value2: 60 },
+  { category: "B", value1: 65, value2: 85 },
+  { category: "C", value1: 90, value2: 70 }
+];
+
+series1.data.setAll(data);
+series2.data.setAll(data);
+```
+
+## Axes Configuration
+
+### Circular Axis (X)
+
+```typescript
+const xRenderer = am5radar.AxisRendererCircular.new(root, {
+  minGridDistance: 30
+});
+
+// Customize labels
+xRenderer.labels.template.setAll({
+  radius: 10,
+  fontSize: 12
+});
+
+const xAxis = chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: xRenderer
+  })
+);
+```
+
+### Radial Axis (Y)
+
+```typescript
+const yRenderer = am5radar.AxisRendererRadial.new(root, {});
+
+// Customize grid
+yRenderer.grid.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeOpacity: 0.1
+});
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    min: 0,
+    max: 100,
+    renderer: yRenderer
+  })
+);
+```
+
+## Radar Cursor
+
+```typescript
+const cursor = am5radar.RadarCursor.new(root, {
+  behavior: "zoomX" // or "zoomY", "zoomXY"
+});
+
+chart.set("cursor", cursor);
+
+// Customize cursor lines
+cursor.lineX.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2,
+  strokeOpacity: 0.5
+});
+
+cursor.lineY.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2,
+  strokeOpacity: 0.5
+});
+```
+
+## Bullets and Data Points
+
+```typescript
+series.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: series.get("fill")
+    })
+  });
+});
+```
+
+## Key Classes
+
+- `RadarChart` - Main radar chart class from `@amcharts/amcharts5/radar`
+- `RadarLineSeries` - Line series for radar charts
+- `RadarColumnSeries` - Column series for radar charts
+- `AxisRendererCircular` - Circular axis renderer
+- `AxisRendererRadial` - Radial axis renderer
+- `RadarCursor` - Interactive cursor for radar charts
+
+<Tip>
+Use `innerRadius` to create a hollow center, making it easier to read values near the origin.
+</Tip>
+
+<Note>
+Radar charts work best with 3-8 variables. Too many variables can make the chart difficult to read.
+</Note>

@@ -1,0 +1,548 @@
+---
+title: 'Drawing Tools'
+description: 'Interactive drawing and annotation tools for stock charts'
+icon: 'pen-to-square'
+---
+
+## Overview
+
+Drawing tools allow users to add interactive annotations to stock charts. These include trend lines, shapes, Fibonacci retracements, and more. All drawing tools extend the `DrawingSeries` base class.
+
+## Base Class: DrawingSeries
+
+```typescript
+import { DrawingSeries } from "@amcharts/amcharts5/stock";
+```
+
+### Settings
+
+<ParamField path="xAxis" type="DateAxis<AxisRenderer>" required>
+  X-axis for the drawing.
+</ParamField>
+
+<ParamField path="yAxis" type="ValueAxis<AxisRenderer>" required>
+  Y-axis for the drawing.
+</ParamField>
+
+<ParamField path="series" type="XYSeries">
+  XYSeries used as the basis for the drawing.
+</ParamField>
+
+<ParamField path="strokeColor" type="Color">
+  Color of the lines/borders.
+</ParamField>
+
+<ParamField path="fillColor" type="Color">
+  Color of the fills.
+</ParamField>
+
+<ParamField path="strokeOpacity" type="number">
+  Opacity of the lines/borders (0-1).
+</ParamField>
+
+<ParamField path="fillOpacity" type="number">
+  Opacity of the fills (0-1).
+</ParamField>
+
+<ParamField path="strokeWidth" type="number">
+  Width of the lines/borders in pixels.
+</ParamField>
+
+<ParamField path="strokeDasharray" type="number[]">
+  Dash pattern for lines/borders (e.g., `[5, 5]` for dashed lines).
+</ParamField>
+
+<ParamField path="snapToData" type="boolean">
+  Whether drawings should snap to X and Y values.
+</ParamField>
+
+<ParamField path="field" type="string" default="value">
+  Value field to use when snapping data or calculating averages/regressions.
+  
+  Options: `"open"`, `"value"`, `"low"`, `"high"`
+</ParamField>
+
+<ParamField path="selectorPadding" type="number" default="5">
+  Padding around the drawing when selected (in pixels).
+</ParamField>
+
+### Methods
+
+#### enableDrawing()
+
+Enables drawing mode for this series.
+
+```typescript
+enableDrawing(): void
+```
+
+#### disableDrawing()
+
+Disables drawing mode for this series.
+
+```typescript
+disableDrawing(): void
+```
+
+#### toggleDrawing()
+
+Toggles drawing mode on or off.
+
+```typescript
+toggleDrawing(enabled?: boolean): void
+```
+
+<ParamField path="enabled" type="boolean">
+  Whether drawing mode should be enabled.
+</ParamField>
+
+#### enableDrawingSelection()
+
+Enables selection mode for drawings.
+
+```typescript
+enableDrawingSelection(value: boolean): void
+```
+
+<ParamField path="value" type="boolean" required>
+  Whether selection should be enabled.
+</ParamField>
+
+#### enableErasing()
+
+Enables erasing mode - clicking drawings will delete them.
+
+```typescript
+enableErasing(): void
+```
+
+#### disableErasing()
+
+Disables erasing mode.
+
+```typescript
+disableErasing(): void
+```
+
+#### selectDrawing()
+
+Selects a drawing by its ID.
+
+```typescript
+selectDrawing(id: string, keepSelection?: boolean): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+<ParamField path="keepSelection" type="boolean">
+  Whether to keep existing selections.
+</ParamField>
+
+@since 5.9.0
+
+#### unselectDrawing()
+
+Unselects a drawing by its ID.
+
+```typescript
+unselectDrawing(id: string): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+@since 5.9.0
+
+#### unselectDrawings()
+
+Unselects all drawings on this series.
+
+```typescript
+unselectDrawings(): number
+```
+
+<ResponseField name="return" type="number">
+  Number of drawings that were unselected.
+</ResponseField>
+
+@since 5.9.0
+
+#### unselectAllDrawings()
+
+Unselects all drawings on all series.
+
+```typescript
+unselectAllDrawings(): number
+```
+
+<ResponseField name="return" type="number">
+  Number of drawings that were unselected.
+</ResponseField>
+
+@since 5.9.0
+
+#### deleteDrawing()
+
+Deletes a drawing by its ID.
+
+```typescript
+deleteDrawing(id: string): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+@since 5.9.0
+
+#### deleteSelected()
+
+Deletes all currently selected drawings on this series.
+
+```typescript
+deleteSelected(): void
+```
+
+@since 5.9.0
+
+#### cancelDrawing()
+
+Cancels the current drawing operation.
+
+```typescript
+cancelDrawing(): void
+```
+
+@since 5.9.0
+
+#### disposeIndex()
+
+Disposes a drawing at the specified index.
+
+```typescript
+disposeIndex(index: number): void
+```
+
+<ParamField path="index" type="number" required>
+  Drawing index.
+</ParamField>
+
+@since 5.7.7
+
+#### getIndex()
+
+Returns the index of a drawing with a specific ID.
+
+```typescript
+getIndex(id: string): number | null
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+<ResponseField name="return" type="number | null">
+  Index of the drawing, or null if not found.
+</ResponseField>
+
+@since 5.8.4
+
+#### getContext()
+
+Returns the data context for a drawing with a specific ID.
+
+```typescript
+getContext(id: string): any
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+<ResponseField name="return" type="any">
+  The drawing's data context.
+</ResponseField>
+
+#### clearDrawings()
+
+Clears all drawings from the series.
+
+```typescript
+clearDrawings(): void
+```
+
+## Drawing Types
+
+### SimpleLineSeries
+
+Base class for line-based drawings.
+
+```typescript
+import { SimpleLineSeries } from "@amcharts/amcharts5/stock";
+```
+
+<ParamField path="showExtension" type="boolean" default="true">
+  Show a dotted line extending from both ends of the drawn line.
+</ParamField>
+
+#### addLine()
+
+Programmatically adds a line drawing.
+
+```typescript
+addLine(point: IPoint): void
+```
+
+<ParamField path="point" type="IPoint" required>
+  Point coordinates `{ x: number, y: number }`.
+</ParamField>
+
+@since 5.10.2
+
+### TrendLineSeries
+
+Draws a trend line that snaps to data points.
+
+```typescript
+import { TrendLineSeries } from "@amcharts/amcharts5/stock";
+
+const trendLine = mainPanel.series.push(
+  TrendLineSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    series: valueSeries,
+    strokeColor: am5.color(0xff0000),
+    strokeWidth: 2
+  })
+);
+
+trendLine.enableDrawing();
+```
+
+### Other Drawing Tools
+
+amCharts 5 includes many built-in drawing tools:
+
+#### Lines
+- **SimpleLineSeries** - Basic line
+- **TrendLineSeries** - Trend line snapped to data
+- **HorizontalLineSeries** - Horizontal line
+- **VerticalLineSeries** - Vertical line
+- **HorizontalRaySeries** - Horizontal ray extending infinitely
+- **LineArrowSeries** - Line with arrow
+- **ParallelChannelSeries** - Parallel channel
+- **QuadrantLineSeries** - Quadrant lines
+- **RegressionSeries** - Linear regression line
+
+#### Shapes
+- **RectangleSeries** - Rectangle
+- **EllipseSeries** - Ellipse/circle
+- **CalloutSeries** - Callout with text
+- **LabelSeries** - Text label
+- **IconSeries** - Icon marker
+
+#### Advanced
+- **FibonacciSeries** - Fibonacci retracement
+- **FibonacciTimezoneSeries** - Fibonacci timezone
+- **AverageSeries** - Average line
+- **PolylineSeries** - Multi-point polyline
+- **DoodleSeries** - Free-hand drawing
+- **Measure** - Measurement tool
+
+## Working with Drawings
+
+### Adding Drawings to a Chart
+
+```typescript
+import { TrendLineSeries } from "@amcharts/amcharts5/stock";
+
+const trendLine = mainPanel.series.push(
+  TrendLineSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    series: valueSeries,
+    strokeColor: am5.color(0xff0000),
+    strokeWidth: 2
+  })
+);
+```
+
+### Enabling Drawing Mode
+
+```typescript
+// Enable drawing on the series
+trendLine.enableDrawing();
+
+// Or toggle on all drawing series
+stockChart.toggleDrawing(true);
+```
+
+### Enabling Selection
+
+```typescript
+// Enable selection on the StockChart
+stockChart.set("drawingSelectionEnabled", true);
+
+// Or programmatically select a drawing
+stockChart.selectDrawing("drawingId123");
+```
+
+### Managing Drawings Programmatically
+
+```typescript
+// Select a drawing
+stockChart.selectDrawing("drawingId123", false);
+
+// Unselect all drawings
+stockChart.unselectDrawings();
+
+// Delete a specific drawing
+stockChart.deleteDrawing("drawingId123");
+
+// Delete all selected drawings
+stockChart.deleteSelectedDrawings();
+
+// Cancel current drawing
+stockChart.cancelDrawing();
+
+// Clear all drawings from a series
+trendLine.clearDrawings();
+```
+
+### Listening to Drawing Events
+
+```typescript
+stockChart.events.on("drawingadded", (ev) => {
+  console.log("Drawing added:", ev.drawingId, ev.series, ev.index);
+});
+
+stockChart.events.on("drawingremoved", (ev) => {
+  console.log("Drawing removed:", ev.drawingId);
+});
+
+stockChart.events.on("drawingselected", (ev) => {
+  console.log("Drawing selected:", ev.drawingId);
+});
+
+stockChart.events.on("drawingunselected", (ev) => {
+  console.log("Drawing unselected:", ev.drawingId);
+});
+```
+
+## Serialization
+
+Drawings can be serialized and restored:
+
+```typescript
+// Serialize drawings
+const drawings = [];
+stockChart.panels.each((panel) => {
+  panel.series.each((series) => {
+    if (series.isType("DrawingSeries")) {
+      const data = series.data.values;
+      drawings.push({
+        type: series.className,
+        data: data
+      });
+    }
+  });
+});
+
+// Store drawings
+localStorage.setItem("drawings", JSON.stringify(drawings));
+
+// Restore drawings
+const savedDrawings = JSON.parse(localStorage.getItem("drawings") || "[]");
+savedDrawings.forEach((drawing) => {
+  // Find the appropriate series and restore data
+  const series = mainPanel.series.values.find(
+    s => s.className === drawing.type
+  );
+  if (series) {
+    series.data.setAll(drawing.data);
+  }
+});
+```
+
+## Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5stock from "@amcharts/amcharts5/stock";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+
+// Create chart and series (see StockChart example)
+
+// Add trend line drawing tool
+const trendLine = mainPanel.series.push(
+  am5stock.TrendLineSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    series: valueSeries,
+    strokeColor: am5.color(0xff0000),
+    strokeWidth: 2
+  })
+);
+
+// Add Fibonacci retracement tool
+const fibonacci = mainPanel.series.push(
+  am5stock.FibonacciSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    series: valueSeries,
+    strokeColor: am5.color(0x0000ff)
+  })
+);
+
+// Add rectangle tool
+const rectangle = mainPanel.series.push(
+  am5stock.RectangleSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    series: valueSeries,
+    fillColor: am5.color(0xffff00),
+    fillOpacity: 0.3,
+    strokeColor: am5.color(0xffff00),
+    strokeWidth: 2
+  })
+);
+
+// Enable drawing selection
+stockChart.set("drawingSelectionEnabled", true);
+
+// Listen to drawing events
+stockChart.events.on("drawingadded", (ev) => {
+  console.log("Drawing added:", ev.drawingId);
+});
+
+// Button to enable trend line drawing
+document.getElementById("trendBtn").addEventListener("click", () => {
+  // Disable all drawing
+  stockChart.panels.each((panel) => {
+    panel.series.each((series) => {
+      if (series.isType("DrawingSeries")) {
+        series.disableDrawing();
+      }
+    });
+  });
+  
+  // Enable trend line drawing
+  trendLine.enableDrawing();
+});
+
+// Button to delete selected drawings
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  stockChart.deleteSelectedDrawings();
+});
+```
+
+## See Also
+
+- [Drawing tools documentation](https://www.amcharts.com/docs/v5/charts/stock/drawing-tools/)
+- [StockChart API](/api/stock/stock-chart)
+- [Drawing tools examples](https://www.amcharts.com/demos/stock-chart-with-drawings/)

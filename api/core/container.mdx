@@ -1,0 +1,277 @@
+---
+title: Container
+---
+
+A basic element that can have child elements, maintain their layout, and have a background.
+
+Container extends [Sprite](/api/core/sprite) and can have any Sprite element as a child, from very basic shapes to full-fledged charts.
+
+## Creating a Container
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const container = am5.Container.new(root, {
+  width: am5.percent(100),
+  height: 200,
+  layout: root.verticalLayout
+});
+```
+
+See [Containers](https://www.amcharts.com/docs/v5/concepts/common-elements/containers/) for more info.
+
+## Properties
+
+### children
+
+<ResponseField name="children" type="Children<Sprite>">
+  List of Container's child elements
+</ResponseField>
+
+```typescript
+container.children.push(am5.Label.new(root, {
+  text: "Hello"
+}));
+```
+
+### Padding
+
+<ResponseField name="paddingLeft" type="number" default={0}>
+  Left padding in pixels
+</ResponseField>
+
+<ResponseField name="paddingRight" type="number" default={0}>
+  Right padding in pixels
+</ResponseField>
+
+<ResponseField name="paddingTop" type="number" default={0}>
+  Top padding in pixels
+</ResponseField>
+
+<ResponseField name="paddingBottom" type="number" default={0}>
+  Bottom padding in pixels
+</ResponseField>
+
+### Layout and Background
+
+<ResponseField name="layout" type="Layout | null">
+  A method to layout children
+</ResponseField>
+
+See [Layout](https://www.amcharts.com/docs/v5/concepts/containers/#Layout) for more info.
+
+<ResponseField name="background" type="Graphics">
+  Background element
+</ResponseField>
+
+See [Background](https://www.amcharts.com/docs/v5/concepts/containers/#Background) for more info.
+
+```typescript
+container.set("background", am5.Rectangle.new(root, {
+  fill: am5.color(0xff0000)
+}));
+```
+
+### Masking
+
+<ResponseField name="mask" type="Graphics | null">
+  An element to use as a container's mask (clipping region)
+</ResponseField>
+
+See [Masks](https://www.amcharts.com/docs/v5/concepts/containers/#Masks) for more info.
+
+<ResponseField name="maskContent" type="boolean">
+  If set to `true` all content going outside the bounds of the container will be clipped
+</ResponseField>
+
+### Interactivity
+
+<ResponseField name="interactiveChildren" type="boolean">
+  If set to `true` all descendants will become "interactive"
+</ResponseField>
+
+### States
+
+<ResponseField name="setStateOnChildren" type="boolean">
+  If set to `true`, applying a state on a container will also apply the same state on its children
+</ResponseField>
+
+See [States](https://www.amcharts.com/docs/v5/concepts/containers/#States) for more info.
+
+### Scrolling
+
+<ResponseField name="verticalScrollbar" type="Scrollbar">
+  Setting this to an instance of Scrollbar will enable vertical scrolling of content if it does not fit into the Container
+</ResponseField>
+
+See [Scrollbar](https://www.amcharts.com/docs/v5/concepts/containers/#Scrollbar) for more info.
+
+### Other
+
+<ResponseField name="reverseChildren" type="boolean">
+  If set to `true` its children will be laid out in opposite order
+</ResponseField>
+
+<ResponseField name="html" type="string">
+  HTML content of the container
+</ResponseField>
+
+See [HTML content](https://www.amcharts.com/docs/v5/concepts/common-elements/html-content/) for more info.
+
+## Methods
+
+### innerWidth()
+
+Returns container's inner width (width without padding) in pixels.
+
+<ResponseField name="width" type="number">
+  Inner width in pixels
+</ResponseField>
+
+```typescript
+const innerWidth = container.innerWidth();
+```
+
+### innerHeight()
+
+Returns container's inner height (height without padding) in pixels.
+
+<ResponseField name="height" type="number">
+  Inner height in pixels
+</ResponseField>
+
+```typescript
+const innerHeight = container.innerHeight();
+```
+
+### contentWidth()
+
+Returns width of the container's content in pixels.
+
+<ResponseField name="width" type="number">
+  Content width in pixels
+</ResponseField>
+
+```typescript
+const contentWidth = container.contentWidth();
+```
+
+### contentHeight()
+
+Returns height of the container's content in pixels.
+
+<ResponseField name="height" type="number">
+  Content height in pixels
+</ResponseField>
+
+```typescript
+const contentHeight = container.contentHeight();
+```
+
+### walkChildren()
+
+Executes a callback function for each child element recursively.
+
+<ParamField path="callback" type="(child: Sprite, index?: number) => void" required>
+  Function to execute for each child
+</ParamField>
+
+```typescript
+container.walkChildren((child, index) => {
+  console.log(`Child ${index}:`, child);
+});
+```
+
+### eachChildren()
+
+Executes a callback function for each direct child.
+
+<ParamField path="callback" type="(child: Sprite) => void" required>
+  Function to execute for each child
+</ParamField>
+
+```typescript
+container.eachChildren((child) => {
+  child.set("visible", true);
+});
+```
+
+### allChildren()
+
+Returns an array of all children including background, scrollbar, and mask.
+
+<ResponseField name="children" type="Array<Sprite>">
+  Array of all children
+</ResponseField>
+
+```typescript
+const allChildren = container.allChildren();
+console.log("Total children:", allChildren.length);
+```
+
+### scrollToChild()
+
+If scrolling is enabled on the Container, scrolls in such way that target element becomes visible.
+
+<ParamField path="child" type="Sprite" required>
+  Target child element
+</ParamField>
+
+```typescript
+container.scrollToChild(targetSprite);
+```
+
+## Examples
+
+### Creating a Container with Layout
+
+```typescript
+const container = am5.Container.new(root, {
+  width: am5.percent(100),
+  height: am5.percent(100),
+  layout: root.verticalLayout
+});
+
+container.children.push(am5.Label.new(root, {
+  text: "First item"
+}));
+
+container.children.push(am5.Label.new(root, {
+  text: "Second item"
+}));
+```
+
+### Container with Background and Padding
+
+```typescript
+const container = am5.Container.new(root, {
+  paddingTop: 20,
+  paddingRight: 20,
+  paddingBottom: 20,
+  paddingLeft: 20,
+  background: am5.Rectangle.new(root, {
+    fill: am5.color(0xeeeeee),
+    fillOpacity: 0.5
+  })
+});
+```
+
+### Container with Scrollbar
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 300,
+  height: 200,
+  layout: root.verticalLayout,
+  verticalScrollbar: am5.Scrollbar.new(root, {
+    orientation: "vertical"
+  })
+});
+
+// Add many children
+for (let i = 0; i < 20; i++) {
+  container.children.push(am5.Label.new(root, {
+    text: `Item ${i + 1}`
+  }));
+}
+```

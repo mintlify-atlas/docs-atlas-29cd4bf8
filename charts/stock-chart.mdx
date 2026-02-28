@@ -1,0 +1,309 @@
+---
+title: Stock Chart
+description: Create advanced financial charts with technical indicators, drawings, and comparison tools
+---
+
+Stock Chart is a comprehensive charting solution for financial data, featuring multiple panels, technical indicators, drawing tools, and data comparison capabilities.
+
+## When to Use Stock Charts
+
+Use stock charts when you need to:
+- Display stock prices and trading data
+- Show OHLC (Open-High-Low-Close) candlestick charts
+- Add technical indicators (SMA, EMA, MACD, RSI, etc.)
+- Compare multiple stocks or instruments
+- Provide drawing tools for analysis
+- Create multi-panel layouts with different indicators
+
+## Creating a Stock Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5stock from "@amcharts/amcharts5/stock";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create stock chart
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {})
+);
+
+// Create main panel
+const mainPanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {
+    wheelY: "zoomX",
+    panX: true,
+    panY: true,
+    height: am5.percent(70)
+  })
+);
+
+// Create value axis
+const valueAxis = mainPanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {}),
+    numberFormat: "#,###.00"
+  })
+);
+
+// Create date axis
+const dateAxis = mainPanel.xAxes.push(
+  am5xy.GaplessDateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+// Create candlestick series
+const valueSeries = mainPanel.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "STOCK",
+    valueXField: "Date",
+    valueYField: "Close",
+    highValueYField: "High",
+    lowValueYField: "Low",
+    openValueYField: "Open",
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    legendValueText: "Open: {openValueY} High: {highValueY} Low: {lowValueY} Close: {valueY}"
+  })
+);
+
+// Set main series
+stockChart.set("stockSeries", valueSeries);
+
+// Add volume panel
+const volumePanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {
+    wheelY: "zoomX",
+    panX: true,
+    panY: true,
+    height: am5.percent(30)
+  })
+);
+
+const volumeAxis = volumePanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+const volumeSeries = volumePanel.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Volume",
+    valueXField: "Date",
+    valueYField: "Volume",
+    xAxis: dateAxis,
+    yAxis: volumeAxis
+  })
+);
+
+stockChart.set("volumeSeries", volumeSeries);
+
+// Set data
+const data = [
+  { Date: new Date(2021, 0, 1).getTime(), Open: 100, High: 110, Low: 95, Close: 105, Volume: 1000000 },
+  { Date: new Date(2021, 0, 2).getTime(), Open: 105, High: 115, Low: 100, Close: 110, Volume: 1200000 },
+  // ... more data
+];
+
+valueSeries.data.setAll(data);
+volumeSeries.data.setAll(data);
+
+// Add scrollbar
+const scrollbar = mainPanel.set("scrollbarX",
+  am5xy.XYChartScrollbar.new(root, {
+    orientation: "horizontal",
+    height: 50
+  })
+);
+stockChart.toolsContainer.children.push(scrollbar);
+```
+
+## Configuration Options
+
+### Main Stock Series
+
+<Info>
+Set the main series to enable indicators and comparison features.
+</Info>
+
+```typescript
+stockChart.set("stockSeries", valueSeries);
+stockChart.set("volumeSeries", volumeSeries);
+```
+
+### Color Settings
+
+Customize positive/negative colors:
+
+```typescript
+stockChart.setAll({
+  stockPositiveColor: am5.color(0x00ff00),
+  stockNegativeColor: am5.color(0xff0000),
+  volumePositiveColor: am5.color(0x00ff00),
+  volumeNegativeColor: am5.color(0xff0000)
+});
+```
+
+### Percent Scale Mode
+
+```typescript
+// Enable for comparisons
+stockChart.setPercentScale(true);
+
+// Auto-enable when comparing
+stockChart.set("autoSetPercentScale", true);
+```
+
+## Adding Controls
+
+### Stock Toolbar
+
+```typescript
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("toolbardiv"),
+  stockChart: stockChart,
+  controls: [
+    am5stock.IndicatorControl.new(root, {
+      stockChart: stockChart,
+      legend: valueLegend
+    }),
+    am5stock.DateRangeSelector.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.PeriodSelector.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.DrawingControl.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.ResetControl.new(root, {
+      stockChart: stockChart
+    }),
+    am5stock.SettingsControl.new(root, {
+      stockChart: stockChart
+    })
+  ]
+});
+```
+
+## Technical Indicators
+
+### Adding an Indicator
+
+```typescript
+// Add SMA (Simple Moving Average)
+const smaIndicator = stockChart.indicators.push(
+  am5stock.SimpleMovingAverage.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 20,
+    field: "close",
+    seriesSettings: {
+      stroke: am5.color(0xff0000),
+      strokeWidth: 2
+    }
+  })
+);
+
+// Add MACD in new panel
+const macdIndicator = stockChart.indicators.push(
+  am5stock.MACD.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    fastPeriod: 12,
+    slowPeriod: 26,
+    signalPeriod: 9
+  })
+);
+```
+
+Available indicators include:
+- `SimpleMovingAverage` (SMA)
+- `ExponentialMovingAverage` (EMA)
+- `MACD`
+- `RSI`
+- `BollingerBands`
+- `StochasticOscillator`
+- `Volume`
+- And many more...
+
+## Comparing Series
+
+```typescript
+// Add comparison series
+const comparisonSeries = mainPanel.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "COMPARISON",
+    valueXField: "Date",
+    valueYField: "Close",
+    xAxis: dateAxis,
+    yAxis: valueAxis
+  })
+);
+
+comparisonSeries.data.setAll(comparisonData);
+
+// Register as comparison
+stockChart.addComparingSeries(comparisonSeries);
+```
+
+## Drawing Tools
+
+```typescript
+// Enable drawing selection
+stockChart.set("drawingSelectionEnabled", true);
+
+// Add drawing series
+const drawingSeries = mainPanel.series.push(
+  am5stock.DrawingSeries.new(root, {
+    series: valueSeries,
+    xAxis: dateAxis,
+    yAxis: valueAxis
+  })
+);
+```
+
+## Multi-Panel Layout
+
+<Steps>
+1. Create main panel for price data
+2. Add volume panel below
+3. Add indicator panels as needed
+4. Panels automatically sync X-axis zoom/pan
+</Steps>
+
+```typescript
+const indicatorPanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {
+    wheelY: "zoomX",
+    panX: true,
+    panY: true,
+    height: am5.percent(30)
+  })
+);
+```
+
+## Key Classes
+
+- `StockChart` - Main stock chart container
+- `StockPanel` - Individual chart panel
+- `StockToolbar` - Toolbar with controls
+- `CandlestickSeries` - OHLC candlestick series
+- Various indicator classes (SMA, EMA, MACD, etc.)
+- `DrawingSeries` - Drawing tools
+
+<Tip>
+Use `GaplessDateAxis` instead of regular `DateAxis` to automatically skip non-trading days and create a continuous chart.
+</Tip>
+
+<Note>
+Stock Chart requires a separate license. Ensure you have a valid AM5S license key.
+</Note>

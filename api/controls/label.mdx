@@ -1,0 +1,298 @@
+---
+title: 'Label'
+description: 'Text label with support for inline styling and data bindings'
+icon: 'text'
+---
+
+## Overview
+
+The `Label` class creates a text label with advanced features including inline formatting, data placeholders, text wrapping, truncation, and more. It extends the `Container` class.
+
+## Constructor
+
+```typescript
+Label.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="ILabelSettings">
+  Configuration settings for the label
+</ParamField>
+
+## Settings
+
+### text
+
+<ParamField path="text" type="string">
+  The label's text content. Supports inline styling and data placeholders.
+</ParamField>
+
+```typescript
+const label = Label.new(root, {
+  text: "Hello World"
+});
+```
+
+### Text Styling
+
+<ParamField path="fill" type="Color">
+  Text color.
+</ParamField>
+
+<ParamField path="fillOpacity" type="number" default="1">
+  Text opacity (0-1).
+</ParamField>
+
+<ParamField path="fillGradient" type="Gradient">
+  Fill gradient for the text.
+</ParamField>
+
+<ParamField path="fontFamily" type="string">
+  Font family. Multiple fonts can be separated by commas.
+</ParamField>
+
+<ParamField path="fontSize" type="string | number">
+  Font size in any supported CSS format (pixel, point, em, etc.).
+</ParamField>
+
+<ParamField path="fontWeight" type="'normal' | 'bold' | 'bolder' | 'lighter' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900'">
+  Font weight.
+</ParamField>
+
+<ParamField path="fontStyle" type="'normal' | 'italic' | 'oblique'">
+  Font style.
+</ParamField>
+
+<ParamField path="fontVariant" type="'normal' | 'small-caps'">
+  Font variant.
+</ParamField>
+
+<ParamField path="textDecoration" type="'underline' | 'line-through'">
+  Text decoration.
+</ParamField>
+
+### Text Alignment
+
+<ParamField path="textAlign" type="'start' | 'end' | 'left' | 'right' | 'center'">
+  Text alignment.
+</ParamField>
+
+<ParamField path="textBaseline" type="'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom'">
+  Baseline to use when aligning text chunks vertically.
+</ParamField>
+
+<ParamField path="direction" type="'ltr' | 'rtl'" default="'ltr'">
+  Text direction.
+</ParamField>
+
+### Line Height and Spacing
+
+<ParamField path="lineHeight" type="Percent | number">
+  Line height in percent or absolute pixels.
+</ParamField>
+
+<ParamField path="baselineRatio" type="number" default="0.19">
+  How much of the height should be considered to go below baseline.
+</ParamField>
+
+### Oversized Text Handling
+
+<ParamField path="oversizedBehavior" type="'none' | 'hide' | 'fit' | 'wrap' | 'wrap-no-break' | 'truncate'">
+  How to handle labels that do not fit into designated space.
+  
+  - `none` - Do nothing
+  - `hide` - Hide the label
+  - `fit` - Scale down the label to fit
+  - `wrap` - Wrap text to multiple lines
+  - `wrap-no-break` - Wrap text without breaking words
+  - `truncate` - Truncate text with ellipsis
+</ParamField>
+
+<ParamField path="breakWords" type="boolean" default="false">
+  Whether words can be broken when truncating or wrapping text.
+</ParamField>
+
+<ParamField path="ellipsis" type="string" default="'…'">
+  Ellipsis characters to use when truncating text.
+</ParamField>
+
+<ParamField path="minScale" type="number">
+  Minimum relative scale allowed for label when scaling down with `oversizedBehavior="fit"`. If fitting would require scaling beyond this value, the label will be hidden instead.
+</ParamField>
+
+<ParamField path="maxChars" type="number">
+  Maximum number of characters to allow in label. Text will be truncated using `breakWords` and `ellipsis` settings.
+</ParamField>
+
+### Data and Formatting
+
+<ParamField path="populateText" type="boolean">
+  If set to `true`, the label will parse `text` for data placeholders and populate them with actual data.
+</ParamField>
+
+<ParamField path="ignoreFormatting" type="boolean" default="false">
+  If set to `true`, will ignore inline formatting blocks and display text exactly as is.
+</ParamField>
+
+### Shadow Effects
+
+<ParamField path="shadowColor" type="Color | null">
+  Color of the element's shadow. Requires at least one of `shadowBlur`, `shadowOffsetX`, or `shadowOffsetY` to be set.
+</ParamField>
+
+<ParamField path="shadowBlur" type="number">
+  Blurriness of the shadow. The bigger the number, the more blurry.
+</ParamField>
+
+<ParamField path="shadowOffsetX" type="number">
+  Horizontal shadow offset in pixels.
+</ParamField>
+
+<ParamField path="shadowOffsetY" type="number">
+  Vertical shadow offset in pixels.
+</ParamField>
+
+<ParamField path="shadowOpacity" type="number">
+  Opacity of the shadow (0-1). If not set, will use the same as `fillOpacity`.
+</ParamField>
+
+## Properties
+
+### text
+
+<ResponseField name="text" type="Text">
+  Access to the underlying `Text` rendering element (read-only).
+</ResponseField>
+
+## Methods
+
+### getText()
+
+Returns text with populated placeholders and formatting if `populateText` is set to `true`.
+
+```typescript
+getText(): string
+```
+
+<ResponseField name="returns" type="string">
+  The populated text string
+</ResponseField>
+
+```typescript
+const label = Label.new(root, {
+  text: "Value: {value}",
+  populateText: true
+});
+
+const processedText = label.getText();
+```
+
+### getAccessibleText()
+
+Returns "aria-label" text with populated placeholders and formatting if `populateText` is set to `true`.
+
+```typescript
+getAccessibleText(): string
+```
+
+<ResponseField name="returns" type="string">
+  The populated accessible text string
+</ResponseField>
+
+## Examples
+
+### Basic Label
+
+```typescript
+import { Label } from "@amcharts/amcharts5";
+
+const label = Label.new(root, {
+  text: "Sales Chart",
+  fontSize: 20,
+  fontWeight: "bold",
+  fill: am5.color(0x000000)
+});
+```
+
+### Label with Inline Formatting
+
+```typescript
+const styledLabel = Label.new(root, {
+  text: "[bold]Bold text[/] and [#ff0000]red text[/]"
+});
+```
+
+### Label with Data Binding
+
+```typescript
+const dataLabel = Label.new(root, {
+  text: "Category: {category}, Value: {value}",
+  populateText: true
+});
+
+dataLabel._setDataItem(dataItem);
+```
+
+### Truncated Label
+
+```typescript
+const truncatedLabel = Label.new(root, {
+  text: "This is a very long text that will be truncated",
+  maxWidth: 200,
+  oversizedBehavior: "truncate",
+  ellipsis: "..."
+});
+```
+
+### Wrapped Label
+
+```typescript
+const wrappedLabel = Label.new(root, {
+  text: "This text will wrap to multiple lines if needed",
+  maxWidth: 150,
+  oversizedBehavior: "wrap"
+});
+```
+
+### Label with Shadow
+
+```typescript
+const shadowLabel = Label.new(root, {
+  text: "Text with Shadow",
+  fontSize: 24,
+  fill: am5.color(0xffffff),
+  shadowColor: am5.color(0x000000),
+  shadowBlur: 5,
+  shadowOffsetX: 2,
+  shadowOffsetY: 2,
+  shadowOpacity: 0.5
+});
+```
+
+## Text Styling
+
+Labels support inline text styling using square bracket notation:
+
+```typescript
+const label = Label.new(root, {
+  text: "[bold]Bold[/] [italic]Italic[/] [#ff0000]Colored[/]"
+});
+```
+
+Available inline formatting:
+- `[bold]...[/]` - Bold text
+- `[italic]...[/]` - Italic text
+- `[#RRGGBB]...[/]` - Colored text
+- `[fontSize: XXpx]...[/]` - Custom font size
+- And more...
+
+See [Text Styling documentation](https://www.amcharts.com/docs/v5/concepts/formatters/text-styling/) for complete details.
+
+## Related
+
+- [Container](/api/core/container)
+- [Text Styling](https://www.amcharts.com/docs/v5/concepts/formatters/text-styling/)
+- [Labels documentation](https://www.amcharts.com/docs/v5/concepts/common-elements/labels/)

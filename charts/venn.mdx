@@ -1,0 +1,341 @@
+---
+title: Venn Diagram
+description: Create Venn diagrams to visualize set relationships and intersections
+---
+
+Venn diagrams display logical relationships between sets using overlapping circles, ideal for showing commonalities and differences between groups.
+
+## When to Use Venn Diagrams
+
+Use Venn diagrams when you need to:
+- Show relationships between sets or groups
+- Visualize overlapping categories
+- Display shared and unique characteristics
+- Illustrate logical operations (union, intersection)
+- Compare multiple groups and their commonalities
+- Present survey or demographic overlaps
+
+## Creating a Venn Diagram
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5venn from "@amcharts/amcharts5/venn";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create container
+const container = root.container.children.push(
+  am5.Container.new(root, {
+    width: am5.percent(100),
+    height: am5.percent(100),
+    layout: root.verticalLayout
+  })
+);
+
+// Create Venn series
+const series = container.children.push(
+  am5venn.Venn.new(root, {
+    categoryField: "name",
+    valueField: "value",
+    intersectionsField: "sets"
+  })
+);
+
+// Configure slices
+series.slices.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff),
+  fillOpacity: 0.5
+});
+
+// Set data
+const data = [
+  // Individual sets
+  { name: "A", value: 100 },
+  { name: "B", value: 100 },
+  { name: "C", value: 100 },
+  
+  // Intersections
+  { name: "A+B", value: 30, sets: ["A", "B"] },
+  { name: "B+C", value: 30, sets: ["B", "C"] },
+  { name: "A+C", value: 30, sets: ["A", "C"] },
+  { name: "A+B+C", value: 10, sets: ["A", "B", "C"] }
+];
+
+series.data.setAll(data);
+
+// Add legend
+const legend = container.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+legend.data.setAll(series.dataItems);
+```
+
+## Configuration Options
+
+### Core Settings
+
+<Info>
+Venn diagrams require specific field mappings to work correctly.
+</Info>
+
+- **categoryField** (`string`) - Field containing category name (default: "category")
+- **valueField** (`string`) - Field containing set size (default: "value")
+- **intersectionsField** (`string`) - Field containing array of overlapping sets (default: "intersections")
+
+```typescript
+const series = container.children.push(
+  am5venn.Venn.new(root, {
+    categoryField: "name",
+    valueField: "size",
+    intersectionsField: "overlaps"
+  })
+);
+```
+
+## Data Structure
+
+### Individual Sets
+
+Define each set with a name and value:
+
+```typescript
+{ name: "Set A", value: 100 }
+{ name: "Set B", value: 150 }
+{ name: "Set C", value: 120 }
+```
+
+### Intersections
+
+Define overlaps between sets:
+
+```typescript
+// Two-set intersection
+{ name: "A ∩ B", value: 30, sets: ["Set A", "Set B"] }
+
+// Three-set intersection
+{ name: "A ∩ B ∩ C", value: 10, sets: ["Set A", "Set B", "Set C"] }
+```
+
+### Complete Example Data
+
+```typescript
+const data = [
+  // Individual sets
+  { name: "Marketing", value: 200 },
+  { name: "Sales", value: 180 },
+  { name: "Support", value: 150 },
+  
+  // Two-way intersections
+  { 
+    name: "Marketing & Sales", 
+    value: 50, 
+    sets: ["Marketing", "Sales"] 
+  },
+  { 
+    name: "Sales & Support", 
+    value: 40, 
+    sets: ["Sales", "Support"] 
+  },
+  { 
+    name: "Marketing & Support", 
+    value: 30, 
+    sets: ["Marketing", "Support"] 
+  },
+  
+  // Three-way intersection
+  { 
+    name: "All Three", 
+    value: 15, 
+    sets: ["Marketing", "Sales", "Support"] 
+  }
+];
+```
+
+## Slice Customization
+
+### Appearance
+
+```typescript
+// Configure all slices
+series.slices.template.setAll({
+  strokeWidth: 3,
+  stroke: am5.color(0xffffff),
+  fillOpacity: 0.6
+});
+
+// Hover effect
+series.slices.template.states.create("hover", {
+  fillOpacity: 0.9,
+  strokeWidth: 4
+});
+```
+
+### Colors
+
+```typescript
+// Auto-assign colors
+series.set("colors", am5.ColorSet.new(root, {}));
+
+// Custom colors in data
+const data = [
+  { name: "A", value: 100, fill: am5.color(0xff0000) },
+  { name: "B", value: 100, fill: am5.color(0x00ff00) },
+  { name: "C", value: 100, fill: am5.color(0x0000ff) }
+];
+```
+
+### Patterns
+
+```typescript
+// Enable pattern fills
+series.set("patterns", am5.PatternSet.new(root, {}));
+```
+
+## Labels
+
+```typescript
+// Configure labels
+series.labels.template.setAll({
+  text: "{category}",
+  fontSize: 14,
+  fill: am5.color(0x000000),
+  centerX: am5.percent(50),
+  centerY: am5.percent(50)
+});
+
+// Show values
+series.labels.template.setAll({
+  text: "{category}\n{value}"
+});
+```
+
+## Tooltips
+
+```typescript
+series.slices.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{category}: {value}"
+}));
+
+// Custom tooltip for intersections
+series.slices.template.adapters.add("tooltipText", function(text, target) {
+  const dataItem = target.dataItem;
+  const sets = dataItem?.get("intersections");
+  
+  if (sets && sets.length > 1) {
+    return `Intersection of ${sets.join(" & ")}: {value}`;
+  }
+  return "{category}: {value}";
+});
+```
+
+## Interactive Features
+
+### Click Events
+
+```typescript
+series.slices.template.events.on("click", function(ev) {
+  const dataItem = ev.target.dataItem;
+  const category = dataItem?.get("category");
+  const value = dataItem?.get("value");
+  const sets = dataItem?.get("intersections");
+  
+  if (sets && sets.length > 1) {
+    console.log(`Intersection: ${sets.join(" & ")}, Value: ${value}`);
+  } else {
+    console.log(`Set: ${category}, Value: ${value}`);
+  }
+});
+```
+
+### Hover Highlighting
+
+The chart automatically highlights related sets on hover:
+
+```typescript
+// The hoverGraphics automatically shows the hovered region
+// Customize hover graphics
+series.hoverGraphics.setAll({
+  fillOpacity: 0.3,
+  fill: am5.color(0x000000)
+});
+```
+
+## Legend
+
+```typescript
+const legend = container.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    marginTop: 15,
+    marginBottom: 15
+  })
+);
+
+// Show only main sets (not intersections)
+legend.data.setAll(series.dataItems.filter(function(dataItem) {
+  return !dataItem.get("intersections") || 
+         dataItem.get("intersections").length === 0;
+}));
+```
+
+## Advanced Examples
+
+### Four-Set Venn Diagram
+
+```typescript
+const data = [
+  // Individual sets
+  { name: "A", value: 100 },
+  { name: "B", value: 100 },
+  { name: "C", value: 100 },
+  { name: "D", value: 100 },
+  
+  // All combinations
+  { name: "A+B", value: 20, sets: ["A", "B"] },
+  { name: "A+C", value: 20, sets: ["A", "C"] },
+  { name: "A+D", value: 20, sets: ["A", "D"] },
+  { name: "B+C", value: 20, sets: ["B", "C"] },
+  { name: "B+D", value: 20, sets: ["B", "D"] },
+  { name: "C+D", value: 20, sets: ["C", "D"] },
+  { name: "A+B+C", value: 5, sets: ["A", "B", "C"] },
+  { name: "A+B+D", value: 5, sets: ["A", "B", "D"] },
+  { name: "A+C+D", value: 5, sets: ["A", "C", "D"] },
+  { name: "B+C+D", value: 5, sets: ["B", "C", "D"] },
+  { name: "A+B+C+D", value: 2, sets: ["A", "B", "C", "D"] }
+];
+```
+
+## Accessibility
+
+```typescript
+// Add ARIA labels
+series.slices.template.setAll({
+  ariaLabel: "{category}"
+});
+
+// Set role
+series.set("role", "list");
+```
+
+## Key Classes
+
+- `Venn` - Main Venn diagram class from `@amcharts/amcharts5/venn`
+- `Graphics` - Slice elements
+- `Label` - Text labels
+
+<Tip>
+Venn diagrams work best with 2-4 sets. More than 4 sets can become visually complex and hard to interpret.
+</Tip>
+
+<Note>
+The intersection values should be less than or equal to the smallest set they overlap with for accurate visualization.
+</Note>

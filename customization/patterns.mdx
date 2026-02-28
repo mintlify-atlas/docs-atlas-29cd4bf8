@@ -1,0 +1,466 @@
+---
+title: Patterns
+description: Learn how to create and apply repeating patterns to chart elements in amCharts 5.
+---
+
+## Overview
+
+Patterns in amCharts 5 allow you to fill chart elements with repeating visual designs instead of solid colors. This is particularly useful for print media, accessibility, or adding visual interest to your charts.
+
+## Pattern Types
+
+amCharts 5 provides several built-in pattern types:
+
+- **LinePattern** - Horizontal, vertical, or angled lines
+- **CirclePattern** - Repeating circles
+- **RectanglePattern** - Repeating rectangles
+- **PathPattern** - Custom SVG paths
+- **GrainPattern** - Random noise texture
+- **PicturePattern** - Image-based patterns
+
+## Line Patterns
+
+### Basic Line Pattern
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Apply line pattern to columns
+series.columns.template.set("fillPattern", am5.LinePattern.new(root, {
+  color: am5.color(0xff0000),
+  rotation: 0,
+  gap: 6,
+  strokeWidth: 1
+}));
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/LinePattern.ts:32-126`
+
+### Angled Line Pattern
+
+Create diagonal or custom-angled line patterns:
+
+```typescript
+// 45-degree diagonal lines
+const diagonalPattern = am5.LinePattern.new(root, {
+  color: am5.color(0x3366cc),
+  rotation: 45,
+  gap: 8,
+  strokeWidth: 2,
+  angle: 45
+});
+
+series.columns.template.set("fillPattern", diagonalPattern);
+```
+
+The `angle` property (added in v5.14) provides better control over line angles than `rotation` for line patterns, allowing for more efficient rendering.
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/LinePattern.ts:14-20`
+
+### Dashed Line Pattern
+
+```typescript
+const dashedPattern = am5.LinePattern.new(root, {
+  color: am5.color(0x297373),
+  gap: 6,
+  strokeWidth: 2,
+  strokeDasharray: [4, 4], // 4px dash, 4px gap
+  strokeDashoffset: 0
+});
+```
+
+## Circle Patterns
+
+### Basic Circle Pattern
+
+```typescript
+const circlePattern = am5.CirclePattern.new(root, {
+  color: am5.color(0xff6b6b),
+  radius: 3,
+  gap: 3,
+  checkered: false,
+  centered: true
+});
+
+series.columns.template.set("fillPattern", circlePattern);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/CirclePattern.ts:46-122`
+
+### Checkered Circle Pattern
+
+Create a checkered pattern by placing circles in alternating positions:
+
+```typescript
+const checkeredCircles = am5.CirclePattern.new(root, {
+  color: am5.color(0xffd93d),
+  radius: 4,
+  gap: 4,
+  checkered: true,
+  centered: true
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/CirclePattern.ts:22-28`
+
+### Rotated Circle Pattern
+
+```typescript
+const rotatedCircles = am5.CirclePattern.new(root, {
+  color: am5.color(0x6bcf7f),
+  radius: 3,
+  gap: 5,
+  rotation: 45,
+  centered: true
+});
+```
+
+## Rectangle Patterns
+
+### Basic Rectangle Pattern
+
+```typescript
+const rectanglePattern = am5.RectanglePattern.new(root, {
+  color: am5.color(0x9b59b6),
+  maxWidth: 5,
+  maxHeight: 5,
+  gap: 6,
+  checkered: false,
+  centered: true
+});
+
+series.columns.template.set("fillPattern", rectanglePattern);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/RectanglePattern.ts:53-130`
+
+### Checkered Rectangle Pattern
+
+```typescript
+const checkeredRects = am5.RectanglePattern.new(root, {
+  color: am5.color(0xe74c3c),
+  maxWidth: 8,
+  maxHeight: 8,
+  gap: 2,
+  checkered: true,
+  centered: true
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/RectanglePattern.ts:28-35`
+
+## Pattern Properties
+
+### Common Properties
+
+All patterns share these common properties:
+
+```typescript
+const pattern = am5.LinePattern.new(root, {
+  // Color of pattern shapes
+  color: am5.color(0x000000),
+  colorOpacity: 1,
+  
+  // Background fill between pattern shapes
+  fill: am5.color(0xffffff),
+  fillOpacity: 0.5,
+  
+  // Pattern tile dimensions
+  width: 100,
+  height: 100,
+  
+  // Rotation in degrees (-90 to 90)
+  rotation: 0,
+  
+  // How pattern tiles repeat
+  repetition: "repeat", // "repeat-x", "repeat-y", "no-repeat"
+  
+  // Stroke properties
+  strokeWidth: 1,
+  strokeDasharray: [5, 5],
+  strokeDashoffset: 0
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/Pattern.ts:6-95`
+
+### Sizing Patterns
+
+Control the size of pattern tiles:
+
+```typescript
+// Large pattern tiles
+const largePattern = am5.LinePattern.new(root, {
+  color: am5.color(0x3366cc),
+  width: 200,
+  height: 200,
+  gap: 10
+});
+
+// Small pattern tiles
+const smallPattern = am5.LinePattern.new(root, {
+  color: am5.color(0xff6b6b),
+  width: 50,
+  height: 50,
+  gap: 3
+});
+```
+
+### Repetition Modes
+
+```typescript
+// Repeat in all directions (default)
+pattern.set("repetition", "repeat");
+
+// Repeat only horizontally
+pattern.set("repetition", "repeat-x");
+
+// Repeat only vertically
+pattern.set("repetition", "repeat-y");
+
+// No repetition
+pattern.set("repetition", "no-repeat");
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/patterns/Pattern.ts:16-21`
+
+## Applying Patterns
+
+### To Series
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+const pattern = am5.LinePattern.new(root, {
+  color: am5.color(0xff0000),
+  rotation: 45,
+  gap: 6
+});
+
+series.columns.template.set("fillPattern", pattern);
+```
+
+### To Individual Data Items
+
+```typescript
+series.columns.template.adapters.add("fillPattern", (pattern, target) => {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    const value = dataItem.get("valueY");
+    
+    if (value > 100) {
+      return am5.LinePattern.new(root, {
+        color: am5.color(0x00ff00),
+        rotation: 0
+      });
+    } else {
+      return am5.CirclePattern.new(root, {
+        color: am5.color(0xff0000),
+        radius: 3
+      });
+    }
+  }
+  return pattern;
+});
+```
+
+### To Backgrounds
+
+```typescript
+const background = chart.plotContainer.set("background", 
+  am5.Rectangle.new(root, {
+    fillPattern: am5.LinePattern.new(root, {
+      color: am5.color(0xcccccc),
+      rotation: 45,
+      gap: 10,
+      strokeWidth: 1
+    })
+  })
+);
+```
+
+### Real-World Example: Series Range with Pattern
+
+From the source examples, here's how to use patterns with series ranges:
+
+```typescript
+// Create a series range
+const seriesRangeDataItem = xAxis.makeDataItem({});
+const seriesRange = series.createAxisRange(seriesRangeDataItem);
+
+seriesRange.fills.template.setAll({
+  visible: true,
+  opacity: 0.3
+});
+
+// Apply pattern to the range
+seriesRange.fills.template.set("fillPattern", am5.LinePattern.new(root, {
+  color: am5.color(0xff0000),
+  rotation: 45,
+  strokeWidth: 2,
+  width: 2000,
+  height: 2000,
+  fill: am5.color(0xffffff)
+}));
+
+seriesRange.strokes.template.set("stroke", am5.color(0xff0000));
+```
+
+Source: `/home/daytona/workspace/source/examples/shared/xy-draggable-range/index.ts:117-126`
+
+## Combining Patterns with Colors
+
+### Pattern with Background Fill
+
+```typescript
+const pattern = am5.LinePattern.new(root, {
+  color: am5.color(0x000000),    // Line color
+  colorOpacity: 0.8,
+  fill: am5.color(0xffff00),     // Background color
+  fillOpacity: 0.3,
+  gap: 5,
+  strokeWidth: 2
+});
+```
+
+### Overlaying Patterns
+
+You can layer multiple visual effects:
+
+```typescript
+series.columns.template.setAll({
+  fill: am5.color(0x3366cc),       // Base color
+  fillOpacity: 0.3,                // Make base semi-transparent
+  fillPattern: am5.CirclePattern.new(root, {
+    color: am5.color(0xffffff),    // Pattern color
+    radius: 2,
+    gap: 4
+  })
+});
+```
+
+## Dynamic Patterns
+
+### Changing Patterns Based on Data
+
+```typescript
+const patterns = [
+  am5.LinePattern.new(root, { color: am5.color(0xff0000), rotation: 0 }),
+  am5.CirclePattern.new(root, { color: am5.color(0x00ff00), radius: 3 }),
+  am5.RectanglePattern.new(root, { color: am5.color(0x0000ff), maxWidth: 5, maxHeight: 5 })
+];
+
+series.columns.template.adapters.add("fillPattern", (pattern, target) => {
+  const index = target.dataItem?.index || 0;
+  return patterns[index % patterns.length];
+});
+```
+
+### Animating Pattern Properties
+
+```typescript
+const pattern = am5.LinePattern.new(root, {
+  color: am5.color(0x3366cc),
+  rotation: 0,
+  gap: 6
+});
+
+// Animate rotation
+pattern.animate({
+  key: "rotation",
+  to: 90,
+  duration: 2000,
+  loops: Infinity
+});
+
+series.columns.template.set("fillPattern", pattern);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Patterns for Print Media">
+    Patterns are especially valuable for charts that will be printed in black and white:
+    
+    ```typescript
+    const series1Pattern = am5.LinePattern.new(root, {
+      color: am5.color(0x000000),
+      rotation: 0
+    });
+    
+    const series2Pattern = am5.LinePattern.new(root, {
+      color: am5.color(0x000000),
+      rotation: 45
+    });
+    
+    const series3Pattern = am5.CirclePattern.new(root, {
+      color: am5.color(0x000000),
+      radius: 2
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Consider Performance">
+    Complex patterns with many elements can impact performance. For large datasets:
+    - Use simpler patterns with larger gaps
+    - Reduce pattern tile dimensions
+    - Limit the number of unique pattern instances
+  </Accordion>
+
+  <Accordion title="Maintain Contrast">
+    Ensure patterns remain visible against backgrounds:
+    
+    ```typescript
+    const pattern = am5.LinePattern.new(root, {
+      color: am5.color(0x000000),
+      colorOpacity: 0.7,
+      fill: am5.color(0xffffff),
+      fillOpacity: 0.5,
+      strokeWidth: 2
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Reuse Pattern Instances">
+    Create pattern instances once and reuse them:
+    
+    ```typescript
+    // Good: Create once
+    const sharedPattern = am5.LinePattern.new(root, { color: am5.color(0xff0000) });
+    series1.columns.template.set("fillPattern", sharedPattern);
+    series2.columns.template.set("fillPattern", sharedPattern);
+    
+    // Avoid: Creating multiple identical patterns
+    // series1.columns.template.set("fillPattern", am5.LinePattern.new(root, {...}));
+    // series2.columns.template.set("fillPattern", am5.LinePattern.new(root, {...}));
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Colors" icon="palette" href="/customization/colors">
+    Learn about color manipulation and color sets
+  </Card>
+  <Card title="Gradients" icon="fill-drip" href="/customization/gradients">
+    Create smooth color transitions with gradients
+  </Card>
+</CardGroup>

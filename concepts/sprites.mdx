@@ -1,0 +1,456 @@
+---
+title: Sprites
+description: Understanding Sprites - the foundation of all visual elements in amCharts 5
+---
+
+Sprites are the fundamental building blocks of amCharts 5. Every visual element in the chart hierarchy - from simple shapes to complex charts - is a Sprite or extends from the Sprite class.
+
+## What is a Sprite?
+
+A Sprite is a base class that provides:
+- Position and dimension control
+- Visual properties (opacity, rotation, scale)
+- Event handling
+- State management
+- Animation capabilities
+- Accessibility features
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const root = am5.Root.new("chartdiv");
+
+// Create a simple rectangle sprite
+const rectangle = am5.Rectangle.new(root, {
+  width: 100,
+  height: 50,
+  x: 20,
+  y: 20,
+  fill: am5.color(0x0000ff)
+});
+
+root.container.children.push(rectangle);
+```
+
+## Position and Dimensions
+
+### Absolute Positioning
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  x: 100,        // X position in pixels
+  y: 50,         // Y position in pixels
+  width: 200,    // Width in pixels
+  height: 100    // Height in pixels
+});
+```
+
+### Relative Positioning
+
+Use `Percent` for relative values:
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  x: am5.percent(50),      // 50% of parent width
+  y: am5.percent(25),      // 25% of parent height
+  width: am5.percent(80),  // 80% of parent width
+  height: am5.percent(60)  // 60% of parent height
+});
+```
+
+### Alignment
+
+Use `centerX` and `centerY` to set the pivot point:
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  x: am5.percent(50),
+  centerX: am5.percent(50),  // Center horizontally
+  y: am5.percent(50),
+  centerY: am5.percent(50),  // Center vertically
+  width: 100,
+  height: 100
+});
+```
+
+## Visual Properties
+
+### Opacity
+
+```typescript
+sprite.set("opacity", 0.5);  // 50% transparent
+```
+
+### Rotation
+
+```typescript
+sprite.set("rotation", 45);  // Rotate 45 degrees
+```
+
+### Scale
+
+```typescript
+sprite.set("scale", 1.5);    // Scale to 150%
+sprite.set("scale", 0.5);    // Scale to 50%
+```
+
+### Visibility
+
+```typescript
+sprite.set("visible", false);  // Hide
+sprite.set("visible", true);   // Show
+
+// Or use methods
+sprite.hide();
+sprite.show();
+```
+
+## Margins and Positioning Offsets
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  marginLeft: 10,
+  marginRight: 10,
+  marginTop: 5,
+  marginBottom: 5,
+  dx: 5,   // Horizontal shift
+  dy: -5   // Vertical shift
+});
+```
+
+## Interactive Sprites
+
+### Making Sprites Interactive
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  interactive: true,
+  cursorOverStyle: "pointer"
+});
+
+sprite.events.on("click", (ev) => {
+  console.log("Sprite clicked!", ev.point);
+});
+
+sprite.events.on("pointerover", () => {
+  sprite.set("opacity", 0.8);
+});
+
+sprite.events.on("pointerout", () => {
+  sprite.set("opacity", 1);
+});
+```
+
+### Available Events
+
+- `click` - Mouse click or tap
+- `dblclick` - Double click
+- `rightclick` - Right mouse button click
+- `pointerover` - Pointer enters sprite
+- `pointerout` - Pointer leaves sprite
+- `pointerdown` - Pointer button pressed
+- `pointerup` - Pointer button released
+- `wheel` - Mouse wheel event
+- `dragstart` - Drag operation starts
+- `dragged` - During drag operation
+- `dragstop` - Drag operation ends
+
+## Draggable Sprites
+
+```typescript
+const sprite = am5.Circle.new(root, {
+  radius: 30,
+  fill: am5.color(0xff0000),
+  draggable: true
+});
+
+sprite.events.on("dragged", (ev) => {
+  console.log("Position:", sprite.x(), sprite.y());
+});
+```
+
+## Tooltips
+
+### Simple Text Tooltip
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  tooltipText: "This is a rectangle",
+  interactive: true
+});
+```
+
+### HTML Tooltip
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  tooltipHTML: "<strong>Bold text</strong> in tooltip",
+  interactive: true
+});
+```
+
+### Tooltip Position
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  tooltipText: "Hover tooltip",
+  tooltipX: am5.percent(50),
+  tooltipY: am5.percent(0),
+  showTooltipOn: "hover"  // or "always" or "click"
+});
+```
+
+## States
+
+Sprites support multiple visual states:
+
+```typescript
+const button = am5.Rectangle.new(root, {
+  interactive: true,
+  fill: am5.color(0x0000ff)
+});
+
+// Create hover state
+button.states.create("hover", {
+  fill: am5.color(0x0088ff)
+});
+
+// Create active state
+button.states.create("active", {
+  fill: am5.color(0x00ff00)
+});
+
+// Apply state
+button.set("active", true);
+```
+
+<Info>
+States automatically transition between each other with smooth animations.
+</Info>
+
+## Animations
+
+### Animate Properties
+
+```typescript
+sprite.animate({
+  key: "x",
+  from: 0,
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.cubic)
+});
+
+// Animate multiple properties
+sprite.animate({
+  key: "opacity",
+  to: 0,
+  duration: 500
+});
+
+sprite.animate({
+  key: "rotation",
+  to: 360,
+  duration: 1000,
+  loops: Infinity
+});
+```
+
+### Animation Events
+
+```typescript
+const animation = sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000
+});
+
+animation.events.on("ended", () => {
+  console.log("Animation complete!");
+});
+```
+
+## Filters
+
+<Warning>
+CSS filters are not supported in Safari browsers.
+</Warning>
+
+```typescript
+const sprite = am5.Circle.new(root, {
+  blur: 5,              // Blur effect
+  brightness: 1.2,      // Increase brightness
+  contrast: 1.1,        // Increase contrast
+  saturate: 2,          // Increase saturation
+  sepia: 0.5,           // Sepia effect
+  hue: 180,             // Rotate hue
+  invert: 0.3           // Invert colors
+});
+```
+
+## Size Constraints
+
+```typescript
+const sprite = am5.Container.new(root, {
+  minWidth: 100,
+  maxWidth: 500,
+  minHeight: 50,
+  maxHeight: 300
+});
+```
+
+## Layers
+
+Control rendering order with layers:
+
+```typescript
+const background = am5.Rectangle.new(root, {
+  layer: 0,    // Bottom layer
+  fill: am5.color(0xeeeeee)
+});
+
+const foreground = am5.Rectangle.new(root, {
+  layer: 10,   // Top layer
+  fill: am5.color(0xff0000)
+});
+```
+
+## Accessibility
+
+### Focusable Elements
+
+```typescript
+const button = am5.Rectangle.new(root, {
+  focusable: true,
+  role: "button",
+  ariaLabel: "Click to activate",
+  tabindexOrder: 1
+});
+
+button.events.on("focus", () => {
+  console.log("Button focused");
+});
+```
+
+### ARIA Attributes
+
+```typescript
+const sprite = am5.Rectangle.new(root, {
+  focusable: true,
+  role: "checkbox",
+  ariaLabel: "Enable feature",
+  ariaChecked: false,
+  ariaLive: "polite"
+});
+```
+
+## Data Binding
+
+Bind sprites to data items:
+
+```typescript
+const dataItem = series.dataItems[0];
+const sprite = am5.Circle.new(root, {
+  // Sprite settings
+});
+
+sprite.dataItem = dataItem;
+```
+
+## Export
+
+Control export behavior:
+
+```typescript
+const watermark = am5.Label.new(root, {
+  text: "Draft",
+  exportable: false  // Exclude from exports
+});
+```
+
+## Toggle Behavior
+
+```typescript
+const checkbox = am5.Rectangle.new(root, {
+  interactive: true,
+  toggleKey: "active"  // Toggle 'active' setting on click
+});
+
+checkbox.events.on("click", () => {
+  console.log("Active:", checkbox.get("active"));
+});
+```
+
+## Positioning
+
+### Absolute vs Relative
+
+```typescript
+// Absolute positioning - removed from layout flow
+const absolute = am5.Rectangle.new(root, {
+  position: "absolute",
+  x: 50,
+  y: 50
+});
+
+// Relative positioning - participates in layout
+const relative = am5.Rectangle.new(root, {
+  position: "relative"
+});
+```
+
+## Best Practices
+
+1. **Set Interactive When Needed**: Only enable `interactive: true` on elements that need it
+2. **Use Percent for Responsiveness**: Prefer `am5.percent()` for responsive layouts
+3. **Dispose Properly**: Sprites are automatically disposed when removed from parent
+4. **Batch Updates**: Use `setAll()` to update multiple properties at once
+5. **Avoid Deep Nesting**: Keep sprite hierarchy reasonably flat for better performance
+
+## Common Patterns
+
+### Creating a Button
+
+```typescript
+const button = am5.Rectangle.new(root, {
+  interactive: true,
+  cursorOverStyle: "pointer",
+  fill: am5.color(0x0088ff),
+  width: 120,
+  height: 40,
+  cornerRadiusTL: 5,
+  cornerRadiusTR: 5,
+  cornerRadiusBL: 5,
+  cornerRadiusBR: 5
+});
+
+button.states.create("hover", {
+  fill: am5.color(0x00aaff)
+});
+
+button.states.create("down", {
+  fill: am5.color(0x0066cc)
+});
+
+button.events.on("click", () => {
+  console.log("Button clicked!");
+});
+```
+
+### Pulsing Animation
+
+```typescript
+const pulse = am5.Circle.new(root, {
+  radius: 20,
+  fill: am5.color(0xff0000)
+});
+
+pulse.animate({
+  key: "scale",
+  from: 1,
+  to: 1.2,
+  duration: 1000,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.inOut(am5.ease.cubic))
+});
+```

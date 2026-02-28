@@ -1,0 +1,327 @@
+---
+title: Flow Charts
+description: Create Sankey, chord, and arc diagrams to visualize flows and connections
+---
+
+Flow charts visualize flows, connections, and relationships between nodes using various diagram types including Sankey, chord, and arc diagrams.
+
+## When to Use Flow Charts
+
+Use flow charts when you need to:
+- Visualize flows between categories (energy, money, materials)
+- Show relationships and connections between entities
+- Display network traffic or data transfers
+- Illustrate migration or movement patterns
+- Create allocation or distribution diagrams
+- Show hierarchical flows and processes
+
+## Flow Chart Types
+
+amCharts 5 provides several flow chart types:
+
+- **Sankey** - Directional flow diagram with varying widths
+- **Chord** - Circular connection diagram
+- **ArcDiagram** - Connections displayed as arcs over a line
+
+## Creating a Sankey Diagram
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5flow from "@amcharts/amcharts5/flow";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create series
+const series = root.container.children.push(
+  am5flow.Sankey.new(root, {
+    sourceIdField: "from",
+    targetIdField: "to",
+    valueField: "value",
+    nodeWidth: 20,
+    nodePadding: 20,
+    orientation: "horizontal"
+  })
+);
+
+// Configure nodes
+series.nodes.rectangles.template.setAll({
+  fillOpacity: 1,
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff)
+});
+
+// Configure links
+series.links.template.setAll({
+  fillOpacity: 0.3
+});
+
+// Set data
+series.data.setAll([
+  { from: "A", to: "X", value: 10 },
+  { from: "A", to: "Y", value: 15 },
+  { from: "A", to: "Z", value: 5 },
+  { from: "B", to: "X", value: 8 },
+  { from: "B", to: "Y", value: 12 },
+  { from: "B", to: "Z", value: 20 },
+  { from: "C", to: "X", value: 15 },
+  { from: "C", to: "Y", value: 10 },
+  { from: "C", to: "Z", value: 5 }
+]);
+
+// Add labels
+series.nodes.labels.template.setAll({
+  text: "{name}",
+  fontSize: 12,
+  fill: am5.color(0x000000),
+  centerY: am5.p50
+});
+```
+
+## Sankey Configuration
+
+### Orientation
+
+<Info>
+Sankey diagrams can be displayed horizontally or vertically.
+</Info>
+
+```typescript
+const series = root.container.children.push(
+  am5flow.Sankey.new(root, {
+    orientation: "vertical" // or "horizontal"
+  })
+);
+```
+
+### Node Settings
+
+- **nodeWidth** (`number`) - Width of node rectangles in pixels (default: 10)
+- **nodePadding** (`number`) - Padding between nodes in pixels (default: 10)
+- **nodeAlign** - Node alignment ("left" | "right" | "justify" | "center")
+
+```typescript
+const series = root.container.children.push(
+  am5flow.Sankey.new(root, {
+    nodeWidth: 30,
+    nodePadding: 15,
+    nodeAlign: "justify"
+  })
+);
+```
+
+### Link Tension
+
+Control the curvature of links:
+
+```typescript
+const series = root.container.children.push(
+  am5flow.Sankey.new(root, {
+    linkTension: 0.8 // 0 to 1, higher = straighter lines
+  })
+);
+```
+
+## Creating a Chord Diagram
+
+```typescript
+import * as am5flow from "@amcharts/amcharts5/flow";
+
+const series = root.container.children.push(
+  am5flow.Chord.new(root, {
+    sourceIdField: "from",
+    targetIdField: "to",
+    valueField: "value",
+    radius: am5.percent(80),
+    innerRadius: am5.percent(75)
+  })
+);
+
+// Configure nodes (ribbon ends)
+series.nodes.rectangles.template.setAll({
+  fillOpacity: 1,
+  strokeWidth: 1
+});
+
+// Configure links (ribbons)
+series.links.template.setAll({
+  fillOpacity: 0.5,
+  strokeWidth: 0
+});
+
+// Set data
+series.data.setAll([
+  { from: "A", to: "B", value: 10 },
+  { from: "A", to: "C", value: 15 },
+  { from: "B", to: "C", value: 20 },
+  { from: "B", to: "D", value: 8 },
+  { from: "C", to: "D", value: 12 }
+]);
+```
+
+## Creating an Arc Diagram
+
+```typescript
+import * as am5flow from "@amcharts/amcharts5/flow";
+
+const series = root.container.children.push(
+  am5flow.ArcDiagram.new(root, {
+    sourceIdField: "from",
+    targetIdField: "to",
+    valueField: "value"
+  })
+);
+
+// Configure nodes
+series.nodes.circles.template.setAll({
+  radius: 10,
+  fillOpacity: 1
+});
+
+// Configure links
+series.links.template.setAll({
+  strokeWidth: 2,
+  strokeOpacity: 0.5
+});
+
+// Set data
+series.data.setAll([
+  { from: "A", to: "B", value: 10 },
+  { from: "A", to: "C", value: 15 },
+  { from: "B", to: "D", value: 20 }
+]);
+```
+
+## Link Colors
+
+### Source/Target Coloring
+
+```typescript
+// Color by source node
+series.links.template.set("fillStyle", "source");
+
+// Color by target node
+series.links.template.set("fillStyle", "target");
+
+// Use gradient
+series.links.template.set("fillStyle", "gradient");
+
+// Custom color
+series.links.template.set("fill", am5.color(0x999999));
+```
+
+## Node Customization
+
+### Node Colors
+
+```typescript
+// Auto-assign colors
+series.set("colors", am5.ColorSet.new(root, {}));
+
+// Set colors in data
+series.data.setAll([
+  { from: "A", to: "B", value: 10, nodeColor: am5.color(0xff0000) },
+  { from: "B", to: "C", value: 15, nodeColor: am5.color(0x00ff00) }
+]);
+```
+
+### Node Labels
+
+```typescript
+// For Sankey
+series.nodes.labels.template.setAll({
+  text: "{name}",
+  fontSize: 14,
+  fill: am5.color(0x000000),
+  centerY: am5.p50,
+  paddingLeft: 10
+});
+
+// For Chord
+series.nodes.labels.template.setAll({
+  text: "{name}",
+  textType: "radial",
+  radius: 10
+});
+```
+
+## Interactive Features
+
+### Tooltips
+
+```typescript
+// Link tooltips
+series.links.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{sourceId} → {targetId}: {value}"
+}));
+
+// Node tooltips
+series.nodes.rectangles.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{name}: {sum}"
+}));
+```
+
+### Hover Effects
+
+```typescript
+// Highlight on hover
+series.links.template.states.create("hover", {
+  fillOpacity: 0.8
+});
+
+series.nodes.rectangles.template.states.create("hover", {
+  fillOpacity: 0.8
+});
+```
+
+## Data Format
+
+<Steps>
+1. **sourceIdField** - Field containing source node ID
+2. **targetIdField** - Field containing target node ID
+3. **valueField** - Field containing flow value
+4. Node IDs are automatically extracted from data
+</Steps>
+
+```typescript
+const data = [
+  { from: "Source1", to: "Target1", value: 100 },
+  { from: "Source1", to: "Target2", value: 50 },
+  { from: "Source2", to: "Target1", value: 75 },
+  { from: "Source2", to: "Target2", value: 25 }
+];
+
+series.data.setAll(data);
+```
+
+## Sorting
+
+```typescript
+// Sort nodes
+series.set("nodeSort", function(a, b) {
+  return a.value - b.value;
+});
+
+// Sort links (null = preserve data order)
+series.set("linkSort", null);
+```
+
+## Key Classes
+
+- `Sankey` - Sankey diagram from `@amcharts/amcharts5/flow`
+- `Chord` - Chord diagram
+- `ArcDiagram` - Arc diagram
+- `SankeyNodes` - Node series for Sankey
+- `SankeyLink` - Link element for Sankey
+- `ChordNodes` - Node series for Chord
+- `ChordLink` - Link element for Chord
+
+<Tip>
+Use `nodeAlign: "justify"` to spread nodes evenly across the available space, or "left"/"right" to align them to one side.
+</Tip>
+
+<Note>
+Flow values should be positive numbers. The link width is proportional to the value field.
+</Note>

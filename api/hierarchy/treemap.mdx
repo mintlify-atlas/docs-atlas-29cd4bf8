@@ -1,0 +1,457 @@
+---
+title: 'Treemap'
+description: 'API reference for the Treemap hierarchy chart class'
+---
+
+## Overview
+
+The `Treemap` class creates a treemap visualization where hierarchical data is displayed using nested rectangles. The size of each rectangle represents its value.
+
+```typescript
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+const treemap = root.container.children.push(
+  am5hierarchy.Treemap.new(root, {
+    layoutAlgorithm: "squarify",
+    nodePaddingInner: 2
+  })
+);
+```
+
+## Class Hierarchy
+
+- Series
+  - Hierarchy
+    - **Treemap**
+
+## Settings
+
+### nodePaddingInner
+
+<ParamField path="nodePaddingInner" type="number">
+  Gap between nodes in pixels.
+</ParamField>
+
+```javascript
+treemap.set("nodePaddingInner", 2);
+```
+
+### nodePaddingOuter
+
+<ParamField path="nodePaddingOuter" type="number">
+  Gap between nodes and outer edge of the chart in pixels.
+  
+  When set, this overrides individual edge padding settings.
+</ParamField>
+
+### nodePaddingTop
+
+<ParamField path="nodePaddingTop" type="number">
+  Gap between nodes and top edge in pixels.
+  
+  Will be ignored if `nodePaddingOuter` is set.
+</ParamField>
+
+### nodePaddingBottom
+
+<ParamField path="nodePaddingBottom" type="number">
+  Gap between nodes and bottom edge in pixels.
+  
+  Will be ignored if `nodePaddingOuter` is set.
+</ParamField>
+
+### nodePaddingLeft
+
+<ParamField path="nodePaddingLeft" type="number">
+  Gap between nodes and left edge in pixels.
+  
+  Will be ignored if `nodePaddingOuter` is set.
+</ParamField>
+
+### nodePaddingRight
+
+<ParamField path="nodePaddingRight" type="number">
+  Gap between nodes and right edge in pixels.
+  
+  Will be ignored if `nodePaddingOuter` is set.
+</ParamField>
+
+### layoutAlgorithm
+
+<ParamField path="layoutAlgorithm" type="'binary' | 'squarify' | 'slice' | 'dice' | 'sliceDice'" default="'squarify'">
+  Algorithm to use when laying out node rectangles.
+  
+  - `"squarify"` - Creates approximately square rectangles (default)
+  - `"binary"` - Uses binary partitioning
+  - `"slice"` - Divides horizontally
+  - `"dice"` - Divides vertically
+  - `"sliceDice"` - Alternates between slice and dice by depth
+</ParamField>
+
+```javascript
+treemap.set("layoutAlgorithm", "binary");
+```
+
+### Inherited Settings
+
+Treemap inherits all settings from Hierarchy, including:
+
+- `sort` - How to sort nodes by value ("ascending" | "descending" | "none")
+- `valueField` - Field in data holding numeric value
+- `categoryField` - Field in data holding category name
+- `childDataField` - Field in data holding array of children
+- `downDepth` - Number of child levels to show when drilling down
+- `upDepth` - Number of parent levels to show from selected node
+- `initialDepth` - Number of levels to show on first load
+- `topDepth` - Starting level to show (hides upper levels)
+- `singleBranchOnly` - Collapse other branches when one expands
+- `animationDuration` - Duration for drill animations in milliseconds
+- `animationEasing` - Easing function for animations
+- `colors` - ColorSet for auto-assigning node colors
+- `patterns` - PatternSet for auto-assigning node patterns
+
+## Data Item Properties
+
+Each data item in a Treemap chart has the following properties:
+
+### children
+
+<ResponseField name="children" type="Array<DataItem<ITreemapDataItem>>">
+  An array of children data items.
+</ResponseField>
+
+### parent
+
+<ResponseField name="parent" type="DataItem<ITreemapDataItem>">
+  Parent data item.
+</ResponseField>
+
+### rectangle
+
+<ResponseField name="rectangle" type="RoundedRectangle">
+  The RoundedRectangle element representing this node.
+</ResponseField>
+
+### value
+
+<ResponseField name="value" type="number">
+  Value of the node as set in data.
+</ResponseField>
+
+### sum
+
+<ResponseField name="sum" type="number">
+  Sum of child values.
+</ResponseField>
+
+### valuePercentTotal
+
+<ResponseField name="valuePercentTotal" type="number">
+  Percent value of the node, based on total sum of all nodes in upper level.
+</ResponseField>
+
+### valuePercent
+
+<ResponseField name="valuePercent" type="number">
+  Percent value of the node, based on the value of its direct parent.
+  
+  **Since:** 5.2.21
+</ResponseField>
+
+### category
+
+<ResponseField name="category" type="string">
+  Category name of the node.
+</ResponseField>
+
+### depth
+
+<ResponseField name="depth" type="number">
+  Node's depth within the hierarchy (0 for root).
+</ResponseField>
+
+### node
+
+<ResponseField name="node" type="HierarchyNode">
+  Reference to the visual HierarchyNode element.
+</ResponseField>
+
+### label
+
+<ResponseField name="label" type="Label">
+  Reference to node's Label element.
+</ResponseField>
+
+### fill
+
+<ResponseField name="fill" type="Color">
+  Node's auto-assigned color.
+</ResponseField>
+
+### fillPattern
+
+<ResponseField name="fillPattern" type="Pattern">
+  Node's auto-assigned pattern.
+  
+  **Since:** 5.10.0
+</ResponseField>
+
+### disabled
+
+<ResponseField name="disabled" type="boolean">
+  Indicates if node is currently disabled (collapsed).
+</ResponseField>
+
+## Data Format
+
+```typescript
+interface ITreemapDataObject {
+  name?: string;
+  value?: number;
+  children?: ITreemapDataObject[];
+}
+```
+
+### Example Data
+
+```javascript
+treemap.data.setAll([{
+  name: "Root",
+  children: [
+    {
+      name: "Category A",
+      children: [
+        { name: "Item A1", value: 100 },
+        { name: "Item A2", value: 60 }
+      ]
+    },
+    {
+      name: "Category B",
+      children: [
+        { name: "Item B1", value: 135 },
+        { name: "Item B2", value: 98 }
+      ]
+    }
+  ]
+}]);
+```
+
+## List Templates
+
+Treemap provides access to these list templates for customization:
+
+### nodes
+
+<ResponseField name="nodes" type="ListTemplate<HierarchyNode>">
+  List of all node container elements.
+</ResponseField>
+
+```javascript
+treemap.nodes.template.setAll({
+  toggleKey: "disabled"
+});
+```
+
+### rectangles
+
+<ResponseField name="rectangles" type="ListTemplate<RoundedRectangle>">
+  List of node rectangle elements in the Treemap chart.
+</ResponseField>
+
+```javascript
+treemap.rectangles.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff),
+  cornerRadiusTL: 4,
+  cornerRadiusTR: 4,
+  cornerRadiusBL: 4,
+  cornerRadiusBR: 4
+});
+```
+
+### labels
+
+<ResponseField name="labels" type="ListTemplate<Label>">
+  List of label elements.
+</ResponseField>
+
+```javascript
+treemap.labels.template.setAll({
+  text: "{category}\n{valuePercentTotal.formatNumber('0.0')}%",
+  fontSize: 12,
+  oversizedBehavior: "truncate",
+  textAlign: "center"
+});
+```
+
+## Containers
+
+### nodesContainer
+
+<ResponseField name="nodesContainer" type="Container">
+  Container that holds all node elements.
+</ResponseField>
+
+## Methods
+
+### selectDataItem()
+
+```typescript
+selectDataItem(dataItem: DataItem<ITreemapDataItem>): void
+```
+
+Selects a specific data item, triggering drill-down animation.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  The data item to select.
+</ParamField>
+
+### getDataItemById()
+
+```typescript
+getDataItemById(id: string): DataItem<ITreemapDataItem> | undefined
+```
+
+Looks up and returns a data item by its ID.
+
+<ParamField path="id" type="string">
+  The ID to search for.
+</ParamField>
+
+<ResponseField name="return" type="DataItem<ITreemapDataItem> | undefined">
+  The found data item, or undefined if not found.
+</ResponseField>
+
+### enableDataItem()
+
+```typescript
+enableDataItem(
+  dataItem: DataItem<ITreemapDataItem>,
+  maxDepth?: number,
+  depth?: number,
+  duration?: number
+): void
+```
+
+Enables a disabled (collapsed) data item.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  Target data item to enable.
+</ParamField>
+
+<ParamField path="maxDepth" type="number">
+  Maximum depth to enable children to.
+</ParamField>
+
+<ParamField path="depth" type="number">
+  Current depth (used internally for recursion).
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### disableDataItem()
+
+```typescript
+disableDataItem(
+  dataItem: DataItem<ITreemapDataItem>,
+  duration?: number
+): void
+```
+
+Disables (collapses) a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  Target data item to disable.
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### addChildData()
+
+```typescript
+addChildData(
+  dataItem: DataItem<ITreemapDataItem>,
+  data: Array<any>
+): void
+```
+
+Adds children data to the target data item dynamically.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  Parent data item to add children to.
+</ParamField>
+
+<ParamField path="data" type="Array<any>">
+  Array of child data objects.
+</ParamField>
+
+**Since:** 5.4.5
+
+### hoverDataItem()
+
+```typescript
+hoverDataItem(dataItem: DataItem<ITreemapDataItem>): void
+```
+
+Triggers hover state on a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+### unhoverDataItem()
+
+```typescript
+unhoverDataItem(dataItem: DataItem<ITreemapDataItem>): void
+```
+
+Removes hover state from a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreemapDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+## Events
+
+### dataitemselected
+
+```typescript
+treemap.events.on("dataitemselected", (ev) => {
+  console.log("Selected:", ev.dataItem);
+});
+```
+
+Fired when a data item is selected.
+
+<ResponseField name="dataItem" type="DataItem<ITreemapDataItem> | undefined">
+  The selected data item.
+</ResponseField>
+
+## Private Settings
+
+These are read-only private settings managed internally:
+
+### scaleX
+
+<ResponseField name="scaleX" type="number">
+  Current horizontal scale.
+</ResponseField>
+
+### scaleY
+
+<ResponseField name="scaleY" type="number">
+  Current vertical scale.
+</ResponseField>
+
+## See Also
+
+- [Treemap Documentation](https://www.amcharts.com/docs/v5/charts/hierarchy/treemap/)
+- [Hierarchy Charts](/charts/hierarchy-charts)

@@ -1,0 +1,481 @@
+---
+title: 'Sunburst'
+description: 'API reference for the Sunburst hierarchy chart class'
+---
+
+## Overview
+
+The `Sunburst` class builds a sunburst diagram where hierarchical data is displayed using nested circular sectors (slices). Each level of hierarchy is represented by a ring, with the root at the center.
+
+```typescript
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+const sunburst = root.container.children.push(
+  am5hierarchy.Sunburst.new(root, {
+    startAngle: -90,
+    endAngle: 270,
+    radius: am5.percent(100)
+  })
+);
+```
+
+## Class Hierarchy
+
+- Series
+  - Hierarchy
+    - Partition
+      - **Sunburst**
+
+## Settings
+
+### startAngle
+
+<ParamField path="startAngle" type="number" default="-90">
+  Start angle of the series in degrees.
+  
+  - 0° is at 3 o'clock
+  - -90° is at 12 o'clock (default)
+  - 90° is at 6 o'clock
+  - 180° is at 9 o'clock
+</ParamField>
+
+```javascript
+sunburst.set("startAngle", 0);
+```
+
+### endAngle
+
+<ParamField path="endAngle" type="number" default="270">
+  End angle of the series in degrees.
+  
+  Default is 270° which, combined with startAngle of -90°, creates a full circle.
+</ParamField>
+
+```javascript
+sunburst.set("endAngle", 180); // Creates a semicircle
+```
+
+### innerRadius
+
+<ParamField path="innerRadius" type="number | Percent" default="0">
+  Inner radius of the sunburst pie.
+  
+  - Can be a fixed pixel value or percent
+  - Setting to negative number will mean pixels from outer radius
+  - Default of 0 means center starts at middle
+</ParamField>
+
+```javascript
+sunburst.set("innerRadius", am5.percent(20)); // 20% of radius
+sunburst.set("innerRadius", -100); // 100 pixels from outer edge
+```
+
+### radius
+
+<ParamField path="radius" type="number | Percent" default="100%">
+  Outer radius of the sunburst pie.
+  
+  Can be a fixed pixel value or percent relative to available space.
+</ParamField>
+
+```javascript
+sunburst.set("radius", am5.percent(90));
+sunburst.set("radius", 300); // 300 pixels
+```
+
+### nodePadding
+
+<ParamField path="nodePadding" type="number">
+  Padding between slices in pixels.
+</ParamField>
+
+```javascript
+sunburst.set("nodePadding", 2);
+```
+
+### Inherited Settings
+
+Sunburst inherits all settings from Partition and Hierarchy, including:
+
+- `sort` - How to sort nodes by value ("ascending" | "descending" | "none")
+- `valueField` - Field in data holding numeric value
+- `categoryField` - Field in data holding category name
+- `childDataField` - Field in data holding array of children
+- `downDepth` - Number of child levels to show when drilling down
+- `upDepth` - Number of parent levels to show from selected node
+- `initialDepth` - Number of levels to show on first load
+- `topDepth` - Starting level to show (hides upper levels)
+- `singleBranchOnly` - Collapse other branches when one expands
+- `animationDuration` - Duration for drill animations in milliseconds
+- `animationEasing` - Easing function for animations
+- `colors` - ColorSet for auto-assigning node colors
+- `patterns` - PatternSet for auto-assigning node patterns
+
+## Data Item Properties
+
+Each data item in a Sunburst chart has the following properties:
+
+### children
+
+<ResponseField name="children" type="Array<DataItem<ISunburstDataItem>>">
+  Data items of child nodes.
+</ResponseField>
+
+### parent
+
+<ResponseField name="parent" type="DataItem<ISunburstDataItem>">
+  Data item of a parent node.
+</ResponseField>
+
+### slice
+
+<ResponseField name="slice" type="Slice">
+  A Slice element of the node.
+</ResponseField>
+
+### value
+
+<ResponseField name="value" type="number">
+  Value of the node as set in data.
+</ResponseField>
+
+### sum
+
+<ResponseField name="sum" type="number">
+  Sum of child values.
+</ResponseField>
+
+### valuePercentTotal
+
+<ResponseField name="valuePercentTotal" type="number">
+  Percent value of the node, based on total sum of all nodes in upper level.
+</ResponseField>
+
+### valuePercent
+
+<ResponseField name="valuePercent" type="number">
+  Percent value of the node, based on the value of its direct parent.
+  
+  **Since:** 5.2.21
+</ResponseField>
+
+### category
+
+<ResponseField name="category" type="string">
+  Category name of the node.
+</ResponseField>
+
+### depth
+
+<ResponseField name="depth" type="number">
+  Node's depth within the hierarchy (0 for root).
+</ResponseField>
+
+### node
+
+<ResponseField name="node" type="HierarchyNode">
+  Reference to the visual HierarchyNode element.
+</ResponseField>
+
+### label
+
+<ResponseField name="label" type="RadialLabel">
+  Reference to node's RadialLabel element.
+</ResponseField>
+
+### fill
+
+<ResponseField name="fill" type="Color">
+  Node's auto-assigned color.
+</ResponseField>
+
+### fillPattern
+
+<ResponseField name="fillPattern" type="Pattern">
+  Node's auto-assigned pattern.
+  
+  **Since:** 5.10.0
+</ResponseField>
+
+### disabled
+
+<ResponseField name="disabled" type="boolean">
+  Indicates if node is currently disabled (collapsed).
+</ResponseField>
+
+## Data Format
+
+```typescript
+interface ISunburstDataObject {
+  name?: string;
+  value?: number;
+  children?: ISunburstDataObject[];
+}
+```
+
+### Example Data
+
+```javascript
+sunburst.data.setAll([{
+  name: "Root",
+  children: [
+    {
+      name: "Category A",
+      children: [
+        { name: "A1", value: 100 },
+        { name: "A2", value: 60 }
+      ]
+    },
+    {
+      name: "Category B",
+      children: [
+        { name: "B1", value: 135 },
+        { name: "B2", value: 98 },
+        { name: "B3", value: 56 }
+      ]
+    },
+    {
+      name: "Category C",
+      children: [
+        { name: "C1", value: 78 },
+        { name: "C2", value: 43 }
+      ]
+    }
+  ]
+}]);
+```
+
+## List Templates
+
+Sunburst provides access to these list templates for customization:
+
+### nodes
+
+<ResponseField name="nodes" type="ListTemplate<HierarchyNode>">
+  List of all node container elements.
+</ResponseField>
+
+```javascript
+sunburst.nodes.template.setAll({
+  toggleKey: "disabled"
+});
+```
+
+### slices
+
+<ResponseField name="slices" type="ListTemplate<Slice>">
+  List of node slice elements in the Sunburst chart.
+</ResponseField>
+
+```javascript
+sunburst.slices.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff),
+  cornerRadius: 4,
+  tooltipText: "{category}: {valuePercentTotal.formatNumber('0.00')}%"
+});
+```
+
+### labels
+
+<ResponseField name="labels" type="ListTemplate<RadialLabel>">
+  List of radial label elements.
+  
+  RadialLabel can be rendered as radial or circular text.
+</ResponseField>
+
+```javascript
+sunburst.labels.template.setAll({
+  text: "{category}",
+  fontSize: 12,
+  textType: "radial", // or "circular"
+  centerX: 0,
+  centerY: 0
+});
+```
+
+## Containers
+
+### nodesContainer
+
+<ResponseField name="nodesContainer" type="Container">
+  Container that holds all node elements.
+  
+  For Sunburst, this is centered at 50% x 50% of the chart area.
+</ResponseField>
+
+## Methods
+
+### selectDataItem()
+
+```typescript
+selectDataItem(dataItem: DataItem<ISunburstDataItem>): void
+```
+
+Selects a specific data item, triggering drill-down animation.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  The data item to select.
+</ParamField>
+
+### getDataItemById()
+
+```typescript
+getDataItemById(id: string): DataItem<ISunburstDataItem> | undefined
+```
+
+Looks up and returns a data item by its ID.
+
+<ParamField path="id" type="string">
+  The ID to search for.
+</ParamField>
+
+<ResponseField name="return" type="DataItem<ISunburstDataItem> | undefined">
+  The found data item, or undefined if not found.
+</ResponseField>
+
+### enableDataItem()
+
+```typescript
+enableDataItem(
+  dataItem: DataItem<ISunburstDataItem>,
+  maxDepth?: number,
+  depth?: number,
+  duration?: number
+): void
+```
+
+Enables a disabled (collapsed) data item.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  Target data item to enable.
+</ParamField>
+
+<ParamField path="maxDepth" type="number">
+  Maximum depth to enable children to.
+</ParamField>
+
+<ParamField path="depth" type="number">
+  Current depth (used internally for recursion).
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### disableDataItem()
+
+```typescript
+disableDataItem(
+  dataItem: DataItem<ISunburstDataItem>,
+  duration?: number
+): void
+```
+
+Disables (collapses) a data item.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  Target data item to disable.
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### addChildData()
+
+```typescript
+addChildData(
+  dataItem: DataItem<ISunburstDataItem>,
+  data: Array<any>
+): void
+```
+
+Adds children data to the target data item dynamically.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  Parent data item to add children to.
+</ParamField>
+
+<ParamField path="data" type="Array<any>">
+  Array of child data objects.
+</ParamField>
+
+**Since:** 5.4.5
+
+### hoverDataItem()
+
+```typescript
+hoverDataItem(dataItem: DataItem<ISunburstDataItem>): void
+```
+
+Triggers hover state on a data item.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+### unhoverDataItem()
+
+```typescript
+unhoverDataItem(dataItem: DataItem<ISunburstDataItem>): void
+```
+
+Removes hover state from a data item.
+
+<ParamField path="dataItem" type="DataItem<ISunburstDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+## Events
+
+### dataitemselected
+
+```typescript
+sunburst.events.on("dataitemselected", (ev) => {
+  console.log("Selected:", ev.dataItem);
+});
+```
+
+Fired when a data item is selected.
+
+<ResponseField name="dataItem" type="DataItem<ISunburstDataItem> | undefined">
+  The selected data item.
+</ResponseField>
+
+## Private Settings
+
+These are read-only private settings managed internally:
+
+### dr
+
+<ResponseField name="dr" type="number">
+  Current radial offset for zoom animation.
+</ResponseField>
+
+### dx
+
+<ResponseField name="dx" type="number">
+  Current angular offset for zoom animation.
+</ResponseField>
+
+### innerRadius
+
+<ResponseField name="innerRadius" type="number">
+  Calculated inner radius in pixels.
+</ResponseField>
+
+### hierarchySize
+
+<ResponseField name="hierarchySize" type="number">
+  Total radial size available for hierarchy levels.
+</ResponseField>
+
+## See Also
+
+- [Sunburst Documentation](https://www.amcharts.com/docs/v5/charts/hierarchy/sunburst/)
+- [Hierarchy Charts](/charts/hierarchy-charts)

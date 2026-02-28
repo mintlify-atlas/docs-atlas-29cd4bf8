@@ -1,0 +1,255 @@
+---
+title: Loading Data
+description: Learn how to load data into amCharts 5 from various sources including inline data, external files, and remote APIs.
+---
+
+## Overview
+
+amCharts 5 provides flexible methods for loading data into your charts. You can set data directly, load it from external files, or fetch it from remote APIs.
+
+## Setting Data Directly
+
+The most straightforward way to add data to a chart is by using the `data` property on series and other components.
+
+### Using setAll()
+
+The `setAll()` method replaces all existing data with a new array:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date"
+}));
+
+// Set all data at once
+series.data.setAll([
+  { date: new Date(2023, 0, 1).getTime(), value: 100 },
+  { date: new Date(2023, 0, 2).getTime(), value: 150 },
+  { date: new Date(2023, 0, 3).getTime(), value: 120 },
+  { date: new Date(2023, 0, 4).getTime(), value: 180 }
+]);
+```
+
+The `data` property is a `ListData` object that extends the `List` class. It automatically manages data items and triggers updates when data changes.
+
+### Using push()
+
+Add individual data items to the end of the existing data:
+
+```typescript
+// Add a single data point
+series.data.push({
+  date: new Date(2023, 0, 5).getTime(),
+  value: 200
+});
+```
+
+### Other List Methods
+
+The `data` property supports various list manipulation methods:
+
+```typescript
+// Add item at the beginning
+series.data.unshift({ date: timestamp, value: 90 });
+
+// Remove first item
+series.data.shift();
+
+// Remove last item
+series.data.pop();
+
+// Remove item at specific index
+series.data.removeIndex(0);
+
+// Clear all data
+series.data.clear();
+```
+
+## Loading External Data
+
+amCharts 5 includes a `net.load()` utility function for loading data from external sources.
+
+### Basic Usage
+
+The `net.load()` function returns a Promise that resolves with the loaded data:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Using async/await
+async function loadData() {
+  const response = await am5.net.load("https://example.com/data.json");
+  const data = JSON.parse(response.response);
+  series.data.setAll(data);
+}
+
+loadData();
+```
+
+```typescript
+// Using .then()
+am5.net.load("https://example.com/data.json").then((response) => {
+  const data = JSON.parse(response.response);
+  series.data.setAll(data);
+});
+```
+
+### Response Object
+
+The `net.load()` function returns an `INetLoadResult` object with the following properties:
+
+- `xhr`: Reference to the original XMLHttpRequest
+- `response`: Response body as a string
+- `blob`: Response as Blob (if `responseType` is set to "blob")
+- `type`: Response Content-Type header
+- `error`: Boolean indicating if there was an error
+- `target`: Optional target object that made the request
+
+### Request Options
+
+You can customize the request with options:
+
+```typescript
+const response = await am5.net.load(
+  "https://api.example.com/data",
+  undefined,
+  {
+    requestHeaders: [
+      { key: "Authorization", value: "Bearer token123" },
+      { key: "Content-Type", value: "application/json" }
+    ],
+    responseType: "json",
+    withCredentials: true
+  }
+);
+```
+
+**Available Options:**
+
+- `requestHeaders`: Array of custom HTTP headers
+- `responseType`: Expected response type (e.g., "json", "blob", "text")
+- `withCredentials`: Send cookies with cross-origin requests (default: false)
+
+### Error Handling
+
+```typescript
+try {
+  const response = await am5.net.load("https://example.com/data.json");
+  if (!response.error) {
+    const data = JSON.parse(response.response);
+    series.data.setAll(data);
+  }
+} catch (error) {
+  console.error("Failed to load data:", error);
+}
+```
+
+## Loading from CSV or JSON Files
+
+For structured data formats, combine `net.load()` with data parsers:
+
+```typescript
+import { CSVParser, JSONParser } from "@amcharts/amcharts5";
+
+// Load and parse JSON
+const response = await am5.net.load("data.json");
+const data = JSONParser.parse(response.response);
+series.data.setAll(data);
+
+// Load and parse CSV
+const csvResponse = await am5.net.load("data.csv");
+const csvData = CSVParser.parse(csvResponse.response, {
+  delimiter: ",",
+  useColumnNames: true,
+  skipRows: 1
+});
+series.data.setAll(csvData);
+```
+
+See the [Parsing Data](/data/parsing) documentation for more details on parsers.
+
+## Data Structure Requirements
+
+Each series type requires specific fields in the data:
+
+### XY Series
+
+```typescript
+const data = [
+  { date: 1609459200000, value: 100 },
+  { date: 1609545600000, value: 150 }
+];
+
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  valueYField: "value",  // Maps to 'value' property
+  valueXField: "date"    // Maps to 'date' property
+}));
+```
+
+### Flow Diagrams
+
+```typescript
+const data = [
+  { from: "A", to: "B", value: 10 },
+  { from: "B", to: "C", value: 20 }
+];
+
+const series = root.container.children.push(am5flow.ArcDiagram.new(root, {
+  sourceIdField: "from",
+  targetIdField: "to",
+  valueField: "value"
+}));
+```
+
+## Performance Considerations
+
+### Large Datasets
+
+When loading large datasets:
+
+1. Use `setAll()` instead of multiple `push()` calls for better performance
+2. Consider data grouping for time-based data
+3. Enable data processor only when needed
+
+```typescript
+// Good: Single setAll() call
+series.data.setAll(largeDataArray);
+
+// Avoid: Multiple push() calls for large datasets
+largeDataArray.forEach(item => {
+  series.data.push(item);  // Less efficient
+});
+```
+
+### Lazy Loading
+
+For very large datasets, consider loading data in chunks:
+
+```typescript
+let page = 1;
+const pageSize = 1000;
+
+async function loadNextPage() {
+  const response = await am5.net.load(
+    `https://api.example.com/data?page=${page}&size=${pageSize}`
+  );
+  const newData = JSON.parse(response.response);
+  
+  // Append new data
+  newData.forEach(item => series.data.push(item));
+  page++;
+}
+```
+
+## Related Topics
+
+- [Parsing Data](/data/parsing) - Parse CSV, JSON, and other formats
+- [Processing Data](/data/processing) - Transform and process data
+- [Live Data](/data/live-data) - Update charts in real-time

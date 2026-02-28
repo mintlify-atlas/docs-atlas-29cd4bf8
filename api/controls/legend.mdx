@@ -1,0 +1,376 @@
+---
+title: 'Legend'
+description: 'Interactive legend for displaying chart series and categories'
+icon: 'list'
+---
+
+## Overview
+
+The `Legend` class creates an interactive legend that displays chart series or data items with toggleable visibility. It automatically generates legend items with markers, labels, and value labels.
+
+## Constructor
+
+```typescript
+Legend.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="ILegendSettings">
+  Configuration settings for the legend
+</ParamField>
+
+## Settings
+
+### Marker Settings
+
+<ParamField path="useDefaultMarker" type="boolean" default="false">
+  If `true`, the legend will show default square markers instead of mimicking the appearance of actual chart items.
+</ParamField>
+
+### Data Field Settings
+
+<ParamField path="nameField" type="string">
+  Key to look up in data for the name of the data item.
+</ParamField>
+
+<ParamField path="fillField" type="string">
+  Key to look up in data for the fill color of the data item.
+</ParamField>
+
+<ParamField path="strokeField" type="string">
+  Key to look up in data for the stroke color of the data item.
+</ParamField>
+
+### Interaction Settings
+
+<ParamField path="clickTarget" type="'itemContainer' | 'marker' | 'none'" default="'itemContainer'">
+  Which legend item element will be clickable to toggle the related chart item.
+  
+  - `itemContainer` - The whole legend item (default)
+  - `marker` - Only the legend item marker
+  - `none` - Disables toggling
+</ParamField>
+
+## Properties
+
+### itemContainers
+
+<ResponseField name="itemContainers" type="ListTemplate<Container>">
+  List template of all `Container` elements for legend items. Use to customize item container appearance.
+</ResponseField>
+
+```typescript
+legend.itemContainers.template.setAll({
+  paddingTop: 5,
+  paddingBottom: 5
+});
+```
+
+### markers
+
+<ResponseField name="markers" type="ListTemplate<Container>">
+  List template of legend marker elements. Use to customize marker appearance.
+</ResponseField>
+
+```typescript
+legend.markers.template.setAll({
+  width: 20,
+  height: 20
+});
+```
+
+### labels
+
+<ResponseField name="labels" type="ListTemplate<Label>">
+  List template of legend label elements. Use to customize label text.
+</ResponseField>
+
+```typescript
+legend.labels.template.setAll({
+  fontSize: 12,
+  fontWeight: "bold"
+});
+```
+
+### valueLabels
+
+<ResponseField name="valueLabels" type="ListTemplate<Label>">
+  List template of legend value label elements. Use to display and customize values.
+</ResponseField>
+
+```typescript
+legend.valueLabels.template.setAll({
+  fontSize: 10,
+  fill: am5.color(0x999999)
+});
+```
+
+### markerRectangles
+
+<ResponseField name="markerRectangles" type="ListTemplate<RoundedRectangle>">
+  List template of rectangle elements used for default legend markers.
+</ResponseField>
+
+```typescript
+legend.markerRectangles.template.setAll({
+  cornerRadiusTL: 5,
+  cornerRadiusTR: 5,
+  cornerRadiusBL: 5,
+  cornerRadiusBR: 5
+});
+```
+
+## Methods
+
+### makeItemContainer()
+
+Creates a container for a legend item.
+
+```typescript
+makeItemContainer(dataItem: DataItem<ILegendDataItem>): Container
+```
+
+<ParamField path="dataItem" type="DataItem<ILegendDataItem>" required>
+  The data item for this legend entry
+</ParamField>
+
+<ResponseField name="returns" type="Container">
+  The created item container
+</ResponseField>
+
+### makeMarker()
+
+Creates a marker element for a legend item.
+
+```typescript
+makeMarker(): Container
+```
+
+<ResponseField name="returns" type="Container">
+  The created marker container
+</ResponseField>
+
+### makeLabel()
+
+Creates a label element for a legend item.
+
+```typescript
+makeLabel(): Label
+```
+
+<ResponseField name="returns" type="Label">
+  The created label
+</ResponseField>
+
+### makeValueLabel()
+
+Creates a value label element for a legend item.
+
+```typescript
+makeValueLabel(): Label
+```
+
+<ResponseField name="returns" type="Label">
+  The created value label
+</ResponseField>
+
+### makeMarkerRectangle()
+
+Creates a rectangle element for default marker.
+
+```typescript
+makeMarkerRectangle(): RoundedRectangle
+```
+
+<ResponseField name="returns" type="RoundedRectangle">
+  The created marker rectangle
+</ResponseField>
+
+## Data Item Structure
+
+Each legend data item contains:
+
+<ResponseField name="itemContainer" type="Container">
+  Container holding all legend item elements
+</ResponseField>
+
+<ResponseField name="marker" type="Container">
+  Marker element
+</ResponseField>
+
+<ResponseField name="markerRectangle" type="RoundedRectangle">
+  Marker rectangle element
+</ResponseField>
+
+<ResponseField name="label" type="Label">
+  Label element
+</ResponseField>
+
+<ResponseField name="valueLabel" type="Label">
+  Value label element
+</ResponseField>
+
+<ResponseField name="fill" type="Color">
+  Marker fill color
+</ResponseField>
+
+<ResponseField name="stroke" type="Color">
+  Marker stroke color
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the legend item
+</ResponseField>
+
+## Examples
+
+### Basic Legend
+
+```typescript
+import { Legend } from "@amcharts/amcharts5";
+
+const legend = chart.children.push(
+  Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Custom Markers
+
+```typescript
+const legend = Legend.new(root, {
+  useDefaultMarker: true
+});
+
+legend.markerRectangles.template.setAll({
+  width: 15,
+  height: 15,
+  cornerRadiusTL: 7.5,
+  cornerRadiusTR: 7.5,
+  cornerRadiusBL: 7.5,
+  cornerRadiusBR: 7.5
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Custom Labels
+
+```typescript
+const legend = Legend.new(root, {});
+
+legend.labels.template.setAll({
+  fontSize: 14,
+  fontWeight: "600",
+  fill: am5.color(0x000000)
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Value Labels
+
+```typescript
+const legend = Legend.new(root, {});
+
+legend.valueLabels.template.setAll({
+  fontSize: 12,
+  textAlign: "right",
+  text: "{valueY}"
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Marker-Only Clicking
+
+```typescript
+const legend = Legend.new(root, {
+  clickTarget: "marker"
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+### Vertical Legend
+
+```typescript
+const legend = chart.rightAxesContainer.children.push(
+  Legend.new(root, {
+    layout: root.verticalLayout,
+    height: am5.percent(100),
+    verticalScrollbar: am5.Scrollbar.new(root, {
+      orientation: "vertical"
+    })
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Custom Data
+
+```typescript
+const legend = Legend.new(root, {
+  nameField: "categoryName",
+  fillField: "categoryColor"
+});
+
+legend.data.setAll([
+  { categoryName: "Apples", categoryColor: am5.color(0xff0000) },
+  { categoryName: "Oranges", categoryColor: am5.color(0xff9900) },
+  { categoryName: "Bananas", categoryColor: am5.color(0xffff00) }
+]);
+```
+
+### Legend with Custom Item Spacing
+
+```typescript
+const legend = Legend.new(root, {
+  layout: root.horizontalLayout
+});
+
+legend.itemContainers.template.setAll({
+  paddingLeft: 10,
+  paddingRight: 10
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+## Toggling Items
+
+Legend items are automatically interactive. Clicking an item will:
+
+1. Call `hide()` on the associated chart element if it's visible
+2. Call `show()` on the associated chart element if it's hidden
+3. Apply a "disabled" state to the legend item container
+4. Announce the change to screen readers
+
+## Styling with States
+
+Legend items automatically get a "disabled" state when toggled off:
+
+```typescript
+legend.itemContainers.template.states.create("disabled", {
+  opacity: 0.5
+});
+
+legend.labels.template.states.create("disabled", {
+  fill: am5.color(0x999999)
+});
+```
+
+## Related
+
+- [Series](/api/core/series)
+- [Container](/api/core/container)
+- [Label](/api/controls/label)
+- [Legend documentation](https://www.amcharts.com/docs/v5/concepts/legend/)

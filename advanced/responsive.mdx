@@ -1,0 +1,512 @@
+---
+title: "Responsive Design"
+description: "Create charts that adapt to different screen sizes and devices"
+---
+
+## Overview
+
+The `ResponsiveTheme` in amCharts 5 automatically adjusts chart elements based on available space, ensuring your visualizations look great on screens of all sizes.
+
+## Basic Usage
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let root = am5.Root.new("chartdiv");
+
+// Apply responsive theme
+root.setThemes([
+  am5themes_Responsive.new(root)
+]);
+```
+
+<Info>
+The `ResponsiveTheme` includes predefined rules for common chart types and responsive scenarios. It works out of the box without additional configuration.
+</Info>
+
+## Breakpoints
+
+The `ResponsiveTheme` uses predefined pixel-based breakpoints:
+
+| Breakpoint | Value | Description |
+|------------|-------|-------------|
+| `XXS` | 100px | Extra extra small |
+| `XS` | 200px | Extra small |
+| `S` | 300px | Small |
+| `M` | 400px | Medium |
+| `L` | 600px | Large |
+| `XL` | 800px | Extra large |
+| `XXL` | 1000px | Extra extra large |
+
+### Breakpoint Functions
+
+The theme provides several helper functions for checking screen size:
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+// Width-based checks
+am5themes_Responsive.widthXS(width, height);   // width <= 200
+am5themes_Responsive.widthS(width, height);    // width <= 300
+am5themes_Responsive.widthM(width, height);    // width <= 400
+
+// Height-based checks
+am5themes_Responsive.heightXS(width, height);  // height <= 200
+am5themes_Responsive.heightS(width, height);   // height <= 300
+
+// Both dimensions (AND)
+am5themes_Responsive.isXS(width, height);      // width <= 200 AND height <= 200
+am5themes_Responsive.isS(width, height);       // width <= 300 AND height <= 300
+
+// Either dimension (OR)
+am5themes_Responsive.maybeXS(width, height);   // width <= 200 OR height <= 200
+am5themes_Responsive.maybeS(width, height);    // width <= 300 OR height <= 300
+```
+
+## Creating Responsive Rules
+
+### Custom Rules
+
+Add your own responsive rules to adapt specific elements:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let root = am5.Root.new("chartdiv");
+
+let myResponsiveTheme = am5themes_Responsive.new(root);
+
+// Add a custom rule
+myResponsiveTheme.addRule({
+  name: "AxisLabel",
+  tags: ["x"],
+  relevant: am5themes_Responsive.widthS,
+  settings: {
+    rotation: -45,
+    fontSize: 10
+  }
+});
+
+root.setThemes([myResponsiveTheme]);
+```
+
+### Rule Interface
+
+Each responsive rule has the following properties:
+
+```typescript
+interface IResponsiveRule {
+  // Target elements by class name
+  name?: string;
+  
+  // Target elements by tags
+  tags?: string | string[];
+  
+  // Settings to apply when rule is active
+  settings?: any;
+  
+  // Function that determines if rule should be applied
+  relevant: (width: number, height: number) => boolean;
+  
+  // Callback when rule is applied
+  applying?: () => void;
+  
+  // Callback when rule is removed
+  removing?: () => void;
+}
+```
+
+### Targeting Elements
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let theme = am5themes_Responsive.new(root);
+
+// Target by class name
+theme.addRule({
+  name: "Legend",
+  relevant: am5themes_Responsive.isXS,
+  settings: {
+    forceHidden: true  // Hide legend on very small screens
+  }
+});
+
+// Target by tags
+theme.addRule({
+  name: "Label",
+  tags: ["pie", "radial"],
+  relevant: am5themes_Responsive.widthM,
+  settings: {
+    fontSize: 12,
+    forceHidden: true
+  }
+});
+
+// Combine name and tags
+theme.addRule({
+  name: "AxisLabel",
+  tags: ["y", "minor"],
+  relevant: am5themes_Responsive.heightXXL,
+  settings: {
+    forceHidden: true
+  }
+});
+```
+
+## Custom Breakpoints
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let theme = am5themes_Responsive.new(root);
+
+// Define custom breakpoint function
+function isMobile(width: number, height: number): boolean {
+  return width < 768;
+}
+
+function isTablet(width: number, height: number): boolean {
+  return width >= 768 && width < 1024;
+}
+
+// Use custom breakpoints
+theme.addRule({
+  name: "Chart",
+  relevant: isMobile,
+  settings: {
+    paddingLeft: 5,
+    paddingRight: 5
+  }
+});
+
+theme.addRule({
+  name: "AxisLabel",
+  relevant: isTablet,
+  settings: {
+    fontSize: 11
+  }
+});
+```
+
+## Default Responsive Behaviors
+
+The `ResponsiveTheme` includes built-in rules for common scenarios:
+
+### Universal Rules
+
+```typescript
+// Removes chart padding on very small screens
+{
+  name: "Chart",
+  relevant: ResponsiveTheme.widthXXS,
+  settings: { paddingLeft: 0, paddingRight: 0 }
+}
+
+// Hides bullets on extra small screens
+{
+  name: "Bullet",
+  relevant: ResponsiveTheme.isXS,
+  settings: { forceHidden: true }
+}
+
+// Hides legends on extra small screens
+{
+  name: "Legend",
+  relevant: ResponsiveTheme.isXS,
+  settings: { forceHidden: true }
+}
+```
+
+### XY Chart Rules
+
+```typescript
+// Moves axis labels inside on small screens
+{
+  name: "AxisRendererX",
+  relevant: ResponsiveTheme.heightXS,
+  settings: { inside: true }
+}
+
+{
+  name: "AxisRendererY",
+  relevant: ResponsiveTheme.widthXS,
+  settings: { inside: true }
+}
+
+// Hides grid on very small screens
+{
+  name: "Grid",
+  relevant: ResponsiveTheme.maybeXXS,
+  settings: { forceHidden: true }
+}
+```
+
+### Pie Chart Rules
+
+```typescript
+// Increases radius to use full available space
+{
+  name: "PieChart",
+  relevant: ResponsiveTheme.maybeXS,
+  settings: { radius: am5.percent(99) }
+}
+
+// Hides radial labels on small screens
+{
+  name: "RadialLabel",
+  tags: ["pie"],
+  relevant: ResponsiveTheme.widthM,
+  settings: { forceHidden: true }
+}
+```
+
+## Empty Theme
+
+Create a responsive theme without default rules:
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+// Start with empty theme
+let theme = am5themes_Responsive.newEmpty(root);
+
+// Add only the rules you need
+theme.addRule({
+  name: "Legend",
+  relevant: (width, height) => width < 500,
+  settings: {
+    layout: root.verticalLayout,
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  }
+});
+
+root.setThemes([theme]);
+```
+
+## Dynamic Callbacks
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let theme = am5themes_Responsive.new(root);
+
+theme.addRule({
+  name: "XYChart",
+  relevant: am5themes_Responsive.widthS,
+  applying: () => {
+    console.log("Mobile view activated");
+    // Perform custom actions
+  },
+  removing: () => {
+    console.log("Desktop view activated");
+    // Clean up or restore
+  }
+});
+```
+
+## Manual Resize Control
+
+```typescript
+let root = am5.Root.new("chartdiv");
+
+// Disable automatic resizing
+root.autoResize = false;
+
+// Trigger resize manually
+function handleResize() {
+  root.resize();
+}
+
+window.addEventListener("resize", handleResize);
+
+// Custom size calculation
+let root2 = am5.Root.new("chartdiv2", {
+  calculateSize: (dimensions) => {
+    return {
+      width: dimensions.width,
+      height: Math.min(dimensions.height, 600)  // Max height 600px
+    };
+  }
+});
+```
+
+## Removing Rules
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let theme = am5themes_Responsive.new(root);
+
+// Add rule and keep reference
+let myRule = theme.addRule({
+  name: "Legend",
+  relevant: am5themes_Responsive.widthS,
+  settings: { forceHidden: true }
+});
+
+// Remove rule later
+theme.removeRule(myRule);
+```
+
+## Complete Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+let root = am5.Root.new("chartdiv");
+
+// Create responsive theme
+let responsiveTheme = am5themes_Responsive.new(root);
+
+// Add custom rules
+responsiveTheme.addRule({
+  name: "AxisLabel",
+  tags: ["x"],
+  relevant: (width, height) => width < 600,
+  settings: {
+    rotation: -45,
+    centerY: am5.p50,
+    centerX: am5.p100
+  }
+});
+
+responsiveTheme.addRule({
+  name: "Legend",
+  relevant: (width, height) => width < 500,
+  settings: {
+    layout: root.verticalLayout,
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  },
+  applying: () => {
+    console.log("Switched to vertical legend layout");
+  },
+  removing: () => {
+    console.log("Switched to horizontal legend layout");
+  }
+});
+
+responsiveTheme.addRule({
+  name: "Bullet",
+  relevant: am5themes_Responsive.widthS,
+  settings: {
+    forceHidden: true
+  }
+});
+
+// Apply themes
+root.setThemes([
+  am5themes_Animated.new(root),
+  responsiveTheme
+]);
+
+// Create chart
+let chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: false,
+  panY: false,
+  wheelY: "zoomX"
+}));
+
+let data = [
+  { category: "Jan", value: 50 },
+  { category: "Feb", value: 75 },
+  { category: "Mar", value: 60 },
+  { category: "Apr", value: 90 },
+  { category: "May", value: 85 }
+];
+
+let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+  categoryField: "category",
+  renderer: am5xy.AxisRendererX.new(root, {
+    minGridDistance: 30
+  })
+}));
+xAxis.data.setAll(data);
+
+let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {})
+}));
+
+let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  name: "Series",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  categoryXField: "category"
+}));
+
+series.data.setAll(data);
+
+// Add legend
+let legend = chart.children.push(am5.Legend.new(root, {
+  centerX: am5.percent(50),
+  x: am5.percent(50)
+}));
+legend.data.setAll(chart.series.values);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Test Multiple Screen Sizes">
+    Always test your responsive rules across various screen sizes:
+    - Mobile (< 400px)
+    - Tablet (400-800px)
+    - Desktop (> 800px)
+    - Very small displays (< 200px)
+  </Accordion>
+  
+  <Accordion title="Progressive Enhancement">
+    Start with a fully functional mobile layout and enhance for larger screens:
+    
+    ```typescript
+    // Mobile-first approach
+    theme.addRule({
+      name: "AxisLabel",
+      relevant: (w, h) => w > 600,  // Enhance for desktop
+      settings: {
+        fontSize: 14  // Larger font on desktop
+      }
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Performance Considerations">
+    - Use `forceHidden` instead of complex visibility logic
+    - Limit the number of responsive rules
+    - Avoid heavy calculations in `relevant` functions
+  </Accordion>
+  
+  <Accordion title="Combine with Container Queries">
+    Use responsive rules based on chart container size, not just viewport:
+    
+    ```typescript
+    theme.addRule({
+      name: "Legend",
+      relevant: (width, height) => {
+        // Width is container width, not viewport
+        return width < 400;
+      },
+      settings: { forceHidden: true }
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Performance" icon="gauge" href="/advanced/performance">
+    Optimize charts for better performance on mobile devices
+  </Card>
+  <Card title="Themes" icon="palette" href="/concepts/themes">
+    Learn more about creating and using themes
+  </Card>
+</CardGroup>

@@ -1,0 +1,313 @@
+---
+title: 'XY Cursor'
+description: 'Add interactive crosshair cursors to your XY charts'
+---
+
+## Overview
+
+The `XYCursor` adds an interactive crosshair cursor to your chart, helping users track precise values and interact with the data.
+
+## Basic Cursor
+
+Create a basic cursor:
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+```
+
+## Cursor Behavior
+
+The cursor can perform different actions when dragged across the plot area.
+
+### Zoom Behaviors
+
+Enable zooming with the cursor:
+
+```typescript
+// Zoom horizontally
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+
+// Zoom vertically
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomY"
+}));
+
+// Zoom in both directions
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomXY"
+}));
+```
+
+<Tip>
+  Use `behavior: "zoomX"` for time-series charts where users typically want to zoom into specific time periods.
+</Tip>
+
+### Select Behaviors
+
+Enable selection with the cursor:
+
+```typescript
+// Select along X axis
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "selectX"
+}));
+
+// Select along Y axis
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "selectY"
+}));
+
+// Select in both directions (rectangular selection)
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "selectXY"
+}));
+```
+
+### No Behavior
+
+Disable cursor interaction while keeping the crosshair visible:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "none"
+}));
+```
+
+## Cursor Lines
+
+### Customizing Cursor Lines
+
+Customize the appearance of cursor lines:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+
+// Customize X line
+cursor.lineX.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2,
+  strokeDasharray: [5, 5]
+});
+
+// Customize Y line
+cursor.lineY.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2,
+  strokeDasharray: [5, 5]
+});
+```
+
+### Hiding Cursor Lines
+
+Hide one or both cursor lines:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "zoomX"
+}));
+
+// Hide the Y line for horizontal-only interaction
+cursor.lineY.set("visible", false);
+```
+
+<Note>
+  For time-series charts, it's common to hide the Y line since users are typically interested in tracking values across time, not vertical positions.
+</Note>
+
+## Axis Snapping
+
+Snap cursor to axis cells for more precise tracking:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis
+}));
+```
+
+<Tip>
+  When `xAxis` is set, the cursor will snap to axis cells, making it easier to track specific data points.
+</Tip>
+
+## Snapping to Series
+
+Make the cursor automatically snap to the nearest data point in specified series:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series1, series2],
+  snapToSeriesBy: "xy"
+}));
+```
+
+### Snap Direction
+
+Control how the cursor finds the nearest data point:
+
+```typescript
+// Snap to nearest point considering both X and Y distance
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series],
+  snapToSeriesBy: "xy" // default
+}));
+
+// Snap to nearest point by X coordinate only
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series],
+  snapToSeriesBy: "x"
+}));
+
+// Snap to nearest point by Y coordinate only
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series],
+  snapToSeriesBy: "y"
+}));
+
+// Force snap by X (must snap, even if far)
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series],
+  snapToSeriesBy: "x!"
+}));
+
+// Force snap by Y (must snap, even if far)
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  snapToSeries: [series],
+  snapToSeriesBy: "y!"
+}));
+```
+
+## Cursor Position
+
+Manually control cursor position:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  positionX: 0.5, // Center horizontally (0 = left, 1 = right)
+  positionY: 0.5  // Center vertically (0 = top, 1 = bottom)
+}));
+```
+
+<Warning>
+  When `positionX` or `positionY` is set, the cursor will not react to mouse/touch input until those properties are reset to `undefined`.
+</Warning>
+
+## Always Show Cursor
+
+Keep the cursor visible even when the mouse leaves the plot area:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  alwaysShow: true
+}));
+```
+
+## Synced Cursors
+
+Sync multiple cursors across different charts:
+
+```typescript
+// Chart 1
+const cursor1 = chart1.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis1
+}));
+
+// Chart 2 - synced with Chart 1
+const cursor2 = chart2.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis2,
+  syncWith: [cursor1]
+}));
+```
+
+<Tip>
+  Synced cursors are useful when displaying multiple related charts stacked vertically, allowing users to compare values across charts at the same position.
+</Tip>
+
+## Practical Examples
+
+### Time Series Cursor
+
+Optimal cursor setup for time-series data:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis,
+  behavior: "zoomX"
+}));
+
+cursor.lineY.set("visible", false);
+```
+
+### Candlestick Chart Cursor
+
+Cursor setup for financial charts:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis
+}));
+
+cursor.lineY.set("visible", false);
+```
+
+### Selection Cursor with Custom Styling
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  behavior: "selectX"
+}));
+
+// Style the selection rectangle
+cursor.selection.setAll({
+  fill: am5.color(0x3b82f6),
+  fillOpacity: 0.2,
+  stroke: am5.color(0x3b82f6),
+  strokeWidth: 2
+});
+
+cursor.lineY.set("visible", false);
+```
+
+## Events
+
+Listen to cursor events:
+
+```typescript
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+
+cursor.events.on("selectended", function(ev) {
+  const xAxis = ev.target.get("xAxis");
+  const yAxis = ev.target.get("yAxis");
+  
+  console.log("Selection:", {
+    xStart: xAxis.positionToValue(xAxis.toAxisPosition(ev.target.getPrivate("downPositionX"))),
+    xEnd: xAxis.positionToValue(xAxis.toAxisPosition(ev.target.getPrivate("positionX")))
+  });
+});
+```
+
+## Performance
+
+<Note>
+  The cursor automatically optimizes performance by using throttling for mouse movements. You don't need to worry about performance in most cases.
+</Note>
+
+## Best Practices
+
+<Tip>
+  For time-series charts, always set the `xAxis` property to enable proper snapping to time intervals.
+</Tip>
+
+<Tip>
+  Hide the Y line (`cursor.lineY.set("visible", false)`) when vertical position is not important, as it reduces visual clutter.
+</Tip>
+
+<Warning>
+  When using `snapToSeries`, make sure the series data is loaded before the cursor attempts to snap, otherwise it may not work correctly.
+</Warning>

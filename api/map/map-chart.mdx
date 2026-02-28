@@ -1,0 +1,508 @@
+---
+title: 'MapChart'
+description: 'Main map chart class for creating interactive geographic visualizations'
+icon: 'map'
+---
+
+## Overview
+
+`MapChart` is the main class for creating map visualizations in amCharts 5. It extends `SerialChart` and provides functionality for displaying geographic data with various projections, zoom controls, and pan/zoom interactions.
+
+## Creating a MapChart
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import { geoMercator } from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: geoMercator(),
+    panX: "translateX",
+    panY: "translateY",
+    wheelY: "zoom"
+  })
+);
+```
+
+## Settings
+
+### Projection
+
+<ResponseField name="projection" type="GeoProjection">
+  A projection to use when plotting the map. See the [Projections](/api/map/projections) page for available options.
+
+  ```typescript
+  import { geoMercator } from "@amcharts/amcharts5/map";
+
+  chart.set("projection", geoMercator());
+  ```
+</ResponseField>
+
+### Zoom and Position
+
+<ResponseField name="zoomLevel" type="number">
+  Current zoom level of the map.
+
+  ```typescript
+  chart.set("zoomLevel", 2);
+  ```
+</ResponseField>
+
+<ResponseField name="minZoomLevel" type="number" default="1">
+  Lowest zoom level the map is allowed to zoom out to.
+</ResponseField>
+
+<ResponseField name="maxZoomLevel" type="number" default="32">
+  Highest zoom level the map is allowed to zoom in to.
+</ResponseField>
+
+<ResponseField name="zoomStep" type="number" default="2">
+  Increment zoom level by this value when user zooms in via ZoomControl or API.
+</ResponseField>
+
+<ResponseField name="translateX" type="number">
+  Current x position of the map.
+</ResponseField>
+
+<ResponseField name="translateY" type="number">
+  Current y position of the map.
+</ResponseField>
+
+### Rotation
+
+<ResponseField name="rotationX" type="number">
+  Horizontal centering of the map. Use with projections that support rotation.
+
+  See [Centering the map](https://www.amcharts.com/docs/v5/charts/map-chart/#Centering_the_map) for more info.
+</ResponseField>
+
+<ResponseField name="rotationY" type="number">
+  Vertical centering of the map. Use with projections that support rotation.
+</ResponseField>
+
+<ResponseField name="rotationZ" type="number">
+  Depth centering of the map. Use with projections that support rotation.
+</ResponseField>
+
+### Pan Behavior
+
+<ResponseField name="panX" type="'none' | 'rotateX' | 'translateX'" default="translateX">
+  Defines what happens when map is dragged horizontally.
+
+  - `"none"` - No panning
+  - `"rotateX"` - Rotate the globe
+  - `"translateX"` - Translate the map
+
+  See [Panning](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Panning) for more info.
+</ResponseField>
+
+<ResponseField name="panY" type="'none' | 'rotateY' | 'translateY'" default="translateY">
+  Defines what happens when map is dragged vertically.
+</ResponseField>
+
+<ResponseField name="maxPanOut" type="number" default="0.4">
+  How much of a map can go outside the viewport (0-1 where 0.4 = 40%).
+
+  See [Panning outside viewport](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Panning_outside_viewport) for more info.
+</ResponseField>
+
+### Wheel Behavior
+
+<ResponseField name="wheelY" type="'none' | 'zoom' | 'rotateX' | 'rotateY'" default="zoom">
+  Defines what happens when mouse wheel is turned.
+
+  See [Mouse wheel behavior](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Mouse_wheel_behavior) for more info.
+</ResponseField>
+
+<ResponseField name="wheelX" type="'none' | 'zoom' | 'rotateX' | 'rotateY'" default="none">
+  Defines what happens when horizontal mouse wheel is turned (only some mice support this).
+</ResponseField>
+
+<ResponseField name="wheelSensitivity" type="number" default="1">
+  Sensitivity of mouse wheel. This setting is ignored when wheelX or wheelY is set to "zoom".
+</ResponseField>
+
+<ResponseField name="wheelDuration" type="number">
+  Duration of mouse-wheel action animation in milliseconds. This setting is ignored when wheelX or wheelY is set to "zoom".
+</ResponseField>
+
+<ResponseField name="wheelEasing" type="(t: Time) => Time">
+  An easing function to use for mouse wheel action animations. This setting is ignored when wheelX or wheelY is set to "zoom".
+
+  See [Easing functions](https://www.amcharts.com/docs/v5/concepts/animations/#Easing_functions) for more info.
+</ResponseField>
+
+### Pinch Zoom
+
+<ResponseField name="pinchZoom" type="boolean" default="true">
+  Enables pinch-zooming of the map on multi-touch devices.
+
+  See [Pinch zoom](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Pinch_zoom) for more info.
+</ResponseField>
+
+### Animation
+
+<ResponseField name="animationDuration" type="number">
+  Duration of zoom/pan animations in milliseconds.
+</ResponseField>
+
+<ResponseField name="animationEasing" type="(t: Time) => Time">
+  An easing function to use for zoom/pan animations.
+
+  See [Easing functions](https://www.amcharts.com/docs/v5/concepts/animations/#Easing_functions) for more info.
+</ResponseField>
+
+### Home Position
+
+<ResponseField name="homeZoomLevel" type="number">
+  Initial/home zoom level.
+
+  See [Initial position and zoom](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Initial_position_and_zoom) for more info.
+</ResponseField>
+
+<ResponseField name="homeRotationX" type="number">
+  Initial/home rotationX.
+</ResponseField>
+
+<ResponseField name="homeRotationY" type="number">
+  Initial/home rotationY.
+</ResponseField>
+
+<ResponseField name="homeGeoPoint" type="IGeoPoint">
+  Initial coordinates to center map on load or `goHome()` call.
+
+  ```typescript
+  chart.set("homeGeoPoint", { longitude: -73.9352, latitude: 40.7306 });
+  ```
+</ResponseField>
+
+<ResponseField name="centerMapOnZoomOut" type="boolean" default="true">
+  If `true`, the map will automatically center itself (or go to `homeGeoPoint` if set) when fully zoomed out.
+
+  If `false`, zoom out will be centered around the mouse cursor (when zooming using wheel), or current map position.
+</ResponseField>
+
+### Zoom Control
+
+<ResponseField name="zoomControl" type="ZoomControl">
+  A ZoomControl instance for zoom in/out buttons.
+
+  See [Zoom control](https://www.amcharts.com/docs/v5/charts/map-chart/#Zoom_control) for more info.
+
+  ```typescript
+  const zoomControl = am5map.ZoomControl.new(root, {});
+  chart.set("zoomControl", zoomControl);
+  ```
+</ResponseField>
+
+## Methods
+
+### Zoom Methods
+
+<ResponseField name="zoomIn()" type="Animation<number> | undefined">
+  Zooms the map in by the `zoomStep` amount.
+
+  ```typescript
+  chart.zoomIn();
+  ```
+</ResponseField>
+
+<ResponseField name="zoomOut()" type="Animation<number> | undefined">
+  Zooms the map out by the `zoomStep` amount.
+
+  ```typescript
+  chart.zoomOut();
+  ```
+</ResponseField>
+
+<ResponseField name="zoomToPoint(point, level, center?, duration?)" type="Animation<number> | undefined">
+  Zooms the map to a specific screen point.
+
+  <Expandable title="Parameters">
+    <ResponseField name="point" type="IPoint" required>
+      Screen point coordinates `{ x: number, y: number }`
+    </ResponseField>
+    <ResponseField name="level" type="number" required>
+      Target zoom level
+    </ResponseField>
+    <ResponseField name="center" type="boolean">
+      Whether to center the map on the point
+    </ResponseField>
+    <ResponseField name="duration" type="number">
+      Animation duration in milliseconds
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  chart.zoomToPoint({ x: 100, y: 100 }, 4, true, 1000);
+  ```
+</ResponseField>
+
+<ResponseField name="zoomToGeoPoint(geoPoint, level, center?, duration?, rotationX?, rotationY?)" type="Animation<number> | undefined">
+  Zooms the map to a specific geographical point.
+
+  <Expandable title="Parameters">
+    <ResponseField name="geoPoint" type="IGeoPoint" required>
+      Geographical coordinates `{ longitude: number, latitude: number }`
+    </ResponseField>
+    <ResponseField name="level" type="number" required>
+      Target zoom level
+    </ResponseField>
+    <ResponseField name="center" type="boolean">
+      Whether to center the map on the point
+    </ResponseField>
+    <ResponseField name="duration" type="number">
+      Animation duration in milliseconds
+    </ResponseField>
+    <ResponseField name="rotationX" type="number">
+      X rotation of the map at the end of zoom
+    </ResponseField>
+    <ResponseField name="rotationY" type="number">
+      Y rotation of the map at the end of zoom
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  chart.zoomToGeoPoint(
+    { longitude: -73.9352, latitude: 40.7306 },
+    4,
+    true,
+    1000
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="zoomToGeoBounds(geoBounds, duration?, rotationX?, rotationY?)" type="Animation<number> | undefined">
+  Zooms the map to fit geographical bounds.
+
+  <Expandable title="Parameters">
+    <ResponseField name="geoBounds" type="object" required>
+      Geographical bounds with `left`, `right`, `top`, `bottom` properties
+    </ResponseField>
+    <ResponseField name="duration" type="number">
+      Animation duration in milliseconds
+    </ResponseField>
+    <ResponseField name="rotationX" type="number">
+      X rotation of the map at the end of zoom
+    </ResponseField>
+    <ResponseField name="rotationY" type="number">
+      Y rotation of the map at the end of zoom
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  chart.zoomToGeoBounds({
+    left: -130,
+    right: -60,
+    top: 50,
+    bottom: 20
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="goHome(duration?)" type="void">
+  Repositions the map to the "home" zoom level and center coordinates.
+
+  <Expandable title="Parameters">
+    <ResponseField name="duration" type="number">
+      Animation duration in milliseconds
+    </ResponseField>
+  </Expandable>
+
+  See [Resetting position/level](https://www.amcharts.com/docs/v5/charts/map-chart/map-pan-zoom/#Resetting_position_level) for more info.
+
+  ```typescript
+  chart.goHome(1000);
+  ```
+</ResponseField>
+
+### Rotation Methods
+
+<ResponseField name="rotate(rotationX?, rotationY?, duration?)" type="void">
+  Rotates the map (for projections that support rotation).
+
+  <Expandable title="Parameters">
+    <ResponseField name="rotationX" type="number">
+      Target X rotation
+    </ResponseField>
+    <ResponseField name="rotationY" type="number">
+      Target Y rotation
+    </ResponseField>
+    <ResponseField name="duration" type="number">
+      Animation duration in milliseconds
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  chart.rotate(-73.9352, -40.7306, 1000);
+  ```
+</ResponseField>
+
+<ResponseField name="animateProjection(target, targetRaw, duration?, easing?, sourceRaw?)" type="void">
+  Animates the map projection transition from the current projection to the target projection.
+
+  Since d3-geo does not expose raw projection functions on projection instances, you must pass both the target `GeoProjection` and its corresponding `GeoRawProjection`. On the first call you must also pass `sourceRaw` so the method knows the current projection's raw function.
+
+  <Expandable title="Parameters">
+    <ResponseField name="target" type="GeoProjection" required>
+      Target projection (e.g., `geoOrthographic()`)
+    </ResponseField>
+    <ResponseField name="targetRaw" type="GeoRawProjection" required>
+      Raw projection function (e.g., `geoOrthographicRaw`)
+    </ResponseField>
+    <ResponseField name="duration" type="number">
+      Duration in milliseconds (default: `animationDuration`)
+    </ResponseField>
+    <ResponseField name="easing" type="(t: Time) => Time">
+      Easing function (default: `animationEasing`)
+    </ResponseField>
+    <ResponseField name="sourceRaw" type="GeoRawProjection">
+      Raw function of the current projection (needed on first call)
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  import { geoOrthographic, geoOrthographicRaw } from "d3-geo";
+
+  chart.animateProjection(
+    geoOrthographic(),
+    geoOrthographicRaw,
+    2000
+  );
+  ```
+</ResponseField>
+
+### Coordinate Conversion
+
+<ResponseField name="convert(point, rotationX?, rotationY?)" type="IPoint">
+  Converts latitude/longitude to screen coordinates (X and Y).
+
+  <Expandable title="Parameters">
+    <ResponseField name="point" type="IGeoPoint" required>
+      Geographical coordinates
+    </ResponseField>
+    <ResponseField name="rotationX" type="number">
+      X rotation of the map if different from current
+    </ResponseField>
+    <ResponseField name="rotationY" type="number">
+      Y rotation of the map if different from current
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const screenPoint = chart.convert({ longitude: -73.9352, latitude: 40.7306 });
+  console.log(screenPoint); // { x: 150, y: 200 }
+  ```
+</ResponseField>
+
+<ResponseField name="invert(point)" type="IGeoPoint">
+  Converts screen coordinates (X and Y) to latitude and longitude.
+
+  <Expandable title="Parameters">
+    <ResponseField name="point" type="IPoint" required>
+      Screen coordinates
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const geoPoint = chart.invert({ x: 150, y: 200 });
+  console.log(geoPoint); // { longitude: -73.9352, latitude: 40.7306 }
+  ```
+</ResponseField>
+
+### Information Methods
+
+<ResponseField name="geoPoint()" type="IGeoPoint">
+  Returns the geoPoint of the current zoom position.
+
+  You can use this to restore zoom position: `chart.zoomToGeoPoint(geoPoint, zoomLevel, true)`
+
+  ```typescript
+  const currentGeoPoint = chart.geoPoint();
+  ```
+</ResponseField>
+
+<ResponseField name="geoCentroid()" type="IGeoPoint">
+  Returns coordinates to the geographical center of the map.
+
+  ```typescript
+  const centroid = chart.geoCentroid();
+  ```
+</ResponseField>
+
+<ResponseField name="geoBounds()" type="object">
+  Returns geographical bounds of the map.
+
+  Returns an object with `left`, `right`, `top`, `bottom` properties.
+
+  ```typescript
+  const bounds = chart.geoBounds();
+  console.log(bounds); // { left: -180, right: 180, top: 85, bottom: -85 }
+  ```
+</ResponseField>
+
+<ResponseField name="homeGeoPoint()" type="IGeoPoint">
+  Returns geographical coordinates for calculated or manual center of the map.
+
+  ```typescript
+  const homePoint = chart.homeGeoPoint();
+  ```
+</ResponseField>
+
+<ResponseField name="getArea(dataItem)" type="number">
+  Returns area of a MapPolygon in square pixels.
+
+  <Expandable title="Parameters">
+    <ResponseField name="dataItem" type="DataItem<IMapPolygonSeriesDataItem>" required>
+      The polygon data item to measure
+    </ResponseField>
+  </Expandable>
+
+  ```typescript
+  const area = chart.getArea(polygonDataItem);
+  ```
+</ResponseField>
+
+## Events
+
+<ResponseField name="geoboundschanged" type="{}">
+  Invoked when geo bounds of the map change, usually after map is initialized.
+
+  ```typescript
+  chart.events.on("geoboundschanged", (ev) => {
+    console.log("Bounds changed", chart.geoBounds());
+  });
+  ```
+</ResponseField>
+
+## Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const root = am5.Root.new("chartdiv");
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    panX: "translateX",
+    panY: "translateY",
+    wheelY: "zoom",
+    homeZoomLevel: 1.2,
+    homeGeoPoint: { longitude: 10, latitude: 52 }
+  })
+);
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+const zoomControl = chart.set("zoomControl",
+  am5map.ZoomControl.new(root, {})
+);
+```

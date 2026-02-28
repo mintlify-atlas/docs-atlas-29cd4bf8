@@ -1,0 +1,385 @@
+---
+title: 'XY Series Types'
+description: 'Explore different series types available in amCharts 5 XY charts'
+---
+
+## Overview
+
+Series are the visual representation of your data in XY charts. amCharts 5 provides multiple series types, each designed for specific visualization needs.
+
+## LineSeries
+
+The `LineSeries` displays data as a line, optionally with filled area beneath it.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueX}: {valueY}"
+    })
+  })
+);
+
+series.data.setAll(data);
+```
+
+### Line Customization
+
+Customize the line appearance:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Revenue",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "revenue",
+    valueXField: "date",
+    stroke: am5.color(0x0066cc),
+    strokeWidth: 3
+  })
+);
+
+// Customize stroke appearance
+series.strokes.template.setAll({
+  strokeWidth: 2,
+  strokeDasharray: [5, 5]
+});
+```
+
+### Fill Area
+
+Add a filled area beneath the line:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    fill: am5.color(0x0066cc),
+    fillOpacity: 0.2
+  })
+);
+
+series.fills.template.setAll({
+  fillOpacity: 0.3,
+  visible: true
+});
+```
+
+### Handling Gaps
+
+Control how the series handles missing data:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    connect: false // Don't connect over gaps
+  })
+);
+```
+
+<Note>
+  Set `connect: false` to break the line when there are missing data points. Default is `true`.
+</Note>
+
+### Auto Gaps with Dates
+
+Automatically create gaps based on time intervals:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    autoGapCount: 1.1 // Gap if more than 1.1x base interval
+  })
+);
+```
+
+### Smoothed Lines
+
+Create smooth, curved lines:
+
+```typescript
+const series = chart.series.push(
+  am5xy.SmoothedXLineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+```
+
+### Step Lines
+
+Create step-style lines:
+
+```typescript
+const series = chart.series.push(
+  am5xy.StepLineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+```
+
+## ColumnSeries
+
+The `ColumnSeries` displays data as vertical columns (bars).
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueY}"
+    })
+  })
+);
+```
+
+### Column Customization
+
+Customize column appearance:
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Sales",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "sales",
+    categoryXField: "category"
+  })
+);
+
+// Customize columns
+series.columns.template.setAll({
+  strokeOpacity: 0,
+  cornerRadiusTL: 5,
+  cornerRadiusTR: 5,
+  fillOpacity: 0.8
+});
+```
+
+### Clustered Columns
+
+Create side-by-side columns for multiple series:
+
+```typescript
+const series1 = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Product A",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "productA",
+    categoryXField: "month",
+    clustered: true
+  })
+);
+
+const series2 = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Product B",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "productB",
+    categoryXField: "month",
+    clustered: true
+  })
+);
+```
+
+### Stacked Columns
+
+Stack columns on top of each other:
+
+```typescript
+const series1 = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Category 1",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value1",
+    categoryXField: "date",
+    stacked: true
+  })
+);
+
+const series2 = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Category 2",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value2",
+    categoryXField: "date",
+    stacked: true
+  })
+);
+```
+
+<Tip>
+  Use stacked columns when you want to show both individual values and the total sum.
+</Tip>
+
+## Common Series Settings
+
+### Tooltips
+
+Add interactive tooltips to any series:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Temperature",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "temp",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      pointerOrientation: "horizontal",
+      labelText: "Temperature: {valueY}°C"
+    })
+  })
+);
+```
+
+### Bullets
+
+Add visual markers to data points:
+
+```typescript
+series.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: series.get("fill")
+    })
+  });
+});
+```
+
+### Legend Value Text
+
+Customize how values appear in legends:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Revenue",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "revenue",
+    valueXField: "date",
+    legendValueText: "${valueY}"
+  })
+);
+```
+
+## Performance Optimization
+
+### Turbo Mode
+
+Enable turbo mode for better performance with large datasets:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    turboMode: true
+  })
+);
+```
+
+<Warning>
+  Turbo mode improves rendering performance but disables some features like individual data item selection.
+</Warning>
+
+### Min Distance
+
+Simplify lines with many points:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    minDistance: 5 // Skip points closer than 5 pixels
+  })
+);
+```
+
+<Tip>
+  Use `minDistance` to reduce clutter in charts with high-frequency data.
+</Tip>
+
+## Animations
+
+Animate series when they appear:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+series.data.setAll(data);
+
+// Animate on load
+series.appear(1000);
+chart.appear(1000, 100);
+```
+
+## Data Item Values
+
+All XY series support various value fields:
+
+- `valueX` / `valueY` - Main values
+- `openValueX` / `openValueY` - Opening values
+- `lowValueX` / `lowValueY` - Low values
+- `highValueX` / `highValueY` - High values
+
+<Note>
+  Different series types use different combinations of these fields. For example, LineSeries typically uses only `valueX` and `valueY`, while CandlestickSeries uses all four Y-value fields.
+</Note>

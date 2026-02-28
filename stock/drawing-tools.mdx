@@ -1,0 +1,515 @@
+---
+title: "Drawing Tools"
+description: "Interactive drawing and annotation tools for stock charts including trend lines, Fibonacci retracements, and more"
+---
+
+## Introduction
+
+Drawing tools allow users to annotate stock charts with lines, shapes, and technical analysis tools. Drawings can be interactive, selectable, and persistent.
+
+## Enabling Drawing Tools
+
+Drawing tools are typically enabled through the toolbar's `DrawingControl`:
+
+```typescript
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+const toolbar = am5stock.StockToolbar.new(root, {
+  container: document.getElementById("chartcontrols"),
+  stockChart: stockChart,
+  controls: [
+    am5stock.DrawingControl.new(root, {
+      stockChart: stockChart
+    })
+  ]
+});
+```
+
+## Drawing Series Types
+
+All drawing tools extend from `DrawingSeries` and are added to chart panels.
+
+### Simple Line
+
+Draw straight lines between two points:
+
+```typescript
+const simpleLine = am5stock.SimpleLineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x000000),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(simpleLine);
+```
+
+### Trend Line
+
+Extended lines that continue beyond the second point:
+
+```typescript
+const trendLine = am5stock.TrendLineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x0000FF),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(trendLine);
+```
+
+### Line Arrow
+
+Lines with arrow heads:
+
+```typescript
+const lineArrow = am5stock.LineArrowSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0xFF0000),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(lineArrow);
+```
+
+### Horizontal Line
+
+Horizontal lines across the chart:
+
+```typescript
+const horizontalLine = am5stock.HorizontalLineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x00FF00),
+  strokeWidth: 2,
+  strokeDasharray: [2, 2]
+});
+
+mainPanel.series.push(horizontalLine);
+```
+
+### Vertical Line
+
+Vertical lines for marking dates:
+
+```typescript
+const verticalLine = am5stock.VerticalLineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0xFFFF00),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(verticalLine);
+```
+
+### Horizontal Ray
+
+Horizontal line extending from a point:
+
+```typescript
+const horizontalRay = am5stock.HorizontalRaySeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0xFF00FF)
+});
+
+mainPanel.series.push(horizontalRay);
+```
+
+## Shapes
+
+### Rectangle
+
+Draw rectangular areas:
+
+```typescript
+const rectangle = am5stock.RectangleSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  fillColor: am5.color(0x0000FF),
+  fillOpacity: 0.2,
+  strokeColor: am5.color(0x0000FF),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(rectangle);
+```
+
+### Ellipse
+
+Draw circles and ellipses:
+
+```typescript
+const ellipse = am5stock.EllipseSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  fillColor: am5.color(0xFF0000),
+  fillOpacity: 0.2,
+  strokeColor: am5.color(0xFF0000),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(ellipse);
+```
+
+### Polyline
+
+Draw multi-segment lines:
+
+```typescript
+const polyline = am5stock.PolylineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x00FF00),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(polyline);
+```
+
+### Doodle
+
+Free-hand drawing:
+
+```typescript
+const doodle = am5stock.DoodleSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x000000),
+  strokeWidth: 2
+});
+
+mainPanel.series.push(doodle);
+```
+
+## Technical Drawing Tools
+
+### Fibonacci Retracement
+
+Draw Fibonacci levels between two points:
+
+```typescript
+const fibonacci = am5stock.FibonacciSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x0000FF)
+});
+
+mainPanel.series.push(fibonacci);
+```
+
+Fibonacci retracements automatically display 0%, 23.6%, 38.2%, 50%, 61.8%, and 100% levels.
+
+### Fibonacci Timezone
+
+Vertical Fibonacci lines for time analysis:
+
+```typescript
+const fibonacciTimezone = am5stock.FibonacciTimezoneSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0xFF0000)
+});
+
+mainPanel.series.push(fibonacciTimezone);
+```
+
+### Parallel Channel
+
+Two parallel trend lines:
+
+```typescript
+const parallelChannel = am5stock.ParallelChannelSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x0000FF),
+  fillColor: am5.color(0x0000FF),
+  fillOpacity: 0.1
+});
+
+mainPanel.series.push(parallelChannel);
+```
+
+### Quadrant Line
+
+Divide areas into quadrants:
+
+```typescript
+const quadrant = am5stock.QuadrantLineSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x00FF00)
+});
+
+mainPanel.series.push(quadrant);
+```
+
+### Regression Line
+
+Linear regression through points:
+
+```typescript
+const regression = am5stock.RegressionSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0xFF00FF),
+  field: "close"
+});
+
+mainPanel.series.push(regression);
+```
+
+### Average Line
+
+Calculate and display average price:
+
+```typescript
+const average = am5stock.AverageSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x00FFFF),
+  field: "close"
+});
+
+mainPanel.series.push(average);
+```
+
+## Annotations
+
+### Label
+
+Add text labels to the chart:
+
+```typescript
+const label = am5stock.LabelSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x000000),
+  fillColor: am5.color(0xFFFFFF),
+  text: "Note"
+});
+
+mainPanel.series.push(label);
+```
+
+### Callout
+
+Callout boxes with pointers:
+
+```typescript
+const callout = am5stock.CalloutSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x000000),
+  fillColor: am5.color(0xFFFFFF)
+});
+
+mainPanel.series.push(callout);
+```
+
+### Icon
+
+Place icons on the chart:
+
+```typescript
+const icon = am5stock.IconSeries.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  iconSvgPath: "M10,0 L20,20 L0,20 Z" // Triangle
+});
+
+mainPanel.series.push(icon);
+```
+
+## Measure Tool
+
+Measure distance and percentage change:
+
+```typescript
+const measure = am5stock.Measure.new(root, {
+  xAxis: dateAxis,
+  yAxis: valueAxis,
+  series: valueSeries,
+  strokeColor: am5.color(0x000000)
+});
+
+mainPanel.series.push(measure);
+```
+
+## Drawing Selection
+
+Enable selection and manipulation of drawings:
+
+```typescript
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    drawingSelectionEnabled: true
+  })
+);
+```
+
+With selection enabled:
+- Click a drawing to select it
+- Selected drawings show resize handles
+- Press Delete to remove selected drawings
+- Press Esc to cancel drawing or deselect
+
+## Erasing Mode
+
+Enable click-to-delete mode:
+
+```typescript
+stockChart.set("erasingEnabled", true);
+```
+
+## Programmatic Drawing Control
+
+### Select a Drawing
+
+```typescript
+stockChart.selectDrawing("drawing-id");
+```
+
+### Unselect Drawings
+
+```typescript
+stockChart.unselectDrawings();
+```
+
+### Delete a Drawing
+
+```typescript
+stockChart.deleteDrawing("drawing-id");
+```
+
+### Toggle Drawing Mode
+
+```typescript
+stockChart.toggleDrawing(true); // Enable drawing
+stockChart.toggleDrawing(false); // Disable drawing
+```
+
+## Drawing Events
+
+Listen for drawing events:
+
+```typescript
+stockChart.events.on("drawingadded", (ev) => {
+  console.log("Drawing added:", ev.drawingId, ev.series, ev.index);
+});
+
+stockChart.events.on("drawingremoved", (ev) => {
+  console.log("Drawing removed:", ev.drawingId);
+});
+
+stockChart.events.on("drawingselected", (ev) => {
+  console.log("Drawing selected:", ev.drawingId);
+});
+
+stockChart.events.on("drawingunselected", (ev) => {
+  console.log("Drawing unselected:", ev.drawingId);
+});
+
+stockChart.events.on("drawingsupdated", (ev) => {
+  console.log("Drawings were updated");
+});
+```
+
+## Drawing Settings
+
+All drawing series share common settings:
+
+```typescript
+const drawingSeries = am5stock.SimpleLineSeries.new(root, {
+  xAxis: dateAxis,              // Required: X axis
+  yAxis: valueAxis,             // Required: Y axis
+  series: valueSeries,          // Required: series to snap to
+  strokeColor: am5.color(0x000000), // Line color
+  strokeWidth: 2,                // Line width
+  strokeDasharray: [5, 3],      // Dash pattern
+  strokeOpacity: 1,              // Line opacity (0-1)
+  fillColor: am5.color(0x000000), // Fill color
+  fillOpacity: 0.2,              // Fill opacity (0-1)
+  snapToData: true,              // Snap to data points
+  field: "close",                // Field to snap to
+  selectorPadding: 5             // Selection padding in pixels
+});
+```
+
+## Complete Drawing Tools List
+
+**Lines:**
+- SimpleLineSeries
+- TrendLineSeries
+- LineArrowSeries
+- HorizontalLineSeries
+- VerticalLineSeries
+- HorizontalRaySeries
+
+**Shapes:**
+- RectangleSeries
+- EllipseSeries
+- PolylineSeries
+- DoodleSeries
+
+**Technical Tools:**
+- FibonacciSeries
+- FibonacciTimezoneSeries
+- ParallelChannelSeries
+- QuadrantLineSeries
+- RegressionSeries
+- AverageSeries
+
+**Annotations:**
+- LabelSeries
+- CalloutSeries
+- IconSeries
+- Measure
+
+## Persistence
+
+Drawings can be serialized and restored:
+
+```typescript
+// Save drawings
+const drawingsData = [];
+stockChart.panels.each((panel) => {
+  panel.series.each((series) => {
+    if (series.isType("DrawingSeries")) {
+      // Serialize drawing data
+      drawingsData.push(series.data.values);
+    }
+  });
+});
+
+// Restore drawings
+// Re-create drawing series and set data
+```
+
+## Related Topics
+
+- [Stock Charts Overview](/stock/overview) - Basic stock chart setup
+- [Toolbar](/stock/toolbar) - Add DrawingControl to toolbar
+- [Indicators](/stock/indicators) - Technical analysis indicators

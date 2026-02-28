@@ -1,0 +1,504 @@
+---
+title: Map Series Types
+description: Overview of different map series types in amCharts 5, including polygon, point, line, and clustered point series for visualizing geographic data.
+---
+
+Map series are used to display different types of geographic data on a MapChart. Each series type is optimized for specific visualization needs.
+
+## MapPolygonSeries
+
+Displays filled polygons representing countries, regions, or other geographic areas.
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: "{name}",
+  fill: am5.color(0x095256),
+  stroke: am5.color(0xffffff),
+  strokeWidth: 1
+});
+```
+
+See MapPolygonSeries.ts:47-52
+
+### Key Features
+
+**Template Configuration**
+
+Access and configure all polygons through `mapPolygons.template`:
+
+```typescript
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: "{name}",
+  toggleKey: "active",
+  interactive: true
+});
+```
+
+See MapPolygonSeries.ts:66-75
+
+**States**
+
+Define visual states for interactivity:
+
+```typescript
+polygonSeries.mapPolygons.template.states.create("hover", {
+  fill: root.interfaceColors.get("primaryButtonHover")
+});
+
+polygonSeries.mapPolygons.template.states.create("active", {
+  fill: root.interfaceColors.get("primaryButtonActive")
+});
+```
+
+**Data Items**
+
+Each polygon has a corresponding data item with the following properties:
+- `mapPolygon` - The visual MapPolygon element
+- `geometry` - GeoJSON Polygon or MultiPolygon geometry
+
+See MapPolygonSeries.ts:19-30
+
+**Reverse Geodata**
+
+If your GeoJSON coordinates are in reverse order:
+
+```typescript
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: customGeoData,
+    reverseGeodata: true
+  })
+);
+```
+
+See MapPolygonSeries.ts:43
+
+## MapPointSeries
+
+Displays markers at specific geographic coordinates.
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {})
+);
+
+pointSeries.bullets.push(() => {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: am5.color(0xff0000),
+      tooltipText: "{title}"
+    })
+  });
+});
+
+pointSeries.data.setAll([
+  { 
+    longitude: -73.935242, 
+    latitude: 40.730610, 
+    title: "New York" 
+  },
+  { 
+    longitude: -118.243683, 
+    latitude: 34.052235, 
+    title: "Los Angeles" 
+  }
+]);
+```
+
+See MapPointSeries.ts:153-158
+
+### Data Properties
+
+**Coordinates**
+
+```typescript
+pointSeries.data.setAll([
+  {
+    longitude: -0.1262,
+    latitude: 51.5002,
+    title: "London"
+  }
+]);
+```
+
+See MapPointSeries.ts:28-35
+
+**Position on Polygon**
+
+Place points at the visual center of polygons:
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {
+    polygonIdField: "id"
+  })
+);
+
+pointSeries.data.setAll([
+  { id: "US", value: 100 },
+  { id: "GB", value: 75 }
+]);
+```
+
+See MapPointSeries.ts:69-74 and MapPointSeries.ts:107
+
+**Position on Line**
+
+Place points along lines at specific positions:
+
+```typescript
+pointSeries.data.setAll([
+  {
+    lineDataItem: myLineDataItem,
+    positionOnLine: 0.5,  // Midpoint of the line
+    autoRotate: true,     // Rotate to face line direction
+    autoRotateAngle: 180  // Additional rotation offset
+  }
+]);
+```
+
+See MapPointSeries.ts:38-53
+
+**Fixed Points**
+
+Create points that don't move with the map:
+
+```typescript
+pointSeries.data.setAll([
+  {
+    x: 100,
+    y: 100,
+    fixed: true,
+    title: "Fixed marker"
+  }
+]);
+```
+
+See MapPointSeries.ts:78-86
+
+### Clipping
+
+Control point visibility on different projections:
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {
+    clipBack: true,  // Hide points on the back of a globe
+    clipFront: false // Show points on the front
+  })
+);
+```
+
+See MapPointSeries.ts:112-126
+
+### Auto Scaling
+
+Make bullets resize with zoom level:
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {
+    autoScale: true
+  })
+);
+```
+
+See MapPointSeries.ts:144-149
+
+## MapLineSeries
+
+Displays lines connecting geographic points, useful for routes, connections, and flows.
+
+```typescript
+const lineSeries = chart.series.push(
+  am5map.MapLineSeries.new(root, {})
+);
+
+lineSeries.mapLines.template.setAll({
+  stroke: am5.color(0x0000ff),
+  strokeWidth: 2
+});
+
+lineSeries.data.setAll([
+  {
+    geometry: {
+      type: "LineString",
+      coordinates: [
+        [-73.935242, 40.730610],  // New York
+        [-0.1262, 51.5002]         // London
+      ]
+    }
+  }
+]);
+```
+
+See MapLineSeries.ts:78-83
+
+### Connecting Points
+
+Connect existing MapPointSeries data items:
+
+```typescript
+const point1 = pointSeries.dataItems[0];
+const point2 = pointSeries.dataItems[1];
+
+lineSeries.data.push({
+  pointsToConnect: [point1, point2]
+});
+```
+
+See MapLineSeries.ts:30-32
+
+### Line Types
+
+Control how lines are drawn:
+
+```typescript
+const lineSeries = chart.series.push(
+  am5map.MapLineSeries.new(root, {
+    lineType: "curved"  // "curved" or "straight"
+  })
+);
+
+// Or per-line:
+lineSeries.data.setAll([
+  {
+    geometry: { /* ... */ },
+    lineType: "straight"
+  }
+]);
+```
+
+- `"curved"` - Shortest distance (great circle), appears curved on most projections
+- `"straight"` - Visually straight lines, won't cross -180/180 longitude
+
+See MapLineSeries.ts:61-69
+
+### Clipping
+
+Hide line segments on the back of a globe:
+
+```typescript
+const lineSeries = chart.series.push(
+  am5map.MapLineSeries.new(root, {
+    clipBack: true
+  })
+);
+```
+
+See MapLineSeries.ts:50-58
+
+**Data Items**
+
+- `mapLine` - The visual MapLine element
+- `geometry` - GeoJSON LineString or MultiLineString
+- `pointsToConnect` - Array of point data items to connect
+- `lineType` - "curved" or "straight"
+
+See MapLineSeries.ts:17-44
+
+## ClusteredPointSeries
+
+Automatically groups nearby points into clusters to improve performance and readability.
+
+```typescript
+const clusteredSeries = chart.series.push(
+  am5map.ClusteredPointSeries.new(root, {
+    minDistance: 20  // Cluster points closer than 20 pixels
+  })
+);
+
+// Define regular bullet
+clusteredSeries.bullets.push(() => {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 6,
+      fill: am5.color(0xff8c00),
+      tooltipText: "{title}"
+    })
+  });
+});
+
+// Define clustered bullet
+clusteredSeries.set("clusteredBullet", (root) => {
+  const container = am5.Container.new(root, {
+    cursorOverStyle: "pointer"
+  });
+
+  container.children.push(
+    am5.Circle.new(root, {
+      radius: 8,
+      fill: am5.color(0xff8c00)
+    })
+  );
+
+  const label = container.children.push(
+    am5.Label.new(root, {
+      centerX: am5.p50,
+      centerY: am5.p50,
+      fill: am5.color(0xffffff),
+      text: "{value}"
+    })
+  );
+
+  container.events.on("click", (e) => {
+    clusteredSeries.zoomToCluster(e.target.dataItem);
+  });
+
+  return am5.Bullet.new(root, {
+    sprite: container
+  });
+});
+
+clusteredSeries.data.setAll([
+  { longitude: -73.935, latitude: 40.730, title: "New York" },
+  { longitude: -74.006, latitude: 40.712, title: "Newark" },
+  // ... many more points
+]);
+```
+
+See ClusteredPointSeries.ts:70-98
+
+### Settings
+
+**Minimum Distance**
+
+Control clustering threshold:
+
+```typescript
+const clusteredSeries = chart.series.push(
+  am5map.ClusteredPointSeries.new(root, {
+    minDistance: 30  // Cluster points within 30 pixels
+  })
+);
+```
+
+See ClusteredPointSeries.ts:86-91
+
+**Group Segregation**
+
+Prevent points from different groups from clustering together:
+
+```typescript
+const clusteredSeries = chart.series.push(
+  am5map.ClusteredPointSeries.new(root, {
+    groupIdField: "groupId"
+  })
+);
+
+clusteredSeries.data.setAll([
+  { longitude: -73.935, latitude: 40.730, groupId: "A" },
+  { longitude: -74.006, latitude: 40.712, groupId: "B" }
+]);
+```
+
+See ClusteredPointSeries.ts:72-83
+
+## GraticuleSeries
+
+Displays a grid of latitude and longitude lines.
+
+```typescript
+const graticuleSeries = chart.series.push(
+  am5map.GraticuleSeries.new(root, {
+    step: 10  // Grid line every 10 degrees
+  })
+);
+
+graticuleSeries.mapLines.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeOpacity: 0.1
+});
+```
+
+See GraticuleSeries.ts:22-27
+
+### Settings
+
+**Step**
+
+Control grid spacing:
+
+```typescript
+const graticuleSeries = chart.series.push(
+  am5map.GraticuleSeries.new(root, {
+    step: 15  // Lines every 15 degrees
+  })
+);
+```
+
+See GraticuleSeries.ts:14-19
+
+**Clip Extent**
+
+Limit grid to visible map bounds:
+
+```typescript
+const graticuleSeries = chart.series.push(
+  am5map.GraticuleSeries.new(root, {
+    clipExtent: true
+  })
+);
+```
+
+See GraticuleSeries.ts:12
+
+## Common Settings
+
+All map series share these common settings:
+
+### GeoJSON Data
+
+Load data from GeoJSON:
+
+```typescript
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const series = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+```
+
+### Fill and Stroke
+
+Set default appearance:
+
+```typescript
+const series = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    fill: am5.color(0x095256),
+    stroke: am5.color(0xffffff)
+  })
+);
+```
+
+### Exclude Regions
+
+Hide specific regions:
+
+```typescript
+const series = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: worldGeodata,
+    exclude: ["AQ"]  // Exclude Antarctica
+  })
+);
+```
+
+## Related Topics
+
+- [Projections](/maps/projections) - Map projection types
+- [Geodata](/maps/geodata) - Working with geographic data
+- [Zoom Control](/maps/zoom-control) - Adding zoom controls

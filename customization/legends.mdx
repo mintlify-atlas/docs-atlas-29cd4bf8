@@ -1,0 +1,718 @@
+---
+title: Legends
+description: Learn how to create and customize legends in amCharts 5 to help users identify chart series and data.
+---
+
+## Overview
+
+Legends in amCharts 5 provide a visual guide to chart series, allowing users to identify different data sets and interact with them. The `Legend` class extends `Series` and automatically creates legend items for chart components.
+
+## Creating Legends
+
+### Basic Legend
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create legend
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Add chart series to legend
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:131-486`
+
+### Legend Position
+
+```typescript
+// Bottom center (most common)
+const bottomLegend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    y: am5.percent(100),
+    centerY: am5.percent(100)
+  })
+);
+
+// Top center
+const topLegend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    y: 0
+  })
+);
+
+// Right side
+const rightLegend = chart.rightAxesContainer.children.push(
+  am5.Legend.new(root, {
+    height: am5.percent(100),
+    layout: root.verticalLayout
+  })
+);
+
+// Left side
+const leftLegend = chart.leftAxesContainer.children.push(
+  am5.Legend.new(root, {
+    height: am5.percent(100),
+    layout: root.verticalLayout
+  })
+);
+```
+
+### Legend Layout
+
+```typescript
+// Horizontal layout
+const horizontalLegend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    layout: root.horizontalLayout
+  })
+);
+
+// Vertical layout
+const verticalLegend = chart.children.push(
+  am5.Legend.new(root, {
+    layout: root.verticalLayout
+  })
+);
+
+// Grid layout
+const gridLegend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    layout: root.gridLayout
+  })
+);
+```
+
+## Legend Data
+
+### Adding Series
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Add all series
+legend.data.setAll(chart.series.values);
+
+// Or add specific series
+legend.data.setAll([series1, series3, series5]);
+```
+
+### Custom Legend Data
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Set custom legend items
+legend.data.setAll([
+  {
+    name: "Category A",
+    fill: am5.color(0xff0000),
+    stroke: am5.color(0xff0000)
+  },
+  {
+    name: "Category B",
+    fill: am5.color(0x00ff00),
+    stroke: am5.color(0x00ff00)
+  },
+  {
+    name: "Category C",
+    fill: am5.color(0x0000ff),
+    stroke: am5.color(0x0000ff)
+  }
+]);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:260-401`
+
+## Legend Markers
+
+### Default Markers
+
+By default, legends mimic the appearance of chart elements:
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    useDefaultMarker: false  // Mimic actual chart elements (default)
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:80-85`
+
+### Simple Square Markers
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    useDefaultMarker: true  // Use simple square markers
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+### Customizing Marker Rectangles
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    useDefaultMarker: true
+  })
+);
+
+// Customize marker rectangles
+legend.markerRectangles.template.setAll({
+  width: 20,
+  height: 20,
+  cornerRadiusTL: 10,
+  cornerRadiusTR: 10,
+  cornerRadiusBL: 10,
+  cornerRadiusBR: 10
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:241-257`
+
+### Customizing Markers Container
+
+```typescript
+legend.markers.template.setAll({
+  width: 30,
+  height: 30
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:177-194`
+
+## Legend Labels
+
+### Customizing Label Appearance
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Customize labels
+legend.labels.template.setAll({
+  fontSize: 14,
+  fontWeight: "bold",
+  fill: am5.color(0x333333),
+  maxWidth: 200,
+  oversizedBehavior: "wrap"
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:199-215`
+
+### Value Labels
+
+Show current values next to legend items:
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Customize value labels
+legend.valueLabels.template.setAll({
+  fontSize: 12,
+  fill: am5.color(0x666666),
+  textAlign: "right",
+  width: am5.percent(100)
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:220-236`
+
+### Custom Label Text
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    nameField: "name",      // Field for label text
+    fillField: "fill",      // Field for marker fill
+    strokeField: "stroke"   // Field for marker stroke
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:87-104`
+
+## Legend Containers
+
+### Item Containers
+
+Customize the container for each legend item:
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Customize item containers
+legend.itemContainers.template.setAll({
+  paddingTop: 5,
+  paddingBottom: 5,
+  paddingLeft: 10,
+  paddingRight: 10,
+  marginLeft: 5,
+  marginRight: 5
+});
+
+// Add background to item containers
+legend.itemContainers.template.get("background").setAll({
+  fill: am5.color(0xf0f0f0),
+  fillOpacity: 0.5,
+  strokeOpacity: 0
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:146-172`
+
+### Disabled State
+
+Style legend items when their series is hidden:
+
+```typescript
+legend.itemContainers.template.states.create("disabled", {
+  opacity: 0.5
+});
+
+legend.markers.template.states.create("disabled", {
+  opacity: 0.5
+});
+
+legend.labels.template.states.create("disabled", {
+  opacity: 0.5
+});
+```
+
+## Interaction
+
+### Click Target
+
+Control which part of legend item is clickable:
+
+```typescript
+// Click anywhere on the item (default)
+const legend1 = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    clickTarget: "itemContainer"
+  })
+);
+
+// Click only the marker
+const legend2 = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    clickTarget: "marker"
+  })
+);
+
+// Disable clicking
+const legend3 = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    clickTarget: "none"
+  })
+);
+
+legend1.data.setAll(chart.series.values);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:106-115`
+
+### Hover Effects
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Hover state for item containers
+legend.itemContainers.template.states.create("hover", {
+  scale: 1.05
+});
+
+// Hover state for labels
+legend.labels.template.states.create("hover", {
+  fontWeight: "bold"
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+## Scrollable Legends
+
+Make legends scrollable when they have many items:
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    layout: root.verticalLayout,
+    height: 200,  // Fixed height
+    verticalScrollbar: am5.Scrollbar.new(root, {
+      orientation: "vertical"
+    })
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+## Real-World Examples
+
+### Pie Chart Legend
+
+```typescript
+const series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category"
+  })
+);
+
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    layout: root.horizontalLayout
+  })
+);
+
+// Set legend data to series slices
+legend.data.setAll(series.dataItems);
+```
+
+### Multi-Series XY Chart Legend
+
+```typescript
+const series1 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 1",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value1",
+    categoryXField: "category"
+  })
+);
+
+const series2 = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series 2",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value2",
+    categoryXField: "category"
+  })
+);
+
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+legend.data.setAll(chart.series.values);
+```
+
+### Legend with Icons
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    useDefaultMarker: true
+  })
+);
+
+// Create custom marker shapes
+legend.markers.template.setup = (target) => {
+  const marker = target.children.push(
+    am5.Graphics.new(root, {
+      fill: am5.color(0x000000),
+      svgPath: "M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2Z"
+    })
+  );
+};
+
+legend.data.setAll(chart.series.values);
+```
+
+### Heat Legend
+
+For map charts with value-based coloring:
+
+```typescript
+const heatLegend = chart.children.push(
+  am5.HeatLegend.new(root, {
+    orientation: "horizontal",
+    startColor: am5.color(0xffffff),
+    endColor: am5.color(0xff0000),
+    startText: "Low",
+    endText: "High"
+  })
+);
+
+heatLegend.startLabel.setAll({
+  fontSize: 12,
+  fill: am5.color(0x666666)
+});
+
+heatLegend.endLabel.setAll({
+  fontSize: 12,
+  fill: am5.color(0x666666)
+});
+```
+
+## Styling Examples
+
+### Modern Legend
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    useDefaultMarker: true
+  })
+);
+
+// Modern rounded markers
+legend.markerRectangles.template.setAll({
+  width: 16,
+  height: 16,
+  cornerRadiusTL: 8,
+  cornerRadiusTR: 8,
+  cornerRadiusBL: 8,
+  cornerRadiusBR: 8
+});
+
+// Clean labels
+legend.labels.template.setAll({
+  fontSize: 13,
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  fill: am5.color(0x333333)
+});
+
+// Subtle item containers
+legend.itemContainers.template.setAll({
+  paddingTop: 4,
+  paddingBottom: 4,
+  paddingLeft: 8,
+  paddingRight: 8
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+### Compact Legend
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    layout: root.horizontalLayout
+  })
+);
+
+// Small markers
+legend.markerRectangles.template.setAll({
+  width: 12,
+  height: 12
+});
+
+// Compact labels
+legend.labels.template.setAll({
+  fontSize: 11,
+  fontWeight: "500"
+});
+
+// Tight spacing
+legend.itemContainers.template.setAll({
+  paddingTop: 2,
+  paddingBottom: 2,
+  paddingLeft: 5,
+  paddingRight: 5,
+  marginLeft: 3,
+  marginRight: 3
+});
+
+legend.data.setAll(chart.series.values);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Position Appropriately">
+    Place legends where they don't obscure data:
+    
+    ```typescript
+    // Bottom position (most common)
+    const legend = chart.children.push(
+      am5.Legend.new(root, {
+        centerX: am5.percent(50),
+        x: am5.percent(50),
+        y: am5.percent(100),
+        centerY: am5.percent(100),
+        layout: root.horizontalLayout
+      })
+    );
+    ```
+  </Accordion>
+
+  <Accordion title="Use Clear Labels">
+    Ensure legend labels are descriptive:
+    
+    ```typescript
+    const series = chart.series.push(
+      am5xy.LineSeries.new(root, {
+        name: "Quarterly Revenue",  // Clear, descriptive name
+        // ... other settings
+      })
+    );
+    ```
+  </Accordion>
+
+  <Accordion title="Limit Legend Items">
+    Too many items can overwhelm users:
+    
+    ```typescript
+    // For many items, consider scrollable legend
+    const legend = chart.children.push(
+      am5.Legend.new(root, {
+        height: 200,
+        layout: root.verticalLayout,
+        verticalScrollbar: am5.Scrollbar.new(root, {
+          orientation: "vertical"
+        })
+      })
+    );
+    ```
+  </Accordion>
+
+  <Accordion title="Match Visual Style">
+    Keep legend style consistent with chart:
+    
+    ```typescript
+    legend.labels.template.setAll({
+      fontFamily: chart.get("fontFamily"),
+      fontSize: 12,
+      fill: am5.color(0x333333)
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Enable Interaction">
+    Allow users to toggle series visibility:
+    
+    ```typescript
+    const legend = chart.children.push(
+      am5.Legend.new(root, {
+        centerX: am5.percent(50),
+        x: am5.percent(50),
+        clickTarget: "itemContainer"  // Enable clicking
+      })
+    );
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Accessibility
+
+### ARIA Support
+
+Legends automatically support accessibility:
+
+```typescript
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50)
+  })
+);
+
+// Legend items announce their state
+legend.data.setAll(chart.series.values);
+
+// When user clicks, screen readers announce:
+// "Series Name shown" or "Series Name hidden"
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Legend.ts:422-435`
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Labels" icon="text" href="/customization/labels">
+    Learn about text formatting and label styling
+  </Card>
+  <Card title="Colors" icon="palette" href="/customization/colors">
+    Customize legend marker colors
+  </Card>
+</CardGroup>

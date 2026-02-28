@@ -1,0 +1,495 @@
+---
+title: 'StockChart'
+description: 'Main class for creating interactive stock charts with panels, indicators, and drawing tools'
+icon: 'chart-line'
+---
+
+## Overview
+
+StockChart is the main class for creating interactive financial charts in amCharts 5. It provides a complete solution for displaying stock data with multiple panels, technical indicators, comparison series, and drawing tools.
+
+## Class Reference
+
+### Creating a StockChart
+
+```typescript
+import { StockChart } from "@amcharts/amcharts5/stock";
+
+const stockChart = root.container.children.push(
+  StockChart.new(root, {
+    stockSeries: mainSeries,
+    volumeSeries: volumeSeries
+  })
+);
+```
+
+## Settings
+
+<ParamField path="stockSeries" type="XYSeries">
+  Main value series used for calculations, indicators, and annotations.
+  
+  [Learn more about setting main series](https://www.amcharts.com/docs/v5/charts/stock/#Setting_main_series)
+</ParamField>
+
+<ParamField path="volumeSeries" type="XYSeries">
+  Main volume series for the chart.
+  
+  [Learn more about setting main series](https://www.amcharts.com/docs/v5/charts/stock/#Setting_main_series)
+</ParamField>
+
+<ParamField path="autoSetPercentScale" type="boolean" default="true">
+  When `true`, the chart automatically switches to percent scale when comparison series are added, and exits when all comparisons are removed.
+  
+  [Learn more about percent mode](https://www.amcharts.com/docs/v5/charts/stock/percent-mode/)
+</ParamField>
+
+<ParamField path="percentScaleSeriesSettings" type="Partial<IXYSeriesSettings>">
+  Settings applied to the main value series when the chart is in percent scale mode.
+  
+  [Learn more about configuring percent mode](https://www.amcharts.com/docs/v5/charts/stock/percent-mode/#Configuring)
+</ParamField>
+
+<ParamField path="percentScaleValueAxisSettings" type="Partial<IValueAxisSettings>">
+  Settings applied to the ValueAxis of the main series when the chart is in percent scale mode.
+  
+  [Learn more about configuring percent mode](https://www.amcharts.com/docs/v5/charts/stock/percent-mode/#Configuring)
+</ParamField>
+
+<ParamField path="stockPositiveColor" type="Color">
+  Color for columns/candles on the main value series where the open value is lower than or equal to the close value.
+  
+  [Learn more about positive/negative colors](https://www.amcharts.com/docs/v5/charts/stock/#Positive_negative_colors)
+</ParamField>
+
+<ParamField path="stockNegativeColor" type="Color">
+  Color for columns/candles on the main value series where the open value is higher than the close value.
+  
+  [Learn more about positive/negative colors](https://www.amcharts.com/docs/v5/charts/stock/#Positive_negative_colors)
+</ParamField>
+
+<ParamField path="volumePositiveColor" type="Color">
+  Color for volume columns where the close value is higher than or equal to the open value.
+  
+  [Learn more about positive/negative colors](https://www.amcharts.com/docs/v5/charts/stock/#Positive_negative_colors)
+</ParamField>
+
+<ParamField path="volumeNegativeColor" type="Color">
+  Color for volume columns where the close value is lower than the open value.
+  
+  [Learn more about positive/negative colors](https://www.amcharts.com/docs/v5/charts/stock/#Positive_negative_colors)
+</ParamField>
+
+<ParamField path="drawingSelectionEnabled" type="boolean" default="false" since="5.9.1">
+  When `true`, all drawings are selectable and can be moved, rotated, or deleted.
+</ParamField>
+
+<ParamField path="erasingEnabled" type="boolean" default="false" since="5.9.2">
+  When `true`, clicking on drawings deletes them.
+</ParamField>
+
+<ParamField path="hideDrawingGrips" type="boolean" default="false" since="5.10.6">
+  When `true`, drawing grips are hidden when the StockChart is not in drawing mode.
+</ParamField>
+
+<ParamField path="autoHidePanelControls" type="boolean" default="false" since="5.13.0">
+  When `true`, panel controls automatically hide when the mouse is not over the chart.
+</ParamField>
+
+## Properties
+
+<ResponseField name="panels" type="ListAutoDispose<StockPanel>">
+  A list of stock panels in the chart.
+  
+  [Learn more about panels](https://www.amcharts.com/docs/v5/charts/stock/#Panels)
+  
+  ```typescript
+  const panel = stockChart.panels.push(
+    StockPanel.new(root, {})
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="indicators" type="ListAutoDispose<Indicator>">
+  A list of indicators on the chart.
+  
+  [Learn more about indicators](https://www.amcharts.com/docs/v5/charts/stock/indicators/)
+  
+  ```typescript
+  const ma = stockChart.indicators.push(
+    MovingAverage.new(root, {
+      stockChart: stockChart,
+      stockSeries: mainSeries,
+      period: 50
+    })
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="toolsContainer" type="Container">
+  A Container at the top of the chart, suitable for additional tools like Scrollbar.
+</ResponseField>
+
+<ResponseField name="panelsContainer" type="Container">
+  A Container where all stock panels are placed.
+</ResponseField>
+
+<ResponseField name="controls" type="StockControl[]">
+  An array of all StockControls created for this chart.
+  
+  @since 5.7.0
+</ResponseField>
+
+<ResponseField name="spriteResizer" type="SpriteResizer">
+  Instance of SpriteResizer used for various drawing tools.
+  
+  @since 5.7.0
+</ResponseField>
+
+## Methods
+
+### setPercentScale()
+
+Enables or disables percent scale mode.
+
+```typescript
+setPercentScale(percentScale?: boolean): void
+```
+
+<ParamField path="percentScale" type="boolean">
+  Whether to enable percent scale mode. If not set, automatically determined based on compared series.
+</ParamField>
+
+In percent scale mode, `percentScaleSeriesSettings` and `percentScaleValueAxisSettings` are applied to the main series and its Y axis.
+
+### addComparingSeries()
+
+Adds a comparison series to the chart.
+
+```typescript
+addComparingSeries(series: XYSeries): XYSeries
+```
+
+<ParamField path="series" type="XYSeries" required>
+  The series to add for comparison.
+</ParamField>
+
+<ResponseField name="return" type="XYSeries">
+  The same series that was added.
+</ResponseField>
+
+### removeComparingSeries()
+
+Removes a comparison series from the chart.
+
+```typescript
+removeComparingSeries(series: XYSeries): void
+```
+
+<ParamField path="series" type="XYSeries" required>
+  The series to remove.
+</ParamField>
+
+### getVolumeColor()
+
+Returns a color for volume based on current and previous close values.
+
+```typescript
+getVolumeColor(
+  dataItem: DataItem<IXYSeriesDataItem>,
+  negativeColor?: Color,
+  positiveColor?: Color
+): Color | undefined
+```
+
+<ParamField path="dataItem" type="DataItem<IXYSeriesDataItem>" required>
+  Target data item.
+</ParamField>
+
+<ParamField path="negativeColor" type="Color">
+  Color to use when close is lower than previous close (defaults to `volumeNegativeColor`).
+</ParamField>
+
+<ParamField path="positiveColor" type="Color">
+  Color to use when close is greater than or equal to previous close (defaults to `volumePositiveColor`).
+</ParamField>
+
+<ResponseField name="return" type="Color | undefined">
+  The calculated volume color.
+</ResponseField>
+
+### getControl()
+
+Returns the first StockControl of a specific type.
+
+```typescript
+getControl(type: string): StockControl | undefined
+```
+
+<ParamField path="type" type="string" required>
+  Control name (e.g., "IndicatorControl", "DrawingControl").
+</ParamField>
+
+<ResponseField name="return" type="StockControl | undefined">
+  The control instance, or undefined if not found.
+</ResponseField>
+
+@since 5.7.0
+
+### Drawing Management
+
+#### selectDrawing()
+
+Selects a drawing by its ID.
+
+```typescript
+selectDrawing(id: string, keepSelection?: boolean): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+<ParamField path="keepSelection" type="boolean">
+  Whether to keep existing selections.
+</ParamField>
+
+@since 5.9.0
+
+#### unselectDrawing()
+
+Unselects a drawing by its ID.
+
+```typescript
+unselectDrawing(id: string): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+@since 5.9.0
+
+#### unselectDrawings()
+
+Unselects all currently selected drawings.
+
+```typescript
+unselectDrawings(): number
+```
+
+<ResponseField name="return" type="number">
+  Number of drawings that were unselected.
+</ResponseField>
+
+@since 5.9.0
+
+#### deleteDrawing()
+
+Deletes a drawing by its ID.
+
+```typescript
+deleteDrawing(id: string): void
+```
+
+<ParamField path="id" type="string" required>
+  Drawing ID.
+</ParamField>
+
+@since 5.9.0
+
+#### deleteSelectedDrawings()
+
+Deletes all currently selected drawings.
+
+```typescript
+deleteSelectedDrawings(): void
+```
+
+@since 5.9.0
+
+#### cancelDrawing()
+
+Cancels the current drawing operation and deletes the drawing being drawn.
+
+```typescript
+cancelDrawing(): void
+```
+
+@since 5.9.0
+
+#### toggleDrawing()
+
+Toggles drawing mode on or off.
+
+```typescript
+toggleDrawing(enabled?: boolean): void
+```
+
+<ParamField path="enabled" type="boolean">
+  Whether drawing mode should be enabled.
+</ParamField>
+
+@since 5.10.6
+
+#### drawingsInteractive()
+
+Enables or disables interactivity of drawings.
+
+```typescript
+drawingsInteractive(value: boolean, except?: DrawingSeries): void
+```
+
+<ParamField path="value" type="boolean" required>
+  Whether drawings should be interactive.
+</ParamField>
+
+<ParamField path="except" type="DrawingSeries">
+  Optional drawing series to exclude from the change.
+</ParamField>
+
+@since 5.4.9
+
+### Utility Methods
+
+#### markDirtyDrawings()
+
+Forces redrawing of all annotations (drawings).
+
+```typescript
+markDirtyDrawings(): void
+```
+
+#### markDirtyIndicators()
+
+Forces redrawing of all indicators.
+
+```typescript
+markDirtyIndicators(): void
+```
+
+## Events
+
+<ResponseField name="drawingsupdated" type="{}">
+  Triggered when drawings change.
+</ResponseField>
+
+<ResponseField name="indicatorsupdated" type="{}">
+  Triggered when indicators change.
+</ResponseField>
+
+<ResponseField name="drawingadded" type="{ drawingId: string, series: DrawingSeries, index: number }">
+  Triggered when a drawing is added.
+  
+  @since 5.9.0
+</ResponseField>
+
+<ResponseField name="drawingremoved" type="{ drawingId: string, series: DrawingSeries, index: number }">
+  Triggered when a drawing is removed.
+  
+  @since 5.9.0
+</ResponseField>
+
+<ResponseField name="drawingselected" type="{ drawingId: string, series: DrawingSeries, index: number }">
+  Triggered when a drawing is selected.
+  
+  @since 5.9.0
+</ResponseField>
+
+<ResponseField name="drawingunselected" type="{ drawingId: string, series: DrawingSeries, index: number }">
+  Triggered when a drawing is unselected.
+  
+  @since 5.9.0
+</ResponseField>
+
+## Helper Function
+
+### registerClass()
+
+Registers a custom class for serialization and restoration.
+
+```typescript
+registerClass(name: string, ref: any): void
+```
+
+<ParamField path="name" type="string" required>
+  Class name.
+</ParamField>
+
+<ParamField path="ref" type="any" required>
+  Class reference.
+</ParamField>
+
+Use this to register custom indicators or drawing tools so they can be serialized and restored.
+
+@since 5.7.2
+
+## Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5stock from "@amcharts/amcharts5/stock";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const root = am5.Root.new("chartdiv");
+
+// Create main stock panel
+const mainPanel = root.container.children.push(
+  am5stock.StockPanel.new(root, {})
+);
+
+// Create axes
+const valueAxis = mainPanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+const dateAxis = mainPanel.xAxes.push(
+  am5xy.GaplessDateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+// Create series
+const valueSeries = mainPanel.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    valueXField: "Date",
+    valueYField: "Close",
+    openValueYField: "Open",
+    highValueYField: "High",
+    lowValueYField: "Low"
+  })
+);
+
+// Create stock chart
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    stockSeries: valueSeries,
+    stockPositiveColor: am5.color(0x00ff00),
+    stockNegativeColor: am5.color(0xff0000)
+  })
+);
+
+stockChart.panels.push(mainPanel);
+
+// Add indicator
+const ma = stockChart.indicators.push(
+  am5stock.MovingAverage.new(root, {
+    stockChart: stockChart,
+    stockSeries: valueSeries,
+    period: 50,
+    seriesColor: am5.color(0x0000ff)
+  })
+);
+```
+
+## See Also
+
+- [StockChart documentation](https://www.amcharts.com/docs/v5/charts/stock/)
+- [Stock Chart examples](https://www.amcharts.com/demos/stock-chart/)
+- [Stock Charts Overview](/stock/overview)
+- [Indicators API](/api/stock/indicators)
+- [Drawing Tools API](/api/stock/drawing)

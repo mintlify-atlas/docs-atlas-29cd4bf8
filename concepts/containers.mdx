@@ -1,0 +1,521 @@
+---
+title: Containers
+description: Understanding Containers for organizing and layouting chart elements
+---
+
+Containers are special Sprites that can hold child elements. They provide layout management, backgrounds, masking, and scrolling capabilities. Every chart, series, and composite element in amCharts 5 is built using Containers.
+
+## Creating a Container
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const root = am5.Root.new("chartdiv");
+
+const container = root.container.children.push(
+  am5.Container.new(root, {
+    width: am5.percent(100),
+    height: am5.percent(100),
+    layout: root.verticalLayout
+  })
+);
+```
+
+## Children Management
+
+Containers maintain a `children` collection:
+
+```typescript
+// Add children
+const child1 = container.children.push(
+  am5.Rectangle.new(root, {
+    width: 100,
+    height: 50,
+    fill: am5.color(0xff0000)
+  })
+);
+
+const child2 = container.children.push(
+  am5.Circle.new(root, {
+    radius: 30,
+    fill: am5.color(0x00ff00)
+  })
+);
+
+// Insert at specific position
+container.children.insertIndex(0, am5.Rectangle.new(root, {}));
+
+// Remove child
+container.children.removeValue(child1);
+
+// Clear all children
+container.children.clear();
+
+// Access children
+const firstChild = container.children.getIndex(0);
+const childCount = container.children.length;
+```
+
+## Layouts
+
+Containers support different layout strategies:
+
+### Vertical Layout
+
+```typescript
+const container = am5.Container.new(root, {
+  layout: root.verticalLayout,
+  width: 300
+});
+
+// Children stack vertically
+container.children.push(am5.Rectangle.new(root, {
+  width: am5.percent(100),
+  height: 50
+}));
+
+container.children.push(am5.Rectangle.new(root, {
+  width: am5.percent(100),
+  height: 50
+}));
+```
+
+### Horizontal Layout
+
+```typescript
+const container = am5.Container.new(root, {
+  layout: root.horizontalLayout,
+  height: 100
+});
+
+// Children stack horizontally
+container.children.push(am5.Rectangle.new(root, {
+  width: 100,
+  height: am5.percent(100)
+}));
+
+container.children.push(am5.Rectangle.new(root, {
+  width: 100,
+  height: am5.percent(100)
+}));
+```
+
+### Grid Layout
+
+```typescript
+const container = am5.Container.new(root, {
+  layout: root.gridLayout,
+  width: 400,
+  height: 300
+});
+
+// Children arrange in a grid
+for (let i = 0; i < 9; i++) {
+  container.children.push(am5.Rectangle.new(root, {
+    width: 120,
+    height: 90,
+    fill: am5.color(0x0088ff)
+  }));
+}
+```
+
+### No Layout
+
+```typescript
+const container = am5.Container.new(root, {
+  layout: null  // Manual positioning
+});
+
+// Position children manually
+container.children.push(am5.Rectangle.new(root, {
+  x: 10,
+  y: 20,
+  width: 100,
+  height: 50
+}));
+```
+
+<Info>
+When using layouts, child positioning is automatic. Manual `x` and `y` settings are ignored for children in layout-enabled containers.
+</Info>
+
+## Padding
+
+Control internal spacing:
+
+```typescript
+const container = am5.Container.new(root, {
+  paddingLeft: 20,
+  paddingRight: 20,
+  paddingTop: 10,
+  paddingBottom: 10,
+  layout: root.verticalLayout
+});
+
+// Access inner dimensions
+const innerWidth = container.innerWidth();
+const innerHeight = container.innerHeight();
+```
+
+## Backgrounds
+
+Containers can have background elements:
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 300,
+  height: 200,
+  background: am5.Rectangle.new(root, {
+    fill: am5.color(0xeeeeee),
+    fillOpacity: 0.8
+  })
+});
+
+// Update background later
+container.set("background", am5.RoundedRectangle.new(root, {
+  fill: am5.color(0xff0000),
+  cornerRadiusTL: 10,
+  cornerRadiusTR: 10,
+  cornerRadiusBL: 10,
+  cornerRadiusBR: 10
+}));
+```
+
+## Masking
+
+### Content Masking
+
+Clip content to container bounds:
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 200,
+  height: 150,
+  maskContent: true  // Clips overflow
+});
+
+container.children.push(am5.Rectangle.new(root, {
+  width: 300,  // Larger than container
+  height: 200,
+  fill: am5.color(0xff0000)
+}));
+```
+
+### Custom Mask
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 200,
+  height: 200,
+  mask: am5.Circle.new(root, {
+    radius: 100,
+    centerX: am5.percent(50),
+    centerY: am5.percent(50)
+  })
+});
+```
+
+## Scrolling
+
+Enable vertical scrolling:
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 300,
+  height: 200,
+  layout: root.verticalLayout,
+  verticalScrollbar: am5.Scrollbar.new(root, {
+    orientation: "vertical"
+  })
+});
+
+// Add content that exceeds container height
+for (let i = 0; i < 20; i++) {
+  container.children.push(am5.Rectangle.new(root, {
+    width: am5.percent(100),
+    height: 40,
+    fill: am5.color(0x0088ff)
+  }));
+}
+
+// Scroll to specific child
+const targetChild = container.children.getIndex(10);
+container.scrollToChild(targetChild);
+```
+
+## Interactive Children
+
+Control child interactivity:
+
+```typescript
+const container = am5.Container.new(root, {
+  interactiveChildren: true  // Enable interactions for all descendants
+});
+
+container.children.push(am5.Rectangle.new(root, {
+  width: 100,
+  height: 50,
+  fill: am5.color(0xff0000)
+})).events.on("click", () => {
+  console.log("Rectangle clicked!");
+});
+```
+
+<Note>
+Setting `interactiveChildren: false` can improve performance for containers with many non-interactive elements.
+</Note>
+
+## State Propagation
+
+Apply states to children:
+
+```typescript
+const container = am5.Container.new(root, {
+  setStateOnChildren: true,
+  interactive: true
+});
+
+// Create hover state for container
+container.states.create("hover", {
+  // Container hover state
+});
+
+// Add children - they'll receive hover state too
+container.children.push(am5.Rectangle.new(root, {
+  width: 100,
+  height: 50,
+  fill: am5.color(0x0088ff)
+})).states.create("hover", {
+  fill: am5.color(0x00aaff)
+});
+```
+
+## Reverse Children
+
+Reverse the order of children in layout:
+
+```typescript
+const container = am5.Container.new(root, {
+  layout: root.horizontalLayout,
+  reverseChildren: true  // Right to left
+});
+```
+
+## HTML Content
+
+Embed HTML content in containers:
+
+```typescript
+const container = am5.Container.new(root, {
+  width: 300,
+  height: 200,
+  html: `
+    <div style="padding: 20px;">
+      <h3>HTML Content</h3>
+      <p>This is HTML inside the container.</p>
+    </div>
+  `
+});
+
+// Update HTML dynamically
+container.set("html", "<strong>Updated content</strong>");
+```
+
+## Content Dimensions
+
+Get actual content size:
+
+```typescript
+const contentWidth = container.contentWidth();
+const contentHeight = container.contentHeight();
+
+console.log(`Content: ${contentWidth}x${contentHeight}`);
+```
+
+## Walking Children
+
+Iterate through all descendants:
+
+```typescript
+// Recursively walk all children
+container.walkChildren((child) => {
+  console.log("Child:", child);
+  
+  if (child instanceof am5.Rectangle) {
+    child.set("fill", am5.color(0xff0000));
+  }
+});
+
+// Iterate direct children only
+container.eachChildren((child) => {
+  console.log("Direct child:", child);
+});
+```
+
+## Practical Examples
+
+### Card Layout
+
+```typescript
+const card = am5.Container.new(root, {
+  width: 300,
+  layout: root.verticalLayout,
+  paddingLeft: 20,
+  paddingRight: 20,
+  paddingTop: 15,
+  paddingBottom: 15,
+  background: am5.RoundedRectangle.new(root, {
+    fill: am5.color(0xffffff),
+    cornerRadiusTL: 8,
+    cornerRadiusTR: 8,
+    cornerRadiusBL: 8,
+    cornerRadiusBR: 8,
+    shadowColor: am5.color(0x000000),
+    shadowBlur: 10,
+    shadowOpacity: 0.2
+  })
+});
+
+card.children.push(am5.Label.new(root, {
+  text: "Card Title",
+  fontSize: 20,
+  fontWeight: "bold"
+}));
+
+card.children.push(am5.Label.new(root, {
+  text: "Card content goes here...",
+  fontSize: 14
+}));
+```
+
+### Header with Logo and Title
+
+```typescript
+const header = am5.Container.new(root, {
+  width: am5.percent(100),
+  height: 60,
+  layout: root.horizontalLayout,
+  paddingLeft: 20,
+  paddingRight: 20,
+  background: am5.Rectangle.new(root, {
+    fill: am5.color(0x2196f3)
+  })
+});
+
+header.children.push(am5.Picture.new(root, {
+  width: 40,
+  height: 40,
+  src: "logo.png"
+}));
+
+header.children.push(am5.Label.new(root, {
+  text: "Dashboard",
+  fontSize: 24,
+  fill: am5.color(0xffffff),
+  centerY: am5.percent(50),
+  paddingLeft: 15
+}));
+```
+
+### Responsive Grid
+
+```typescript
+const grid = am5.Container.new(root, {
+  width: am5.percent(100),
+  layout: root.gridLayout,
+  paddingLeft: 10,
+  paddingRight: 10,
+  paddingTop: 10,
+  paddingBottom: 10
+});
+
+// Add grid items
+for (let i = 0; i < 12; i++) {
+  const item = grid.children.push(am5.Container.new(root, {
+    width: am5.percent(30),
+    height: 150,
+    marginLeft: 5,
+    marginRight: 5,
+    marginTop: 5,
+    marginBottom: 5,
+    background: am5.Rectangle.new(root, {
+      fill: am5.color(0x0088ff)
+    })
+  }));
+  
+  item.children.push(am5.Label.new(root, {
+    text: `Item ${i + 1}`,
+    centerX: am5.percent(50),
+    centerY: am5.percent(50),
+    fill: am5.color(0xffffff)
+  }));
+}
+```
+
+### Scrollable List
+
+```typescript
+const list = am5.Container.new(root, {
+  width: 300,
+  height: 400,
+  layout: root.verticalLayout,
+  verticalScrollbar: am5.Scrollbar.new(root, {
+    orientation: "vertical"
+  }),
+  background: am5.Rectangle.new(root, {
+    fill: am5.color(0xf5f5f5)
+  })
+});
+
+// Add list items
+const items = [
+  "Item 1", "Item 2", "Item 3", "Item 4", "Item 5",
+  "Item 6", "Item 7", "Item 8", "Item 9", "Item 10"
+];
+
+items.forEach((text) => {
+  const item = list.children.push(am5.Container.new(root, {
+    width: am5.percent(100),
+    height: 50,
+    paddingLeft: 15,
+    interactive: true,
+    background: am5.Rectangle.new(root, {
+      fill: am5.color(0xffffff)
+    })
+  }));
+  
+  item.states.create("hover", {
+    background: am5.Rectangle.new(root, {
+      fill: am5.color(0xe3f2fd)
+    })
+  });
+  
+  item.children.push(am5.Label.new(root, {
+    text: text,
+    centerY: am5.percent(50)
+  }));
+});
+```
+
+## Best Practices
+
+1. **Choose the Right Layout**: Use layouts for automatic positioning, `null` for manual control
+2. **Use Padding Wisely**: Padding affects layout calculation and can cause unexpected sizing
+3. **Enable Masking When Needed**: Only use `maskContent` when necessary for performance
+4. **Dispose Properly**: Containers automatically dispose children when disposed
+5. **Avoid Deep Nesting**: Keep container hierarchy as flat as possible
+6. **Use Percent for Responsive**: Prefer `am5.percent()` for widths and heights
+
+## Common Pitfalls
+
+<Warning>
+**Layout vs Manual Positioning**: Don't mix layouts with manual `x` and `y` positioning. Choose one approach.
+</Warning>
+
+<Warning>
+**Performance**: Containers with many children can impact performance. Consider virtualization for large lists.
+</Warning>
+
+<Tip>
+Use `interactiveChildren: false` on containers with hundreds of non-interactive children to improve performance.
+</Tip>

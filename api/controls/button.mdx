@@ -1,0 +1,150 @@
+---
+title: 'Button'
+description: 'Interactive button control for user interactions'
+icon: 'square'
+---
+
+## Overview
+
+The `Button` class creates an interactive button element that can contain a label and/or an icon. It extends the `Container` class and provides a clickable interface element with automatic theme styling.
+
+## Constructor
+
+```typescript
+Button.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="IButtonSettings">
+  Configuration settings for the button
+</ParamField>
+
+## Settings
+
+### label
+
+<ParamField path="label" type="Label">
+  A `Label` element to display as the button's text label.
+</ParamField>
+
+```typescript
+const button = Button.new(root, {
+  label: Label.new(root, {
+    text: "Click me"
+  })
+});
+```
+
+### icon
+
+<ParamField path="icon" type="Graphics">
+  A `Graphics` element to display as the button's icon.
+</ParamField>
+
+```typescript
+const button = Button.new(root, {
+  icon: Graphics.new(root, {
+    svgPath: "M10,10 L20,20"
+  })
+});
+```
+
+## Inherited Settings
+
+Button inherits all settings from `Container`, including:
+
+- `width` - Width of the button
+- `height` - Height of the button
+- `background` - Background graphic (automatically created as `RoundedRectangle` if not provided)
+- `paddingTop`, `paddingRight`, `paddingBottom`, `paddingLeft` - Padding values
+- `x`, `y` - Position coordinates
+- `opacity` - Opacity (0-1)
+
+## Events
+
+Button supports all standard `Container` events:
+
+- `click` - Fired when the button is clicked
+- `pointerover` - Fired when pointer moves over the button
+- `pointerout` - Fired when pointer moves out of the button
+- `pointerdown` - Fired when pointer is pressed down on the button
+- `pointerup` - Fired when pointer is released on the button
+
+```typescript
+button.events.on("click", function(ev) {
+  console.log("Button clicked!");
+});
+```
+
+## Examples
+
+### Basic Button with Label
+
+```typescript
+import { Button } from "@amcharts/amcharts5";
+import { Label } from "@amcharts/amcharts5";
+
+const button = Button.new(root, {
+  label: Label.new(root, {
+    text: "Submit",
+    centerX: 50,
+    centerY: 50
+  }),
+  paddingTop: 10,
+  paddingBottom: 10,
+  paddingLeft: 20,
+  paddingRight: 20
+});
+
+button.events.on("click", function() {
+  console.log("Form submitted");
+});
+```
+
+### Button with Icon
+
+```typescript
+const iconButton = Button.new(root, {
+  icon: Graphics.new(root, {
+    fill: am5.color(0xffffff),
+    svgPath: "M12 2L2 7v10l10 5 10-5V7L12 2z"
+  })
+});
+```
+
+### Button with Both Label and Icon
+
+```typescript
+const fullButton = Button.new(root, {
+  icon: Graphics.new(root, {
+    svgPath: "M10 10 L20 20"
+  }),
+  label: Label.new(root, {
+    text: "Download"
+  }),
+  layout: root.horizontalLayout
+});
+```
+
+## Theme Tags
+
+The button automatically receives the `"button"` theme tag and its background receives `"button"` and `"background"` tags, allowing for easy styling through themes.
+
+```typescript
+const myTheme = am5.Theme.new(root);
+myTheme.rule("Button").setAll({
+  paddingTop: 10,
+  paddingBottom: 10,
+  paddingLeft: 15,
+  paddingRight: 15
+});
+```
+
+## Related
+
+- [Container](/api/core/container)
+- [Label](/api/controls/label)
+- [Button documentation](https://www.amcharts.com/docs/v5/concepts/common-elements/buttons/)

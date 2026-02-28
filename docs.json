@@ -1,122 +1,220 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "amCharts 5",
+  "theme": "sequoia",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#3cabff",
+    "light": "#67c2ff",
+    "dark": "#0d8ae5"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/amcharts/amcharts5"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/amcharts/amcharts5"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/root",
+              "concepts/sprites",
+              "concepts/containers",
+              "concepts/data",
+              "concepts/themes",
+              "concepts/events",
+              "concepts/animations"
+            ]
+          },
+          {
+            "group": "Chart Types",
+            "pages": [
+              "charts/xy-chart",
+              "charts/pie-chart",
+              "charts/map-chart",
+              "charts/hierarchy-charts",
+              "charts/stock-chart",
+              "charts/radar-chart",
+              "charts/timeline",
+              "charts/flow",
+              "charts/gantt",
+              "charts/venn",
+              "charts/funnel",
+              "charts/wordcloud"
+            ]
+          },
+          {
+            "group": "XY Charts",
+            "pages": [
+              "xy/axes",
+              "xy/series-types",
+              "xy/cursor",
+              "xy/scrollbar",
+              "xy/candlestick",
+              "xy/annotations"
+            ]
+          },
+          {
+            "group": "Map Charts",
+            "pages": [
+              "maps/projections",
+              "maps/series-types",
+              "maps/geodata",
+              "maps/zoom-control"
+            ]
+          },
+          {
+            "group": "Stock Charts",
+            "pages": [
+              "stock/overview",
+              "stock/indicators",
+              "stock/drawing-tools",
+              "stock/toolbar",
+              "stock/comparisons"
             ]
           },
           {
             "group": "Customization",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "customization/colors",
+              "customization/patterns",
+              "customization/gradients",
+              "customization/labels",
+              "customization/tooltips",
+              "customization/legends"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Data",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "data/loading",
+              "data/parsing",
+              "data/processing",
+              "data/live-data"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Plugins",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "plugins/exporting",
+              "plugins/json",
+              "plugins/color-picker",
+              "plugins/slice-grouper"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "advanced/performance",
+              "advanced/accessibility",
+              "advanced/responsive",
+              "advanced/localization",
+              "advanced/timezone"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Core",
             "pages": [
-              "api-reference/introduction"
+              "api/core/root",
+              "api/core/sprite",
+              "api/core/container",
+              "api/core/component",
+              "api/core/series",
+              "api/core/chart",
+              "api/core/theme"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Shapes",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api/shapes/circle",
+              "api/shapes/rectangle",
+              "api/shapes/ellipse",
+              "api/shapes/polygon",
+              "api/shapes/line",
+              "api/shapes/slice"
+            ]
+          },
+          {
+            "group": "Controls",
+            "pages": [
+              "api/controls/button",
+              "api/controls/label",
+              "api/controls/tooltip",
+              "api/controls/legend",
+              "api/controls/scrollbar",
+              "api/controls/slider"
+            ]
+          },
+          {
+            "group": "XY Charts",
+            "pages": [
+              "api/xy/xy-chart",
+              "api/xy/axes",
+              "api/xy/series",
+              "api/xy/cursor"
+            ]
+          },
+          {
+            "group": "Map Charts",
+            "pages": [
+              "api/map/map-chart",
+              "api/map/series",
+              "api/map/projections"
+            ]
+          },
+          {
+            "group": "Stock Charts",
+            "pages": [
+              "api/stock/stock-chart",
+              "api/stock/indicators",
+              "api/stock/drawing"
+            ]
+          },
+          {
+            "group": "Hierarchy Charts",
+            "pages": [
+              "api/hierarchy/tree",
+              "api/hierarchy/treemap",
+              "api/hierarchy/pack",
+              "api/hierarchy/force-directed",
+              "api/hierarchy/sunburst"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "api/utils/color",
+              "api/utils/percent",
+              "api/utils/formatters",
+              "api/utils/data-parser",
+              "api/utils/math"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

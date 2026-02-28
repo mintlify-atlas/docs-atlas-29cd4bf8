@@ -1,0 +1,556 @@
+---
+title: Animations
+description: Create smooth, engaging animations in amCharts 5
+---
+
+Animations bring your charts to life. amCharts 5 provides a powerful animation system that can animate any property of any element, from simple position changes to complex data transitions.
+
+## Basic Animations
+
+Animate any sprite property using the `animate()` method:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const root = am5.Root.new("chartdiv");
+
+const circle = am5.Circle.new(root, {
+  radius: 20,
+  x: 0,
+  fill: am5.color(0xff0000)
+});
+
+// Animate position
+circle.animate({
+  key: "x",
+  from: 0,
+  to: 200,
+  duration: 1000  // 1 second
+});
+```
+
+## Animation Properties
+
+### Required Properties
+
+```typescript
+sprite.animate({
+  key: "opacity",     // Property to animate
+  to: 0,              // Target value
+  duration: 500       // Duration in milliseconds
+});
+```
+
+### Optional Properties
+
+```typescript
+sprite.animate({
+  key: "x",
+  from: 0,           // Starting value (defaults to current value)
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.cubic),  // Easing function
+  loops: Infinity,   // Number of loops (Infinity for continuous)
+  delay: 500         // Delay before starting (ms)
+});
+```
+
+## Easing Functions
+
+Control animation timing with easing:
+
+```typescript
+// Linear (no easing)
+sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.linear
+});
+
+// Ease in (slow start)
+sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.in(am5.ease.cubic)
+});
+
+// Ease out (slow end)
+sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.cubic)
+});
+
+// Ease in-out (slow start and end)
+sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.inOut(am5.ease.cubic)
+});
+```
+
+### Available Easing Types
+
+- `am5.ease.linear` - Linear motion
+- `am5.ease.quad` - Quadratic
+- `am5.ease.cubic` - Cubic
+- `am5.ease.poly(exponent)` - Polynomial
+- `am5.ease.sin` - Sinusoidal
+- `am5.ease.exp` - Exponential
+- `am5.ease.circle` - Circular
+
+### Special Easings
+
+```typescript
+// Bounce effect
+sprite.animate({
+  key: "y",
+  to: 200,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.bounce)
+});
+
+// Elastic effect
+sprite.animate({
+  key: "scale",
+  to: 1.5,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.elastic)
+});
+
+// Back (overshoot and return)
+sprite.animate({
+  key: "rotation",
+  to: 360,
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.back(1.7))
+});
+```
+
+## Yoyo Animations
+
+Create back-and-forth animations:
+
+```typescript
+sprite.animate({
+  key: "opacity",
+  from: 1,
+  to: 0.5,
+  duration: 500,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.inOut(am5.ease.cubic))
+});
+```
+
+## Multiple Animations
+
+Animate multiple properties simultaneously:
+
+```typescript
+// Animate position and opacity together
+sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000
+});
+
+sprite.animate({
+  key: "opacity",
+  to: 0,
+  duration: 1000
+});
+
+sprite.animate({
+  key: "rotation",
+  to: 360,
+  duration: 1000
+});
+```
+
+## Animation Events
+
+Listen to animation lifecycle:
+
+```typescript
+const animation = sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000
+});
+
+animation.events.on("started", () => {
+  console.log("Animation started");
+});
+
+animation.events.on("progress", (ev) => {
+  console.log(`Progress: ${(ev.progress * 100).toFixed(0)}%`);
+});
+
+animation.events.on("ended", () => {
+  console.log("Animation completed!");
+});
+
+animation.events.on("stopped", () => {
+  console.log("Animation stopped");
+});
+```
+
+## Stopping Animations
+
+```typescript
+const animation = sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 2000
+});
+
+// Stop after 1 second
+setTimeout(() => {
+  animation.stop();
+}, 1000);
+```
+
+## Sequential Animations
+
+Chain animations together:
+
+```typescript
+const anim1 = sprite.animate({
+  key: "x",
+  to: 200,
+  duration: 1000
+});
+
+anim1.events.on("ended", () => {
+  sprite.animate({
+    key: "y",
+    to: 200,
+    duration: 1000
+  });
+});
+```
+
+## Animated Theme
+
+Enable animations globally:
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+```
+
+<Info>
+The Animated theme automatically adds smooth animations to chart appearances, data changes, and state transitions.
+</Info>
+
+## Data Animations
+
+Animate data changes:
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category",
+    interpolationDuration: 1000,  // Animation duration for data changes
+    interpolationEasing: am5.ease.out(am5.ease.cubic)
+  })
+);
+
+// Initial data
+series.data.setAll([
+  { category: "A", value: 100 },
+  { category: "B", value: 200 }
+]);
+
+// Animate to new values
+setTimeout(() => {
+  series.data.setAll([
+    { category: "A", value: 150 },
+    { category: "B", value: 250 }
+  ]);
+}, 2000);
+```
+
+## Appearance Animations
+
+Animate elements when they appear:
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Set data and trigger appear animation
+series.data.setAll(data);
+series.appear(1000);  // Animate in over 1 second
+
+// Animate entire chart
+chart.appear(1000, 100);  // duration, delay
+```
+
+## State Animations
+
+Animate between states:
+
+```typescript
+const button = am5.Rectangle.new(root, {
+  interactive: true,
+  fill: am5.color(0x0088ff),
+  width: 100,
+  height: 40
+});
+
+// Create hover state
+button.states.create("hover", {
+  fill: am5.color(0x00aaff),
+  scale: 1.1
+});
+
+// Transition is automatic and animated
+button.events.on("pointerover", () => {
+  button.states.applyAnimate("hover", 300);  // Apply with custom duration
+});
+
+button.events.on("pointerout", () => {
+  button.states.applyAnimate("default", 300);
+});
+```
+
+## Looping Animations
+
+Create infinite animations:
+
+```typescript
+// Continuous rotation
+sprite.animate({
+  key: "rotation",
+  from: 0,
+  to: 360,
+  duration: 2000,
+  loops: Infinity
+});
+
+// Pulsing effect
+sprite.animate({
+  key: "scale",
+  from: 1,
+  to: 1.2,
+  duration: 1000,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.inOut(am5.ease.quad))
+});
+```
+
+## Practical Examples
+
+### Loading Spinner
+
+```typescript
+const spinner = am5.Graphics.new(root, {
+  svgPath: "M 0,-10 L 0,10",
+  strokeWidth: 3,
+  stroke: am5.color(0x0088ff)
+});
+
+spinner.animate({
+  key: "rotation",
+  from: 0,
+  to: 360,
+  duration: 1000,
+  loops: Infinity,
+  easing: am5.ease.linear
+});
+```
+
+### Pulsing Alert
+
+```typescript
+const alert = am5.Circle.new(root, {
+  radius: 20,
+  fill: am5.color(0xff0000),
+  opacity: 1
+});
+
+alert.animate({
+  key: "opacity",
+  from: 1,
+  to: 0.3,
+  duration: 500,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.inOut(am5.ease.quad))
+});
+
+alert.animate({
+  key: "scale",
+  from: 1,
+  to: 1.3,
+  duration: 500,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.inOut(am5.ease.quad))
+});
+```
+
+### Slide In Effect
+
+```typescript
+const panel = am5.Container.new(root, {
+  width: 300,
+  height: 200,
+  x: -300,  // Start off-screen
+  background: am5.Rectangle.new(root, {
+    fill: am5.color(0xffffff)
+  })
+});
+
+// Slide in
+panel.animate({
+  key: "x",
+  to: 0,
+  duration: 500,
+  easing: am5.ease.out(am5.ease.cubic)
+});
+```
+
+### Fade In
+
+```typescript
+const element = am5.Label.new(root, {
+  text: "Hello!",
+  fontSize: 24,
+  opacity: 0
+});
+
+element.animate({
+  key: "opacity",
+  to: 1,
+  duration: 1000,
+  easing: am5.ease.in(am5.ease.cubic)
+});
+```
+
+### Bouncing Ball
+
+```typescript
+const ball = am5.Circle.new(root, {
+  radius: 20,
+  fill: am5.color(0xff0000),
+  y: 0
+});
+
+ball.animate({
+  key: "y",
+  from: 0,
+  to: 200,
+  duration: 1000,
+  loops: Infinity,
+  easing: am5.ease.yoyo(am5.ease.out(am5.ease.bounce))
+});
+```
+
+### Growing Chart
+
+```typescript
+// Start with zero height
+series.columns.template.setAll({
+  height: 0
+});
+
+// Animate to full height
+series.columns.template.animate({
+  key: "height",
+  to: am5.percent(100),
+  duration: 1000,
+  easing: am5.ease.out(am5.ease.cubic)
+});
+```
+
+### Staggered Animations
+
+```typescript
+series.dataItems.forEach((dataItem, index) => {
+  const column = dataItem.get("graphics");
+  
+  column.animate({
+    key: "opacity",
+    from: 0,
+    to: 1,
+    duration: 500,
+    delay: index * 100,  // Stagger by 100ms
+    easing: am5.ease.out(am5.ease.cubic)
+  });
+});
+```
+
+### Color Transition
+
+```typescript
+const rectangle = am5.Rectangle.new(root, {
+  fill: am5.color(0xff0000)
+});
+
+// Animate fill color
+rectangle.animate({
+  key: "fill",
+  to: am5.color(0x0000ff),
+  duration: 2000,
+  easing: am5.ease.inOut(am5.ease.cubic)
+});
+```
+
+## Waiting for Animations
+
+Wait for animations to complete:
+
+```typescript
+import { waitForAnimations } from "@amcharts/amcharts5";
+
+const animations = {
+  x: sprite.animate({ key: "x", to: 200, duration: 1000 }),
+  y: sprite.animate({ key: "y", to: 100, duration: 1000 })
+};
+
+await waitForAnimations(animations);
+console.log("All animations complete!");
+```
+
+## Performance Considerations
+
+<Warning>
+Animating too many properties or elements simultaneously can impact performance. Consider:
+- Limiting concurrent animations
+- Using requestAnimationFrame for custom animations
+- Reducing animation complexity on mobile devices
+</Warning>
+
+## Best Practices
+
+1. **Use Easing**: Always apply easing for more natural motion
+2. **Keep Durations Reasonable**: 300-600ms is typically good for UI animations
+3. **Dispose When Done**: Stop and dispose of animations when elements are removed
+4. **Test on Target Devices**: Ensure smooth performance on your target platforms
+5. **Use Animated Theme**: Let the theme handle most animations automatically
+6. **Avoid Jank**: Don't animate too many elements at once
+7. **Provide Feedback**: Use animations to provide visual feedback for interactions
+
+<Tip>
+For data visualizations, use the `interpolationDuration` and `interpolationEasing` settings on series to automatically animate data changes.
+</Tip>
+
+<Info>
+The animation system is built on requestAnimationFrame for optimal performance and smooth 60fps animations.
+</Info>

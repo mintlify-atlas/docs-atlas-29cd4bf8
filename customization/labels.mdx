@@ -1,0 +1,596 @@
+---
+title: Labels
+description: Learn how to create, customize, and format text labels in amCharts 5.
+---
+
+## Overview
+
+Labels in amCharts 5 are text elements that can display static text, dynamic data values, and formatted content. The `Label` class extends `Container` and provides extensive text styling and formatting capabilities.
+
+## Creating Labels
+
+### Basic Label
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const label = root.container.children.push(
+  am5.Label.new(root, {
+    text: "Hello amCharts!",
+    fontSize: 20,
+    fontWeight: "bold",
+    fill: am5.color(0x000000)
+  })
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:250-463`
+
+### Label with Position
+
+```typescript
+const label = root.container.children.push(
+  am5.Label.new(root, {
+    text: "Positioned Label",
+    x: 100,
+    y: 50,
+    centerX: am5.p50,  // Center horizontally
+    centerY: am5.p50   // Center vertically
+  })
+);
+```
+
+## Text Styling
+
+### Font Properties
+
+Control typography with various font settings:
+
+```typescript
+const styledLabel = am5.Label.new(root, {
+  text: "Styled Text",
+  
+  // Font family (can specify multiple fallbacks)
+  fontFamily: "Arial, Helvetica, sans-serif",
+  
+  // Font size (pixels or string)
+  fontSize: 24,  // or "24px", "1.5em", "12pt"
+  
+  // Font weight
+  fontWeight: "bold",  // "normal", "lighter", "100"-"900"
+  
+  // Font style
+  fontStyle: "italic",  // "normal", "oblique"
+  
+  // Font variant
+  fontVariant: "small-caps",  // "normal"
+  
+  // Text decoration (v5.0.15+)
+  textDecoration: "underline"  // "line-through"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:50-83`
+
+### Color and Opacity
+
+```typescript
+const coloredLabel = am5.Label.new(root, {
+  text: "Colored Text",
+  
+  // Text color
+  fill: am5.color(0x3366cc),
+  
+  // Text opacity (v5.2.39+)
+  fillOpacity: 0.8,
+  
+  // Overall label opacity
+  opacity: 1
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:24-35`
+
+### Text with Gradient (v5.10.1+)
+
+```typescript
+const gradientLabel = am5.Label.new(root, {
+  text: "Gradient Text",
+  fontSize: 48,
+  fontWeight: "bold",
+  fillGradient: am5.LinearGradient.new(root, {
+    stops: [
+      { color: am5.color(0xff6b6b) },
+      { color: am5.color(0x4ecdc4) }
+    ],
+    rotation: 0
+  })
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:37-42`
+
+## Text Alignment
+
+### Horizontal Alignment
+
+```typescript
+// Left aligned
+const leftLabel = am5.Label.new(root, {
+  text: "Left aligned",
+  textAlign: "left"  // "start"
+});
+
+// Center aligned
+const centerLabel = am5.Label.new(root, {
+  text: "Center aligned",
+  textAlign: "center"
+});
+
+// Right aligned
+const rightLabel = am5.Label.new(root, {
+  text: "Right aligned",
+  textAlign: "right"  // "end"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:45-47`
+
+### Baseline Alignment
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Baseline Text",
+  textBaseline: "middle"
+  // Options: "top", "hanging", "middle", "alphabetic", "ideographic", "bottom"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:113-114`
+
+### Text Direction
+
+```typescript
+// Left-to-right (default)
+const ltrLabel = am5.Label.new(root, {
+  text: "Left to Right",
+  direction: "ltr"
+});
+
+// Right-to-left (for Arabic, Hebrew, etc.)
+const rtlLabel = am5.Label.new(root, {
+  text: "مرحبا",
+  direction: "rtl"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:105-109`
+
+## Line Height and Spacing
+
+### Line Height
+
+```typescript
+const multilineLabel = am5.Label.new(root, {
+  text: "Line 1\nLine 2\nLine 3",
+  
+  // Absolute pixel value
+  lineHeight: 24,
+  
+  // Or as percentage
+  // lineHeight: am5.percent(120)
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:86-88`
+
+### Baseline Ratio
+
+Control how much of the height goes below the baseline:
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Text with custom baseline",
+  baselineRatio: 0.19  // Default value
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:91-95`
+
+## Oversized Text Handling
+
+### Truncation
+
+```typescript
+const truncatedLabel = am5.Label.new(root, {
+  text: "This is a very long text that will be truncated",
+  width: 200,
+  oversizedBehavior: "truncate",
+  ellipsis: "..."  // Default: "…"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:116-150`
+
+### Text Wrapping
+
+```typescript
+const wrappedLabel = am5.Label.new(root, {
+  text: "This is a long text that will wrap to multiple lines",
+  width: 200,
+  oversizedBehavior: "wrap",
+  breakWords: false  // Don't break in the middle of words
+});
+
+// Wrap without breaking words
+const noBreakLabel = am5.Label.new(root, {
+  text: "Text with wrapping",
+  width: 200,
+  oversizedBehavior: "wrap-no-break"
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:127-131`
+
+### Fitting
+
+Scale text to fit available space:
+
+```typescript
+const fitLabel = am5.Label.new(root, {
+  text: "This text will scale to fit",
+  width: 200,
+  height: 50,
+  oversizedBehavior: "fit",
+  minScale: 0.5  // Don't scale below 50%
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:153-159`
+
+### Hiding
+
+```typescript
+const hideLabel = am5.Label.new(root, {
+  text: "This will hide if it doesn't fit",
+  width: 100,
+  oversizedBehavior: "hide"
+});
+```
+
+### Maximum Characters
+
+Limit text length (v5.7.2+):
+
+```typescript
+const limitedLabel = am5.Label.new(root, {
+  text: "This text will be limited to 20 characters maximum",
+  maxChars: 20,
+  ellipsis: "..."
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:220-227`
+
+## Data Binding
+
+### Populate Text from Data
+
+Use placeholders to insert data values:
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "{category}: {value}",
+  populateText: true
+});
+
+// When label is assigned to a data item, placeholders are replaced
+label._setDataItem(dataItem);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:162-167`
+
+### Getting Populated Text
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Value: {value}",
+  populateText: true
+});
+
+// Get the text with placeholders filled in
+const populatedText = label.getText();
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:444-451`
+
+## Text Formatting
+
+### Inline Formatting
+
+By default, labels support rich text formatting:
+
+```typescript
+const formattedLabel = am5.Label.new(root, {
+  text: "[bold]Bold text[/] and [fontSize: 20px]larger text[/]"
+});
+
+// Disable formatting to show literal text
+const literalLabel = am5.Label.new(root, {
+  text: "[bold]This will show literally[/]",
+  ignoreFormatting: true
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:170-175`
+
+## Shadows
+
+Add shadow effects to labels:
+
+```typescript
+const shadowLabel = am5.Label.new(root, {
+  text: "Text with Shadow",
+  fontSize: 32,
+  fontWeight: "bold",
+  fill: am5.color(0xffffff),
+  
+  // Shadow properties
+  shadowColor: am5.color(0x000000),
+  shadowBlur: 4,
+  shadowOffsetX: 2,
+  shadowOffsetY: 2,
+  shadowOpacity: 0.5
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:178-217`
+
+## Axis Labels
+
+### Customizing Axis Labels
+
+```typescript
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const xAxis = chart.xAxes.push(
+  am5xy.CategoryAxis.new(root, {
+    categoryField: "category",
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+// Customize axis labels
+xAxis.get("renderer").labels.template.setAll({
+  fontSize: 12,
+  fill: am5.color(0x666666),
+  rotation: -45,
+  centerX: am5.p100,
+  centerY: am5.p50,
+  paddingRight: 10
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/charts/xy/axes/AxisLabel.ts:1-463`
+
+### Hide Axis Labels
+
+```typescript
+xAxis.get("renderer").labels.template.set("visible", false);
+```
+
+## Series Labels
+
+### Data Labels on Columns
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Add labels to show values
+series.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    locationY: 1,
+    sprite: am5.Label.new(root, {
+      text: "{valueY}",
+      fill: am5.color(0xffffff),
+      centerY: am5.p100,
+      centerX: am5.p50,
+      populateText: true
+    })
+  });
+});
+```
+
+### Data Labels on Line Series
+
+```typescript
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Add labels at each data point
+series.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    sprite: am5.Label.new(root, {
+      text: "{valueY}",
+      fontSize: 11,
+      fill: am5.color(0x000000),
+      centerY: am5.p100,
+      centerX: am5.p50,
+      dy: -5,  // Offset above the point
+      populateText: true
+    })
+  });
+});
+```
+
+## Accessibility
+
+### ARIA Labels
+
+Provide screen reader text:
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Chart Title",
+  role: "heading",
+  ariaLabel: "Main chart showing sales data"
+});
+```
+
+### Getting Accessible Text
+
+```typescript
+const accessibleText = label.getAccessibleText();
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/render/Label.ts:453-461`
+
+## HTML Labels
+
+Use HTML content instead of canvas text:
+
+```typescript
+const htmlLabel = am5.Label.new(root, {
+  html: "<div style='color: red;'>HTML Content</div>",
+  fontSize: 16
+});
+
+// Note: When HTML is set, regular text is not displayed
+```
+
+## Performance Considerations
+
+### Reusing Labels
+
+```typescript
+// Create label template once
+const labelTemplate = am5.Label.new(root, {
+  fontSize: 12,
+  fill: am5.color(0x000000)
+});
+
+// Reuse for multiple instances
+xAxis.get("renderer").labels.template = labelTemplate;
+yAxis.get("renderer").labels.template = labelTemplate;
+```
+
+### Limiting Visible Labels
+
+```typescript
+xAxis.get("renderer").labels.template.adapters.add("visible", (visible, target) => {
+  // Show every nth label
+  const index = target.dataItem?.index || 0;
+  return index % 2 === 0;
+});
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Appropriate Font Sizes">
+    Choose font sizes that are readable across devices:
+    
+    ```typescript
+    // Title
+    const title = am5.Label.new(root, {
+      text: "Chart Title",
+      fontSize: 24,
+      fontWeight: "bold"
+    });
+    
+    // Regular labels
+    const label = am5.Label.new(root, {
+      text: "Label",
+      fontSize: 12
+    });
+    
+    // Small annotations
+    const annotation = am5.Label.new(root, {
+      text: "Note",
+      fontSize: 10
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Handle Oversized Text">
+    Always specify how to handle text that doesn't fit:
+    
+    ```typescript
+    const label = am5.Label.new(root, {
+      text: "Long text content",
+      width: 200,
+      oversizedBehavior: "wrap",  // or "truncate", "fit", "hide"
+      breakWords: false
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Consider Accessibility">
+    Provide ARIA labels for screen readers:
+    
+    ```typescript
+    const label = am5.Label.new(root, {
+      text: "$1,234",
+      ariaLabel: "One thousand two hundred thirty-four dollars",
+      populateText: true
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Use Data Binding">
+    Enable populateText when showing dynamic data:
+    
+    ```typescript
+    const label = am5.Label.new(root, {
+      text: "{category}: {value}",
+      populateText: true  // Required for placeholder replacement
+    });
+    ```
+  </Accordion>
+
+  <Accordion title="Apply Consistent Styling">
+    Define style constants for consistency:
+    
+    ```typescript
+    const LABEL_STYLE = {
+      fontFamily: "Arial, sans-serif",
+      fontSize: 12,
+      fill: am5.color(0x333333)
+    };
+    
+    const label1 = am5.Label.new(root, {
+      ...LABEL_STYLE,
+      text: "Label 1"
+    });
+    
+    const label2 = am5.Label.new(root, {
+      ...LABEL_STYLE,
+      text: "Label 2"
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Tooltips" icon="comment" href="/customization/tooltips">
+    Display contextual information on hover
+  </Card>
+  <Card title="Legends" icon="list" href="/customization/legends">
+    Create interactive legend labels
+  </Card>
+</CardGroup>

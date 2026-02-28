@@ -1,0 +1,538 @@
+---
+title: 'Tree'
+description: 'API reference for the Tree hierarchy chart class'
+---
+
+## Overview
+
+The `Tree` class displays a hierarchical tree diagram with nodes connected by links. It extends `LinkedHierarchy` and uses the D3 tree layout algorithm to position nodes.
+
+```typescript
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+const tree = root.container.children.push(
+  am5hierarchy.Tree.new(root, {
+    orientation: "vertical",
+    inversed: false
+  })
+);
+```
+
+## Class Hierarchy
+
+- Series
+  - Hierarchy
+    - LinkedHierarchy
+      - **Tree**
+
+## Settings
+
+### orientation
+
+<ParamField path="orientation" type="'horizontal' | 'vertical'" default="'vertical'">
+  Orientation of the diagram.
+  
+  - `"vertical"` - Tree grows from top to bottom
+  - `"horizontal"` - Tree grows from left to right
+</ParamField>
+
+### inversed
+
+<ParamField path="inversed" type="boolean" default="false">
+  If set to `true`, will flip the tree direction.
+  
+  For vertical orientation, this flips top-to-bottom to bottom-to-top.
+  For horizontal orientation, this flips left-to-right to right-to-left.
+  
+  **Since:** 5.2.4
+</ParamField>
+
+### Inherited Settings
+
+Tree inherits all settings from LinkedHierarchy and Hierarchy, including:
+
+- `sort` - How to sort nodes by value ("ascending" | "descending" | "none")
+- `valueField` - Field in data holding numeric value
+- `categoryField` - Field in data holding category name
+- `childDataField` - Field in data holding array of children
+- `downDepth` - Number of child levels to show when drilling down
+- `upDepth` - Number of parent levels to show from selected node
+- `initialDepth` - Number of levels to show on first load
+- `topDepth` - Starting level to show (hides upper levels)
+- `singleBranchOnly` - Collapse other branches when one expands
+- `animationDuration` - Duration for drill animations in milliseconds
+- `animationEasing` - Easing function for animations
+- `colors` - ColorSet for auto-assigning node colors
+- `patterns` - PatternSet for auto-assigning node patterns
+- `linkWithField` - Field holding IDs of nodes to link with
+
+## Data Item Properties
+
+Each data item in a Tree chart has the following properties:
+
+### children
+
+<ResponseField name="children" type="Array<DataItem<ITreeDataItem>>">
+  An array of children data items.
+</ResponseField>
+
+### parent
+
+<ResponseField name="parent" type="DataItem<ITreeDataItem>">
+  Parent data item.
+</ResponseField>
+
+### value
+
+<ResponseField name="value" type="number">
+  Value of the node as set in data.
+</ResponseField>
+
+### sum
+
+<ResponseField name="sum" type="number">
+  Sum of child values.
+</ResponseField>
+
+### valuePercentTotal
+
+<ResponseField name="valuePercentTotal" type="number">
+  Percent value of the node, based on total sum of all nodes in upper level.
+</ResponseField>
+
+### valuePercent
+
+<ResponseField name="valuePercent" type="number">
+  Percent value of the node, based on the value of its direct parent.
+  
+  **Since:** 5.2.21
+</ResponseField>
+
+### category
+
+<ResponseField name="category" type="string">
+  Category name of the node.
+</ResponseField>
+
+### depth
+
+<ResponseField name="depth" type="number">
+  Node's depth within the hierarchy (0 for root).
+</ResponseField>
+
+### node
+
+<ResponseField name="node" type="LinkedHierarchyNode">
+  Reference to the visual LinkedHierarchyNode element.
+</ResponseField>
+
+### circle
+
+<ResponseField name="circle" type="Circle">
+  Circle element of the node.
+</ResponseField>
+
+### outerCircle
+
+<ResponseField name="outerCircle" type="Circle">
+  Outer circle element of the node (shown for nodes with children).
+</ResponseField>
+
+### label
+
+<ResponseField name="label" type="Label">
+  Reference to node's Label element.
+</ResponseField>
+
+### fill
+
+<ResponseField name="fill" type="Color">
+  Node's auto-assigned color.
+</ResponseField>
+
+### fillPattern
+
+<ResponseField name="fillPattern" type="Pattern">
+  Node's auto-assigned pattern.
+  
+  **Since:** 5.10.0
+</ResponseField>
+
+### disabled
+
+<ResponseField name="disabled" type="boolean">
+  Indicates if node is currently disabled (collapsed).
+</ResponseField>
+
+### parentLink
+
+<ResponseField name="parentLink" type="HierarchyLink">
+  HierarchyLink leading to parent node.
+</ResponseField>
+
+### childLinks
+
+<ResponseField name="childLinks" type="Array<HierarchyLink>">
+  Array of HierarchyLink objects leading to child nodes.
+</ResponseField>
+
+### linkWith
+
+<ResponseField name="linkWith" type="Array<string>">
+  Array of IDs of directly linked nodes (for custom cross-links).
+</ResponseField>
+
+## Data Format
+
+```typescript
+interface ITreeDataObject {
+  name?: string;
+  value?: number;
+  children?: ITreeDataObject[];
+}
+```
+
+### Example Data
+
+```javascript
+tree.data.setAll([{
+  name: "Root",
+  value: 0,
+  children: [
+    {
+      name: "Branch 1",
+      value: 5,
+      children: [
+        { name: "Leaf 1.1", value: 2 },
+        { name: "Leaf 1.2", value: 3 }
+      ]
+    },
+    {
+      name: "Branch 2",
+      value: 8,
+      children: [
+        { name: "Leaf 2.1", value: 4 },
+        { name: "Leaf 2.2", value: 4 }
+      ]
+    }
+  ]
+}]);
+```
+
+## List Templates
+
+Tree provides access to these list templates for customization:
+
+### nodes
+
+<ResponseField name="nodes" type="ListTemplate<LinkedHierarchyNode>">
+  List of all node elements. Use to customize node appearance and behavior.
+</ResponseField>
+
+```javascript
+tree.nodes.template.setAll({
+  toggleKey: "disabled"
+});
+```
+
+### circles
+
+<ResponseField name="circles" type="ListTemplate<Circle>">
+  List of node circle elements. Use to customize circle appearance.
+</ResponseField>
+
+```javascript
+tree.circles.template.setAll({
+  radius: 20,
+  strokeWidth: 2
+});
+```
+
+### outerCircles
+
+<ResponseField name="outerCircles" type="ListTemplate<Circle>">
+  List of node outer circle elements (shown for nodes with children).
+</ResponseField>
+
+```javascript
+tree.outerCircles.template.setAll({
+  strokeWidth: 3,
+  strokeOpacity: 0.5
+});
+```
+
+### labels
+
+<ResponseField name="labels" type="ListTemplate<Label>">
+  List of label elements.
+</ResponseField>
+
+```javascript
+tree.labels.template.setAll({
+  text: "{category}",
+  fontSize: 12,
+  centerX: am5.p50,
+  centerY: am5.p50
+});
+```
+
+### links
+
+<ResponseField name="links" type="ListTemplate<HierarchyLink>">
+  List of link elements connecting nodes.
+</ResponseField>
+
+```javascript
+tree.links.template.setAll({
+  strokeWidth: 2,
+  strokeOpacity: 0.5
+});
+```
+
+## Containers
+
+### nodesContainer
+
+<ResponseField name="nodesContainer" type="Container">
+  Container that holds all node elements.
+</ResponseField>
+
+### linksContainer
+
+<ResponseField name="linksContainer" type="Container">
+  Container that holds all link elements.
+</ResponseField>
+
+## Methods
+
+### selectDataItem()
+
+```typescript
+selectDataItem(dataItem: DataItem<ITreeDataItem>): void
+```
+
+Selects a specific data item, triggering drill-down animation.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  The data item to select.
+</ParamField>
+
+### getDataItemById()
+
+```typescript
+getDataItemById(id: string): DataItem<ITreeDataItem> | undefined
+```
+
+Looks up and returns a data item by its ID.
+
+<ParamField path="id" type="string">
+  The ID to search for.
+</ParamField>
+
+<ResponseField name="return" type="DataItem<ITreeDataItem> | undefined">
+  The found data item, or undefined if not found.
+</ResponseField>
+
+### linkDataItems()
+
+```typescript
+linkDataItems(
+  source: DataItem<ITreeDataItem>,
+  target: DataItem<ITreeDataItem>,
+  strength?: number
+): HierarchyLink
+```
+
+Creates a link between two data items.
+
+<ParamField path="source" type="DataItem<ITreeDataItem>">
+  Source node data item.
+</ParamField>
+
+<ParamField path="target" type="DataItem<ITreeDataItem>">
+  Target node data item.
+</ParamField>
+
+<ParamField path="strength" type="number">
+  Optional link strength.
+</ParamField>
+
+<ResponseField name="return" type="HierarchyLink">
+  The created or existing link element.
+</ResponseField>
+
+### unlinkDataItems()
+
+```typescript
+unlinkDataItems(
+  source: DataItem<ITreeDataItem>,
+  target: DataItem<ITreeDataItem>
+): void
+```
+
+Removes a link between two data items.
+
+<ParamField path="source" type="DataItem<ITreeDataItem>">
+  Source node data item.
+</ParamField>
+
+<ParamField path="target" type="DataItem<ITreeDataItem>">
+  Target node data item.
+</ParamField>
+
+### areLinked()
+
+```typescript
+areLinked(
+  source: DataItem<ITreeDataItem>,
+  target: DataItem<ITreeDataItem>
+): boolean
+```
+
+Returns `true` if two nodes are linked with each other.
+
+<ParamField path="source" type="DataItem<ITreeDataItem>">
+  Source node data item.
+</ParamField>
+
+<ParamField path="target" type="DataItem<ITreeDataItem>">
+  Target node data item.
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if nodes are linked, false otherwise.
+</ResponseField>
+
+### enableDataItem()
+
+```typescript
+enableDataItem(
+  dataItem: DataItem<ITreeDataItem>,
+  maxDepth?: number,
+  depth?: number,
+  duration?: number
+): void
+```
+
+Enables a disabled (collapsed) data item.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  Target data item to enable.
+</ParamField>
+
+<ParamField path="maxDepth" type="number">
+  Maximum depth to enable children to.
+</ParamField>
+
+<ParamField path="depth" type="number">
+  Current depth (used internally for recursion).
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### disableDataItem()
+
+```typescript
+disableDataItem(
+  dataItem: DataItem<ITreeDataItem>,
+  duration?: number
+): void
+```
+
+Disables (collapses) a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  Target data item to disable.
+</ParamField>
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds.
+</ParamField>
+
+### addChildData()
+
+```typescript
+addChildData(
+  dataItem: DataItem<ITreeDataItem>,
+  data: Array<any>
+): void
+```
+
+Adds children data to the target data item dynamically.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  Parent data item to add children to.
+</ParamField>
+
+<ParamField path="data" type="Array<any>">
+  Array of child data objects.
+</ParamField>
+
+**Since:** 5.4.5
+
+### hoverDataItem()
+
+```typescript
+hoverDataItem(dataItem: DataItem<ITreeDataItem>): void
+```
+
+Triggers hover state on a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+### unhoverDataItem()
+
+```typescript
+unhoverDataItem(dataItem: DataItem<ITreeDataItem>): void
+```
+
+Removes hover state from a data item.
+
+<ParamField path="dataItem" type="DataItem<ITreeDataItem>">
+  Target data item.
+</ParamField>
+
+**Since:** 5.0.7
+
+## Events
+
+### dataitemselected
+
+```typescript
+tree.events.on("dataitemselected", (ev) => {
+  console.log("Selected:", ev.dataItem);
+});
+```
+
+Fired when a data item is selected.
+
+<ResponseField name="dataItem" type="DataItem<ITreeDataItem> | undefined">
+  The selected data item.
+</ResponseField>
+
+## Private Settings
+
+These are read-only private settings managed internally:
+
+### scaleX
+
+<ResponseField name="scaleX" type="number">
+  Current horizontal scale.
+</ResponseField>
+
+### scaleY
+
+<ResponseField name="scaleY" type="number">
+  Current vertical scale.
+</ResponseField>
+
+## See Also
+
+- [Tree Documentation](https://www.amcharts.com/docs/v5/charts/hierarchy/tree/)
+- [Hierarchy Charts](/charts/hierarchy-charts)

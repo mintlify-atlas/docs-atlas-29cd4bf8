@@ -1,0 +1,407 @@
+---
+title: 'Candlestick Series'
+description: 'Create candlestick charts for financial data visualization'
+---
+
+## Overview
+
+The `CandlestickSeries` is designed for financial data visualization, displaying open, high, low, and close (OHLC) values for each time period.
+
+## Basic Candlestick Chart
+
+Create a basic candlestick series:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root
+const root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+
+// Create chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Create candlestick series
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "MDXI",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date"
+  })
+);
+```
+
+<Note>
+  Candlestick series requires four value fields: `openValueYField`, `highValueYField`, `lowValueYField`, and `valueYField` (close).
+</Note>
+
+## Data Format
+
+Candlestick series expects data in the following format:
+
+```typescript
+const data = [
+  {
+    date: new Date(2024, 0, 1).getTime(),
+    open: 100,
+    high: 108,
+    low: 98,
+    value: 105  // close value
+  },
+  {
+    date: new Date(2024, 0, 2).getTime(),
+    open: 105,
+    high: 112,
+    low: 103,
+    value: 110
+  }
+  // ... more data points
+];
+
+series.data.setAll(data);
+```
+
+## Customizing Candlesticks
+
+### Colors and Styling
+
+Customize candlestick appearance:
+
+```typescript
+const color = root.interfaceColors.get("background");
+
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "Stock Price",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date",
+    fill: color,
+    stroke: color
+  })
+);
+
+// Customize individual candles
+series.columns.template.setAll({
+  strokeWidth: 1,
+  cornerRadiusTL: 2,
+  cornerRadiusTR: 2
+});
+```
+
+### Rise and Fall Colors
+
+Different colors for rising and falling candles are automatically applied through the theme:
+
+```typescript
+// The series automatically applies different colors
+// based on whether close > open (rise) or close < open (fall)
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "Stock",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date"
+  })
+);
+```
+
+<Tip>
+  The default theme uses green for rising candles and red for falling candles. This behavior is built into the `Candlestick` visual element.
+</Tip>
+
+## Tooltips
+
+Add informative tooltips showing all OHLC values:
+
+```typescript
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "Stock Price",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      pointerOrientation: "horizontal",
+      labelText: "open: {openValueY}\nlow: {lowValueY}\nhigh: {highValueY}\nclose: {valueY}"
+    })
+  })
+);
+```
+
+## Data Grouping
+
+Enable data grouping for better performance with large datasets:
+
+```typescript
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "Stock",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date",
+    calculateAggregates: true,
+    lowValueYGrouped: "low",
+    highValueYGrouped: "high",
+    openValueYGrouped: "open",
+    valueYGrouped: "close"
+  })
+);
+```
+
+<Note>
+  When using data grouping, set `calculateAggregates: true` and specify the grouped value fields to ensure proper aggregation of OHLC data.
+</Note>
+
+## Performance Optimization
+
+### Turbo Mode
+
+Enable turbo mode for charts with thousands of candlesticks:
+
+```typescript
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "Stock",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date",
+    turboMode: true
+  })
+);
+```
+
+<Warning>
+  Turbo mode significantly improves rendering performance but disables some interactivity features like individual candle selection.
+</Warning>
+
+## Complete Example
+
+Here's a complete example with cursor, scrollbar, and legend:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root
+const root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+
+// Create chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    focusable: true,
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    maxDeviation: 1,
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      minorGridEnabled: true,
+      pan: "zoom"
+    }),
+    tooltip: am5.Tooltip.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    maxDeviation: 1,
+    renderer: am5xy.AxisRendererY.new(root, {
+      pan: "zoom"
+    })
+  })
+);
+
+const color = root.interfaceColors.get("background");
+
+// Create series
+const series = chart.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    turboMode: true,
+    fill: color,
+    calculateAggregates: true,
+    stroke: color,
+    name: "MDXI",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date",
+    lowValueYGrouped: "low",
+    highValueYGrouped: "high",
+    openValueYGrouped: "open",
+    valueYGrouped: "close",
+    legendValueText: "open: {openValueY} low: {lowValueY} high: {highValueY} close: {valueY}",
+    legendRangeValueText: "{valueYClose}",
+    tooltip: am5.Tooltip.new(root, {
+      pointerOrientation: "horizontal",
+      labelText: "open: {openValueY}\nlow: {lowValueY}\nhigh: {highValueY}\nclose: {valueY}"
+    })
+  })
+);
+
+// Add cursor
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis
+}));
+cursor.lineY.set("visible", false);
+
+// Stack axes vertically
+chart.leftAxesContainer.set("layout", root.verticalLayout);
+
+// Add scrollbar
+const scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 50
+});
+chart.set("scrollbarX", scrollbar);
+
+const sbxAxis = scrollbar.chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    groupData: true,
+    groupIntervals: [{ timeUnit: "week", count: 1 }],
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {
+      opposite: false,
+      strokeOpacity: 0
+    })
+  })
+);
+
+const sbyAxis = scrollbar.chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+const sbseries = scrollbar.chart.series.push(
+  am5xy.LineSeries.new(root, {
+    xAxis: sbxAxis,
+    yAxis: sbyAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+// Add legend
+const legend = yAxis.axisHeader.children.push(am5.Legend.new(root, {}));
+legend.data.push(series);
+
+// Set data
+const data = generateData(); // Your data generation function
+series.data.setAll(data);
+sbseries.data.setAll(data);
+
+// Animate
+series.appear(1000);
+chart.appear(1000, 100);
+```
+
+## OHLC Series
+
+For a simpler visualization without filled candles, use `OHLCSeries`:
+
+```typescript
+const series = chart.series.push(
+  am5xy.OHLCSeries.new(root, {
+    name: "Stock",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    openValueYField: "open",
+    lowValueYField: "low",
+    highValueYField: "high",
+    valueXField: "date"
+  })
+);
+```
+
+<Tip>
+  OHLC series displays the same data as candlesticks but uses lines instead of filled rectangles, which can be clearer when space is limited.
+</Tip>
+
+## Best Practices
+
+<Tip>
+  Always use `DateAxis` for the X-axis in financial charts to properly handle time-based data and gaps (weekends, holidays).
+</Tip>
+
+<Tip>
+  Enable data grouping when working with high-frequency data (minute or second intervals) to maintain good performance.
+</Tip>
+
+<Warning>
+  Ensure your data is sorted by date in ascending order before setting it to the series, as unsorted data can cause rendering issues.
+</Warning>
+
+<Note>
+  The `valueYField` represents the closing price. Don't confuse it with a separate "close" field - it's the main value field.
+</Note>

@@ -1,0 +1,584 @@
+---
+title: "Localization"
+description: "Translate amCharts 5 into different languages and customize regional formats"
+---
+
+## Overview
+
+amCharts 5 supports full localization, allowing you to translate chart elements and customize number, date, and time formats for different regions and languages.
+
+## Available Locales
+
+amCharts 5 includes pre-built locales for over 40 languages:
+
+<Columns cols={3}>
+  <div>
+    - Arabic (ar)
+    - Bulgarian (bg_BG)
+    - Catalan (ca_ES)
+    - Czech (cs_CZ)
+    - Danish (da_DK)
+    - German (de_DE, de_CH)
+    - Greek (el_GR)
+    - English (en, en_US, en_CA)
+  </div>
+  <div>
+    - Spanish (es_ES)
+    - Estonian (et_EE)
+    - Finnish (fi_FI)
+    - Faroese (fo_FO)
+    - French (fr_FR)
+    - Hebrew (he_IL)
+    - Hindi (hi_IN)
+    - Croatian (hr_HR)
+  </div>
+  <div>
+    - Hungarian (hu_HU)
+    - Indonesian (id_ID)
+    - Italian (it_IT)
+    - Japanese (ja_JP)
+    - Korean (ko_KR)
+    - Lithuanian (lt_LT)
+    - Latvian (lv_LV)
+    - And many more...
+  </div>
+</Columns>
+
+## Setting a Locale
+
+### Import and Apply
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import am5locales_de_DE from "@amcharts/amcharts5/locales/de_DE";
+
+let root = am5.Root.new("chartdiv");
+
+// Set German locale
+root.locale = am5locales_de_DE;
+```
+
+### Multiple Locales
+
+```typescript
+import am5locales_fr_FR from "@amcharts/amcharts5/locales/fr_FR";
+import am5locales_ja_JP from "@amcharts/amcharts5/locales/ja_JP";
+
+// French
+let root1 = am5.Root.new("chartdiv1");
+root1.locale = am5locales_fr_FR;
+
+// Japanese
+let root2 = am5.Root.new("chartdiv2");
+root2.locale = am5locales_ja_JP;
+```
+
+## Locale Structure
+
+A locale object contains translations and formatting settings:
+
+```typescript
+// Example locale structure
+export default {
+  // First day of the week (0 = Sunday, 1 = Monday)
+  "firstDayOfWeek": 1,
+  
+  // Number formatting
+  "_decimalSeparator": ".",
+  "_thousandSeparator": ",",
+  "_percentPrefix": null,
+  "_percentSuffix": "%",
+  
+  // Number suffixes
+  "_big_number_suffix_3": "k",
+  "_big_number_suffix_6": "M",
+  "_big_number_suffix_9": "G",
+  
+  // Date formats
+  "_date": "yyyy-MM-dd",
+  "_date_hour": "HH:mm",
+  "_date_day": "MMM dd",
+  "_date_month": "MMM",
+  "_date_year": "yyyy",
+  
+  // Month names
+  "January": "January",
+  "February": "February",
+  // ... etc
+  
+  // Weekday names
+  "Sunday": "Sunday",
+  "Monday": "Monday",
+  // ... etc
+  
+  // UI translations
+  "Zoom Out": "Zoom Out",
+  "Play": "Play",
+  "Stop": "Stop",
+  "Legend": "Legend",
+  "Loading": "Loading",
+  
+  // Chart types
+  "Chart": "Chart",
+  "Serial chart": "Serial chart",
+  "Pie chart": "Pie chart",
+  
+  // Export
+  "Export": "Export",
+  "Image": "Image",
+  "Data": "Data",
+  "Print": "Print"
+};
+```
+
+## Number Formatting
+
+### Decimal and Thousand Separators
+
+Locales define how numbers are formatted:
+
+```typescript
+import am5locales_de_DE from "@amcharts/amcharts5/locales/de_DE";
+import am5locales_en_US from "@amcharts/amcharts5/locales/en_US";
+
+// German: 1.234.567,89
+root.locale = am5locales_de_DE;
+// _decimalSeparator: ","
+// _thousandSeparator: "."
+
+// US English: 1,234,567.89
+root.locale = am5locales_en_US;
+// _decimalSeparator: "."
+// _thousandSeparator: ","
+```
+
+### Percent Signs
+
+```typescript
+// Customize percent formatting
+let customLocale = {
+  ...am5locales_en_US,
+  "_percentPrefix": null,
+  "_percentSuffix": "%"  // Result: "50%"
+};
+
+// Or prefix
+let customLocale2 = {
+  ...am5locales_en_US,
+  "_percentPrefix": "%",
+  "_percentSuffix": null  // Result: "%50"
+};
+
+root.locale = customLocale;
+```
+
+### Number Suffixes
+
+Customize how large and small numbers are abbreviated:
+
+```typescript
+let locale = {
+  ...am5locales_en_US,
+  // Big numbers
+  "_big_number_suffix_3": "k",      // 1,000 → 1k
+  "_big_number_suffix_6": "M",      // 1,000,000 → 1M
+  "_big_number_suffix_9": "B",      // 1,000,000,000 → 1B
+  "_big_number_suffix_12": "T",     // 1,000,000,000,000 → 1T
+  
+  // Small numbers
+  "_small_number_suffix_3": "m",    // 0.001 → 1m
+  "_small_number_suffix_6": "μ",    // 0.000001 → 1μ
+  
+  // Byte suffixes
+  "_byte_suffix_B": "B",
+  "_byte_suffix_KB": "KB",
+  "_byte_suffix_MB": "MB",
+  "_byte_suffix_GB": "GB",
+  "_byte_suffix_TB": "TB"
+};
+
+root.locale = locale;
+```
+
+## Date Formatting
+
+### Date Format Codes
+
+Locales define default date formats for different granularities:
+
+```typescript
+let locale = {
+  "_date": "yyyy-MM-dd",                    // Default date
+  "_date_millisecond": "mm:ss SSS",         // Millisecond precision
+  "_date_second": "HH:mm:ss",               // Second precision
+  "_date_minute": "HH:mm",                  // Minute precision
+  "_date_hour": "HH:mm",                    // Hour precision
+  "_date_day": "MMM dd",                    // Day precision
+  "_date_week": "ww",                       // Week precision
+  "_date_month": "MMM",                     // Month precision
+  "_date_year": "yyyy"                      // Year precision
+};
+```
+
+### Month and Weekday Names
+
+```typescript
+import am5locales_fr_FR from "@amcharts/amcharts5/locales/fr_FR";
+
+root.locale = am5locales_fr_FR;
+
+// French month names:
+// "January": "janvier"
+// "February": "février"
+// "March": "mars"
+// etc.
+
+// French weekdays:
+// "Monday": "lundi"
+// "Tuesday": "mardi"
+// "Wednesday": "mercredi"
+// etc.
+```
+
+### First Day of Week
+
+```typescript
+let locale = {
+  "firstDayOfWeek": 1  // 0 = Sunday, 1 = Monday
+};
+
+root.locale = locale;
+```
+
+### Date Ordinals
+
+Customize date ordinal suffixes (e.g., "1st", "2nd", "3rd"):
+
+```typescript
+let locale = {
+  "_dateOrd": function(day: number): string {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
+};
+```
+
+## Custom Translations
+
+### Extending Locales
+
+Add custom translations to existing locales:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import am5locales_en_US from "@amcharts/amcharts5/locales/en_US";
+
+let root = am5.Root.new("chartdiv");
+root.locale = am5locales_en_US;
+
+// Add single translation
+root.language.setTranslationAny("Custom Button", "Click Me");
+
+// Add multiple translations
+root.language.setTranslationsAny({
+  "Custom Button": "Click Me",
+  "Custom Label": "My Label",
+  "Custom Message": "Hello World"
+});
+```
+
+### Using Translations
+
+```typescript
+// In element settings
+let button = am5.Button.new(root, {
+  label: am5.Label.new(root, {
+    text: root.language.translateAny("Custom Button")
+  })
+});
+
+// With placeholders
+root.language.setTranslationAny(
+  "Items count", 
+  "Total: {count} items"
+);
+
+// Use with populateString
+import { populateString } from "@amcharts/amcharts5";
+
+let text = populateString(
+  root,
+  root.language.translateAny("Items count"),
+  { count: 42 }
+);
+// Result: "Total: 42 items"
+```
+
+## Creating Custom Locales
+
+### Full Locale File
+
+```typescript
+// my-custom-locale.ts
+export default {
+  "firstDayOfWeek": 1,
+  
+  "_decimalSeparator": ",",
+  "_thousandSeparator": " ",
+  "_percentPrefix": null,
+  "_percentSuffix": "%",
+  
+  "_big_number_suffix_3": "k",
+  "_big_number_suffix_6": "M",
+  "_big_number_suffix_9": "Mrd",
+  
+  "_date": "dd/MM/yyyy",
+  "_date_hour": "HH:mm",
+  "_date_day": "dd MMM",
+  
+  "January": "janvier",
+  "February": "février",
+  "March": "mars",
+  "April": "avril",
+  "May": "mai",
+  "June": "juin",
+  "July": "juillet",
+  "August": "août",
+  "September": "septembre",
+  "October": "octobre",
+  "November": "novembre",
+  "December": "décembre",
+  
+  "Monday": "lundi",
+  "Tuesday": "mardi",
+  "Wednesday": "mercredi",
+  "Thursday": "jeudi",
+  "Friday": "vendredi",
+  "Saturday": "samedi",
+  "Sunday": "dimanche",
+  
+  "Zoom Out": "Dézoomer",
+  "Play": "Lecture",
+  "Stop": "Arrêt",
+  "Legend": "Légende",
+  "Export": "Exporter"
+};
+```
+
+### Using Custom Locale
+
+```typescript
+import myCustomLocale from "./my-custom-locale";
+
+let root = am5.Root.new("chartdiv");
+root.locale = myCustomLocale;
+```
+
+## Formatter Locales
+
+### Number Formatter
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+
+// Number formatter uses root locale by default
+let formatted = root.numberFormatter.format(1234567.89, "#,###.00");
+// With en_US locale: "1,234,567.89"
+// With de_DE locale: "1.234.567,89"
+```
+
+### Date Formatter
+
+```typescript
+let date = new Date(2024, 0, 15);  // January 15, 2024
+
+let formatted = root.dateFormatter.format(date, "MMMM dd, yyyy");
+// With en_US locale: "January 15, 2024"
+// With fr_FR locale: "janvier 15, 2024"
+```
+
+### Intl Locales
+
+Use native JavaScript Intl for advanced formatting:
+
+```typescript
+root.dateFormatter.set("intlLocales", "fr-FR");
+
+let formatted = root.dateFormatter.format(
+  new Date(),
+  {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  }
+);
+```
+
+## Runtime Locale Switching
+
+```typescript
+import am5locales_en_US from "@amcharts/amcharts5/locales/en_US";
+import am5locales_de_DE from "@amcharts/amcharts5/locales/de_DE";
+import am5locales_ja_JP from "@amcharts/amcharts5/locales/ja_JP";
+
+let root = am5.Root.new("chartdiv");
+root.locale = am5locales_en_US;
+
+// Function to switch locale
+function setLocale(locale) {
+  root.locale = locale;
+  
+  // Refresh the chart to apply new locale
+  root.resize();
+}
+
+// Language selector
+document.getElementById("lang-en").addEventListener("click", () => {
+  setLocale(am5locales_en_US);
+});
+
+document.getElementById("lang-de").addEventListener("click", () => {
+  setLocale(am5locales_de_DE);
+});
+
+document.getElementById("lang-ja").addEventListener("click", () => {
+  setLocale(am5locales_ja_JP);
+});
+```
+
+## Complete Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5locales_de_DE from "@amcharts/amcharts5/locales/de_DE";
+
+// Create root with German locale
+let root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+root.locale = am5locales_de_DE;
+
+// Add custom translations
+root.language.setTranslationsAny({
+  "Revenue": "Umsatz",
+  "Profit": "Gewinn",
+  "Loss": "Verlust"
+});
+
+// Create chart
+let chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: false,
+  panY: false
+}));
+
+let data = [
+  { month: "Januar", value: 1234567.89 },
+  { month: "Februar", value: 987654.32 },
+  { month: "März", value: 1567890.12 }
+];
+
+// Create axes
+let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+  categoryField: "month",
+  renderer: am5xy.AxisRendererX.new(root, {})
+}));
+xAxis.data.setAll(data);
+
+let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {
+    // Numbers will use German formatting: 1.234.567,89
+  })
+}));
+
+// Create series
+let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+  name: root.language.translateAny("Revenue"),
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  categoryXField: "month",
+  tooltip: am5.Tooltip.new(root, {
+    labelText: "{categoryX}: {valueY.formatNumber('#,###.00')} €"
+  })
+}));
+
+series.data.setAll(data);
+
+// Legend with translated label
+let legend = chart.children.push(am5.Legend.new(root, {
+  centerX: am5.percent(50),
+  x: am5.percent(50)
+}));
+
+legend.data.setAll(chart.series.values);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Pre-built Locales">
+    Start with an existing locale file and customize only what's needed:
+    
+    ```typescript
+    import am5locales_en_US from "@amcharts/amcharts5/locales/en_US";
+    
+    let customLocale = {
+      ...am5locales_en_US,
+      "_decimalSeparator": ",",
+      "Export": "Download"
+    };
+    
+    root.locale = customLocale;
+    ```
+  </Accordion>
+  
+  <Accordion title="Translate All UI Elements">
+    Don't forget to translate:
+    - Chart titles and descriptions
+    - Axis labels
+    - Legend labels
+    - Tooltip content
+    - Button labels
+    - Export menu items
+  </Accordion>
+  
+  <Accordion title="Test Number Formatting">
+    Verify that number formats look correct for your target locale:
+    - Decimal separators
+    - Thousand separators
+    - Currency symbols
+    - Percent signs
+  </Accordion>
+  
+  <Accordion title="Consider RTL Languages">
+    For right-to-left languages like Arabic or Hebrew:
+    
+    ```typescript
+    import am5locales_ar from "@amcharts/amcharts5/locales/ar";
+    
+    root.locale = am5locales_ar;
+    
+    // You may need to adjust alignment
+    chart.set("rtl", true);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Timezone Support" icon="clock" href="/advanced/timezone">
+    Display dates in specific timezones
+  </Card>
+  <Card title="Date Formatting" icon="calendar" href="/api/utils/formatters">
+    Learn about date and number formatters
+  </Card>
+</CardGroup>

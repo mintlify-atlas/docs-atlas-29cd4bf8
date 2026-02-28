@@ -1,0 +1,200 @@
+---
+title: Pie Chart
+description: Create pie and donut charts to visualize proportional data
+---
+
+Pie charts display data as slices of a circle, where each slice represents a proportion of the whole. Set an inner radius to create donut charts.
+
+## When to Use Pie Charts
+
+Use pie charts when you need to:
+- Show part-to-whole relationships
+- Display percentage distribution
+- Visualize composition of a dataset
+- Compare proportions at a glance
+- Create donut charts for a modern look
+
+## Creating a Pie Chart
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create pie chart
+const chart = root.container.children.push(
+  am5percent.PieChart.new(root, {
+    radius: am5.percent(80),
+    innerRadius: am5.percent(50), // Remove this line for a full pie
+    startAngle: -90,
+    endAngle: 270
+  })
+);
+
+// Create series
+const series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category",
+    alignLabels: false
+  })
+);
+
+// Configure labels
+series.labels.template.setAll({
+  text: "{category}: {valuePercentTotal.formatNumber('0.00')}%",
+  textType: "circular",
+  radius: 10
+});
+
+// Set data
+series.data.setAll([
+  { category: "Category A", value: 500 },
+  { category: "Category B", value: 300 },
+  { category: "Category C", value: 200 },
+  { category: "Category D", value: 180 },
+  { category: "Category E", value: 100 }
+]);
+
+// Add legend
+const legend = chart.children.push(
+  am5.Legend.new(root, {
+    centerX: am5.percent(50),
+    x: am5.percent(50),
+    marginTop: 15,
+    marginBottom: 15
+  })
+);
+
+legend.data.setAll(series.dataItems);
+```
+
+## Configuration Options
+
+### Chart Radius
+
+<Info>
+Control the size and shape of your pie chart with radius settings.
+</Info>
+
+- **radius** (`number | Percent`) - Outer radius of the pie (default: 80%)
+- **innerRadius** (`number | Percent`) - Inner radius (creates donut when set)
+- **startAngle** (`number`) - Start angle in degrees (default: -90)
+- **endAngle** (`number`) - End angle in degrees (default: 270)
+
+### Creating a Donut Chart
+
+```typescript
+const chart = root.container.children.push(
+  am5percent.PieChart.new(root, {
+    innerRadius: am5.percent(60) // Creates donut hole
+  })
+);
+```
+
+### Creating a Semi-Circle
+
+```typescript
+const chart = root.container.children.push(
+  am5percent.PieChart.new(root, {
+    startAngle: 180,
+    endAngle: 360
+  })
+);
+```
+
+## Series Configuration
+
+### Slice Appearance
+
+```typescript
+const series = chart.series.push(
+  am5percent.PieSeries.new(root, {
+    valueField: "value",
+    categoryField: "category",
+    alignLabels: true
+  })
+);
+
+// Customize individual slices
+series.slices.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff),
+  cornerRadius: 5
+});
+
+// Add hover effect
+series.slices.template.states.create("hover", {
+  scale: 1.05
+});
+```
+
+### Labels and Ticks
+
+```typescript
+// Configure labels
+series.labels.template.setAll({
+  text: "{category}",
+  fontSize: 12,
+  fill: am5.color(0x000000)
+});
+
+// Configure ticks
+series.ticks.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 1
+});
+```
+
+### Hide Small Slices
+
+```typescript
+series.slices.template.adapters.add("visible", function(visible, target) {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    return dataItem.get("valuePercentTotal") > 5; // Hide slices < 5%
+  }
+  return visible;
+});
+```
+
+## Interactive Features
+
+### Pull Out on Click
+
+```typescript
+series.slices.template.events.on("click", function(ev) {
+  const slice = ev.target;
+  const dataItem = slice.dataItem;
+  
+  if (dataItem) {
+    const sliceState = dataItem.get("slice")?.states.create("active", {
+      shiftRadius: 20
+    });
+    
+    if (slice.isActive()) {
+      slice.states.applyAnimate("default");
+    } else {
+      slice.states.applyAnimate("active");
+    }
+  }
+});
+```
+
+## Key Classes
+
+- `PieChart` - Main chart class from `@amcharts/amcharts5/percent`
+- `PieSeries` - Pie series implementation
+- `Slice` - Individual pie slice
+
+<Tip>
+For better readability with many categories, consider using `alignLabels: true` to arrange labels in columns outside the pie.
+</Tip>
+
+<Note>
+Inner radius can be negative (e.g., `-10`) to mean "outer radius minus 10 pixels".
+</Note>

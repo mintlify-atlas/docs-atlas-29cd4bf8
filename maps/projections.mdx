@@ -1,0 +1,239 @@
+---
+title: Map Projections
+description: Learn about map projections in amCharts 5, including Mercator, Orthographic, and other projection types for creating different map visualizations.
+---
+
+Map projections determine how the spherical surface of Earth is transformed into a flat 2D representation. amCharts 5 supports multiple projection types through the D3-geo library.
+
+## Available Projections
+
+amCharts 5 exports the following projection functions from D3-geo:
+
+- `geoMercator` - The standard Mercator projection
+- `geoOrthographic` - Globe-style orthographic projection
+- `geoEquirectangular` - Simple equirectangular projection
+- `geoAlbersUsa` - Composite projection for US maps
+- `geoEqualEarth` - Equal-area pseudocylindrical projection
+- `geoNaturalEarth1` - Compromise projection for world maps
+
+## Setting a Projection
+
+Set the projection when creating a MapChart using the `projection` setting:
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator()
+  })
+);
+```
+
+## Mercator Projection
+
+The Mercator projection is the most common projection for web maps. It preserves angles but distorts size, especially near the poles.
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    panX: "translateX",
+    panY: "translateY"
+  })
+);
+```
+
+**Use Cases:**
+- General-purpose world maps
+- Regional maps
+- Navigation and route planning
+
+## Orthographic Projection
+
+The orthographic projection creates a globe-like appearance, showing the Earth as it would appear from space.
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    panX: "rotateX",
+    panY: "rotateY"
+  })
+);
+
+// Create background series for globe appearance
+const backgroundSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {})
+);
+
+backgroundSeries.mapPolygons.template.setAll({
+  fill: root.interfaceColors.get("alternativeBackground"),
+  fillOpacity: 0.1,
+  strokeOpacity: 0
+});
+
+backgroundSeries.data.push({
+  geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+});
+```
+
+**Use Cases:**
+- Interactive globe visualizations
+- Showing global data from a specific viewpoint
+- Geographic data with rotation controls
+
+<Note>
+With orthographic projection, use `panX: "rotateX"` and `panY: "rotateY"` for proper globe rotation behavior.
+</Note>
+
+## Equirectangular Projection
+
+A simple projection that maps longitude and latitude directly to x and y coordinates.
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoEquirectangular()
+  })
+);
+```
+
+**Use Cases:**
+- Simple world maps
+- Heat maps and data overlays
+- When minimal distortion in the tropics is desired
+
+## Equal Earth Projection
+
+An equal-area projection that maintains accurate relative sizes of countries and regions.
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoEqualEarth()
+  })
+);
+```
+
+**Use Cases:**
+- Thematic maps comparing countries by area
+- Population or resource distribution maps
+- When accurate size representation is important
+
+## Natural Earth Projection
+
+A compromise projection balancing shape and area distortion.
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoNaturalEarth1()
+  })
+);
+```
+
+**Use Cases:**
+- World maps for general reference
+- Physical and political maps
+- When both shape and area need to be reasonably accurate
+
+## Albers USA Projection
+
+A composite projection specifically designed for United States maps, with Alaska and Hawaii repositioned.
+
+```typescript
+import am5geodata_usaLow from "@amcharts/amcharts5-geodata/usaLow";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoAlbersUsa()
+  })
+);
+
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_usaLow
+  })
+);
+```
+
+**Use Cases:**
+- United States maps
+- State-level data visualization
+- US demographic or economic data
+
+## Animating Projection Changes
+
+<Note>
+Available since version 5.16.0
+</Note>
+
+You can smoothly animate transitions between projections using the `animateProjection()` method:
+
+```typescript
+import { geoMercator, geoOrthographic, geoMercatorRaw, geoOrthographicRaw } from "d3-geo";
+
+// Initial projection
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: geoMercator()
+  })
+);
+
+// Later, animate to orthographic
+button.events.on("click", () => {
+  chart.animateProjection(
+    geoOrthographic(),
+    geoOrthographicRaw,
+    1000, // duration in ms
+    am5.ease.inOut(am5.ease.cubic),
+    geoMercatorRaw // source projection (only needed on first call)
+  );
+});
+```
+
+## Projection Settings
+
+### Rotation
+
+Control the center point and rotation of the map:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    rotationX: -100, // Horizontal rotation
+    rotationY: -40,  // Vertical rotation
+    rotationZ: 0     // Depth rotation
+  })
+);
+```
+
+See MapChart.ts:59-73
+
+### Pan Behavior
+
+Configure how dragging affects the map:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    panX: "rotateX",    // Horizontal drag rotates
+    panY: "rotateY"     // Vertical drag rotates
+  })
+);
+```
+
+Available options:
+- `"none"` - No panning
+- `"translateX"` / `"translateY"` - Move the map (for flat projections)
+- `"rotateX"` / `"rotateY"` - Rotate the globe (for spherical projections)
+
+See MapChart.ts:98-111
+
+## Related Classes
+
+- [MapChart](/charts/map-chart) - The main map chart component
+- [Series Types](/maps/series-types) - Different ways to display data on maps

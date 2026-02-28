@@ -1,0 +1,307 @@
+---
+title: "Stock Charts Overview"
+description: "Create professional stock charts with candlesticks, volume, and interactive features"
+---
+
+## Introduction
+
+Stock charts in amCharts 5 provide a complete solution for financial data visualization with candlestick/OHLC series, volume bars, technical indicators, drawing tools, and comparison capabilities.
+
+## Basic Stock Chart Setup
+
+Create a stock chart by instantiating `StockChart` and adding panels with series:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+// Create root
+const root = am5.Root.new("chartdiv");
+
+// Create stock chart
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {})
+);
+
+// Create main panel
+const mainPanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {
+    wheelY: "zoomX",
+    panX: true,
+    panY: true
+  })
+);
+```
+
+## Adding Axes and Series
+
+Stock charts require a date axis and value axis along with candlestick or OHLC series:
+
+```typescript
+// Create value axis
+const valueAxis = mainPanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {
+      pan: "zoom"
+    }),
+    extraMin: 0.1,
+    tooltip: am5.Tooltip.new(root, {}),
+    numberFormat: "#,###.00"
+  })
+);
+
+// Create date axis
+const dateAxis = mainPanel.xAxes.push(
+  am5xy.GaplessDateAxis.new(root, {
+    baseInterval: {
+      timeUnit: "day",
+      count: 1
+    },
+    renderer: am5xy.AxisRendererX.new(root, {
+      minorGridEnabled: true
+    }),
+    tooltip: am5.Tooltip.new(root, {})
+  })
+);
+
+// Add candlestick series
+const valueSeries = mainPanel.series.push(
+  am5xy.CandlestickSeries.new(root, {
+    name: "MSFT",
+    clustered: false,
+    valueXField: "Date",
+    valueYField: "Close",
+    highValueYField: "High",
+    lowValueYField: "Low",
+    openValueYField: "Open",
+    calculateAggregates: true,
+    xAxis: dateAxis,
+    yAxis: valueAxis,
+    legendValueText: "open: [bold]{openValueY}[/] high: [bold]{highValueY}[/] low: [bold]{lowValueY}[/] close: [bold]{valueY}[/]"
+  })
+);
+
+// Set main series
+stockChart.set("stockSeries", valueSeries);
+```
+
+## Setting Main Series
+
+The `stockSeries` setting identifies the primary series for indicators and comparisons:
+
+```typescript
+stockChart.set("stockSeries", valueSeries);
+```
+
+<Info>
+The main series should be set before adding indicators or comparison series.
+</Info>
+
+## Adding Volume
+
+Volume is typically displayed as columns below the main price chart:
+
+```typescript
+// Create volume axis
+const volumeAxisRenderer = am5xy.AxisRendererY.new(root, {
+  inside: true
+});
+volumeAxisRenderer.labels.template.set("forceHidden", true);
+volumeAxisRenderer.grid.template.set("forceHidden", true);
+
+const volumeValueAxis = mainPanel.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    numberFormat: "#.#a",
+    height: am5.percent(20),
+    y: am5.percent(100),
+    centerY: am5.percent(100),
+    renderer: volumeAxisRenderer
+  })
+);
+
+// Add volume series
+const volumeSeries = mainPanel.series.push(
+  am5xy.ColumnSeries.new(root, {
+    name: "Volume",
+    clustered: false,
+    valueXField: "Date",
+    valueYField: "Volume",
+    xAxis: dateAxis,
+    yAxis: volumeValueAxis,
+    legendValueText: "[bold]{valueY.formatNumber('#,###.0a')}[/]"
+  })
+);
+
+vol umeSeries.columns.template.setAll({
+  strokeOpacity: 0,
+  fillOpacity: 0.5
+});
+
+// Color columns based on price movement
+volumeSeries.columns.template.adapters.add("fill", function(fill, target) {
+  const dataItem = target.dataItem;
+  if (dataItem) {
+    return stockChart.getVolumeColor(dataItem);
+  }
+  return fill;
+});
+
+// Set volume series
+stockChart.set("volumeSeries", volumeSeries);
+```
+
+## Stock Legend
+
+Add a stock legend to display series information:
+
+```typescript
+const valueLegend = mainPanel.plotContainer.children.push(
+  am5stock.StockLegend.new(root, {
+    stockChart: stockChart
+  })
+);
+
+valueLegend.data.setAll([valueSeries, volumeSeries]);
+```
+
+## Positive/Negative Colors
+
+Customize colors for rising and falling prices:
+
+```typescript
+const stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {
+    stockPositiveColor: am5.color(0x00FF00),
+    stockNegativeColor: am5.color(0xFF0000),
+    volumePositiveColor: am5.color(0x00FF00),
+    volumeNegativeColor: am5.color(0xFF0000)
+  })
+);
+```
+
+## Multiple Panels
+
+Stock charts support multiple panels for indicators or separate data:
+
+```typescript
+// Add indicator panel
+const indicatorPanel = stockChart.panels.push(
+  am5stock.StockPanel.new(root, {
+    height: am5.percent(30),
+    panX: true,
+    panY: true
+  })
+);
+```
+
+Panels are automatically synchronized for zooming and panning along the X-axis.
+
+## Cursor and Scrollbar
+
+Add interactive cursor and scrollbar:
+
+```typescript
+// Add cursor
+mainPanel.set("cursor", am5xy.XYCursor.new(root, {
+  yAxis: valueAxis,
+  xAxis: dateAxis,
+  snapToSeries: [valueSeries],
+  snapToSeriesBy: "y!"
+}));
+
+// Add scrollbar
+const scrollbar = mainPanel.set("scrollbarX", 
+  am5xy.XYChartScrollbar.new(root, {
+    orientation: "horizontal",
+    height: 50
+  })
+);
+stockChart.toolsContainer.children.push(scrollbar);
+```
+
+## Data Format
+
+Stock charts expect data with OHLC values:
+
+```typescript
+const data = [
+  {
+    Date: 1617192000000,
+    Open: 515.67,
+    High: 528.13,
+    Low: 515.44,
+    Close: 521.66,
+    Volume: 3503100
+  },
+  {
+    Date: 1617278400000,
+    Open: 529.93,
+    High: 540.5,
+    Low: 527.03,
+    Close: 539.42,
+    Volume: 3938600
+  }
+  // ...
+];
+
+valueSeries.data.setAll(data);
+volumeSeries.data.setAll(data);
+```
+
+## Series Types
+
+Switch between different series types:
+
+```typescript
+// Candlestick
+const candlestickSeries = am5xy.CandlestickSeries.new(root, {
+  // ... settings
+});
+
+// OHLC
+const ohlcSeries = am5xy.OHLCSeries.new(root, {
+  clustered: false,
+  // ... settings
+});
+
+// Line
+const lineSeries = am5xy.LineSeries.new(root, {
+  valueYField: "Close",
+  // ... settings
+});
+```
+
+## Key Classes
+
+- `StockChart` - Main stock chart container
+- `StockPanel` - Individual chart panel
+- `StockLegend` - Legend for stock series
+- `CandlestickSeries` - Candlestick series
+- `OHLCSeries` - OHLC bar series
+- `GaplessDateAxis` - Date axis that skips gaps
+
+## Events
+
+Stock charts dispatch several events:
+
+```typescript
+stockChart.events.on("drawingsupdated", (ev) => {
+  console.log("Drawings updated");
+});
+
+stockChart.events.on("indicatorsupdated", (ev) => {
+  console.log("Indicators updated");
+});
+
+stockChart.events.on("drawingadded", (ev) => {
+  console.log("Drawing added:", ev.drawingId);
+});
+```
+
+## Related Topics
+
+- [Indicators](/stock/indicators) - Technical analysis indicators
+- [Drawing Tools](/stock/drawing-tools) - Annotation and drawing features
+- [Toolbar](/stock/toolbar) - Interactive toolbar controls
+- [Comparisons](/stock/comparisons) - Compare multiple securities

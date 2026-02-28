@@ -1,0 +1,348 @@
+---
+title: Colors
+description: Learn how to work with colors in amCharts 5, including creating colors, color manipulation, and using color sets.
+---
+
+## Overview
+
+Colors in amCharts 5 are handled through the `Color` class, which provides a robust set of methods for creating, manipulating, and working with colors across your visualizations.
+
+## Creating Colors
+
+### Using the color() Helper Function
+
+The simplest way to create a color is using the `color()` helper function:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+// Hex string
+const red = am5.color(0xff0000);
+
+// Hex string with hash
+const blue = am5.color("#0000ff");
+
+// Short hex notation
+const green = am5.color("#0f0");
+
+// RGB string
+const yellow = am5.color("rgb(255, 255, 0)");
+
+// RGBA string
+const transparentBlack = am5.color("rgba(0, 0, 0, 0.5)");
+```
+
+### Using Color Class Methods
+
+The `Color` class provides static methods for creating colors from different formats:
+
+```typescript
+// From hex number
+const color1 = am5.Color.fromHex(0xff0000);
+
+// From RGB values
+const color2 = am5.Color.fromRGB(255, 0, 0);
+
+// From hex string
+const color3 = am5.Color.fromString("#ff0000");
+
+// From CSS rgba() string
+const color4 = am5.Color.fromCSS("rgba(255, 0, 0, 1)");
+
+// From HSL values
+const color5 = am5.Color.fromHSL(0, 1, 0.5);
+```
+
+Relevant source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:69-216`
+
+## Color Properties
+
+Access individual color channel values:
+
+```typescript
+const color = am5.color(0xff6347); // Tomato color
+
+console.log(color.r);   // Red channel: 255
+console.log(color.g);   // Green channel: 99
+console.log(color.b);   // Blue channel: 71
+console.log(color.hex); // Hex value: 16737095
+```
+
+## Color Manipulation
+
+### Lightening and Darkening
+
+Adjust the lightness of colors:
+
+```typescript
+const baseColor = am5.color(0x3366cc);
+
+// Lighten by 30%
+const lighterColor = am5.Color.lighten(baseColor, 0.3);
+
+// Darken by 30% (use negative value)
+const darkerColor = am5.Color.lighten(baseColor, -0.3);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:319-322`
+
+### Brightening
+
+Adjust the brightness of colors:
+
+```typescript
+const baseColor = am5.color(0x3366cc);
+
+// Brighten by 30%
+const brighterColor = am5.Color.brighten(baseColor, 0.3);
+
+// Dim by 30% (use negative value)
+const dimmerColor = am5.Color.brighten(baseColor, -0.3);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:333-336`
+
+### Saturation
+
+Adjust color saturation (0 = fully desaturated, 1 = full color):
+
+```typescript
+const baseColor = am5.color(0xff6347);
+
+// Fully saturate
+const saturated = am5.Color.saturate(baseColor, 1);
+
+// Desaturate to grayscale
+const grayscale = am5.Color.saturate(baseColor, 0);
+
+// Partially desaturate
+const muted = am5.Color.saturate(baseColor, 0.5);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:347-350`
+
+### Color Interpolation
+
+Create intermediate colors between two colors:
+
+```typescript
+const startColor = am5.color(0xff0000); // Red
+const endColor = am5.color(0x0000ff);   // Blue
+
+// Get color at 50% between red and blue (purple)
+const midColor = am5.Color.interpolate(0.5, startColor, endColor);
+
+// RGB interpolation (default)
+const rgbColor = am5.Color.interpolate(0.25, startColor, endColor, "rgb");
+
+// HSL interpolation (smoother color transitions)
+const hslColor = am5.Color.interpolate(0.25, startColor, endColor, "hsl");
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:291-308`
+
+### Alternative Colors
+
+Get contrasting colors for better visibility:
+
+```typescript
+const backgroundColor = am5.color(0x000000);
+const lightText = am5.color(0xffffff);
+const darkText = am5.color(0x000000);
+
+// Returns lightText or darkText depending on which contrasts better
+const textColor = am5.Color.alternative(
+  backgroundColor,
+  lightText,
+  darkText
+);
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:272-279`
+
+## Applying Colors to Chart Elements
+
+### Fill Colors
+
+```typescript
+const series = chart.series.push(
+  am5xy.ColumnSeries.new(root, {
+    fill: am5.color(0x297373),
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    categoryXField: "category"
+  })
+);
+
+// Apply to individual column
+series.columns.template.setAll({
+  fill: am5.color(0xff6b6b),
+  fillOpacity: 0.8
+});
+```
+
+### Stroke Colors
+
+```typescript
+series.strokes.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2,
+  strokeOpacity: 1
+});
+```
+
+## Color Sets
+
+ColorSet manages multiple colors and can generate new ones dynamically.
+
+### Creating a Color Set
+
+```typescript
+const colorSet = am5.ColorSet.new(root, {
+  colors: [
+    am5.color(0x297373),
+    am5.color(0xff6b6b),
+    am5.color(0xffd93d),
+    am5.color(0x6bcf7f)
+  ],
+  step: 1,
+  reuse: false
+});
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/ColorSet.ts:5-52`
+
+### Using Color Sets
+
+```typescript
+// Get color by index
+const firstColor = colorSet.getIndex(0);
+const secondColor = colorSet.getIndex(1);
+
+// Get next color in sequence
+const color1 = colorSet.next();
+const color2 = colorSet.next();
+
+// Reset to start
+colorSet.reset();
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/ColorSet.ts:158-188`
+
+### Color Set with Auto-Generation
+
+When the ColorSet runs out of colors, it automatically generates new ones:
+
+```typescript
+const colorSet = am5.ColorSet.new(root, {
+  colors: [
+    am5.color(0x3366cc)
+  ],
+  passOptions: {
+    hue: 0.1,        // Shift hue for each pass
+    saturation: 0,   // Keep saturation same
+    lightness: -0.1  // Darken each pass
+  },
+  reuse: false
+});
+
+// First few calls return the base color and generated variations
+for (let i = 0; i < 10; i++) {
+  const color = colorSet.next();
+  console.log(color.toString());
+}
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/ColorSet.ts:115-148`
+
+### Applying ColorSet to Series
+
+```typescript
+const colorSet = am5.ColorSet.new(root, {});
+
+series.columns.template.adapters.add("fill", (fill, target) => {
+  return colorSet.next();
+});
+```
+
+## Color Conversion
+
+### To CSS Strings
+
+```typescript
+const color = am5.color(0xff6347);
+
+// RGBA format
+const rgba = color.toCSS(1);        // "rgba(255, 99, 71, 1)"
+const transparent = color.toCSS(0.5); // "rgba(255, 99, 71, 0.5)"
+
+// Hex format
+const hex = color.toCSSHex();       // "#ff6347"
+const string = color.toString();     // "#ff6347"
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:124-170`
+
+### To HSL
+
+```typescript
+const color = am5.color(0xff6347);
+const hsl = color.toHSL();
+
+console.log(hsl.h); // Hue
+console.log(hsl.s); // Saturation
+console.log(hsl.l); // Lightness
+console.log(hsl.a); // Alpha
+```
+
+Source: `/home/daytona/workspace/source/src/.internal/core/util/Color.ts:142-149`
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use Color Constants">
+    Define frequently used colors as constants at the top of your file:
+    
+    ```typescript
+    const PRIMARY_COLOR = am5.color(0x3366cc);
+    const SECONDARY_COLOR = am5.color(0xff6b6b);
+    const ACCENT_COLOR = am5.color(0xffd93d);
+    ```
+  </Accordion>
+
+  <Accordion title="Consider Color Accessibility">
+    Use `Color.alternative()` to ensure sufficient contrast for text:
+    
+    ```typescript
+    const textColor = am5.Color.alternative(
+      backgroundColor,
+      am5.color(0xffffff),  // Light text
+      am5.color(0x000000)   // Dark text
+    );
+    ```
+  </Accordion>
+
+  <Accordion title="Reuse Color Sets">
+    Create a single ColorSet instance and reuse it across multiple series for consistent coloring:
+    
+    ```typescript
+    const colorSet = am5.ColorSet.new(root, {});
+    
+    series1.set("fill", colorSet.next());
+    series2.set("fill", colorSet.next());
+    series3.set("fill", colorSet.next());
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Gradients" icon="fill-drip" href="/customization/gradients">
+    Learn how to create linear and radial gradients
+  </Card>
+  <Card title="Patterns" icon="grid" href="/customization/patterns">
+    Apply repeating patterns to chart elements
+  </Card>
+</CardGroup>

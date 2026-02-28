@@ -1,0 +1,326 @@
+---
+title: "Installation"
+description: "Install amCharts 5 in your JavaScript or TypeScript project"
+---
+
+## Installation Methods
+
+amCharts 5 can be installed via npm, yarn, pnpm, or included directly from a CDN.
+
+<Steps>
+  <Step title="Install the package">
+    Choose your preferred package manager to install amCharts 5:
+    
+    <CodeGroup>
+    ```bash npm
+    npm install @amcharts/amcharts5
+    ```
+    
+    ```bash yarn
+    yarn add @amcharts/amcharts5
+    ```
+    
+    ```bash pnpm
+    pnpm add @amcharts/amcharts5
+    ```
+    </CodeGroup>
+    
+    <Info>
+      The core package includes all chart types except maps and stock charts, which are available as separate modules.
+    </Info>
+  </Step>
+  
+  <Step title="Install additional modules (optional)">
+    Install additional modules for specific chart types:
+    
+    <Tabs>
+      <Tab title="Map Charts">
+        ```bash
+        npm install @amcharts/amcharts5-geodata
+        ```
+        
+        Required for map charts and geographical visualizations.
+      </Tab>
+      
+      <Tab title="Fonts">
+        ```bash
+        npm install @amcharts/amcharts5-fonts
+        ```
+        
+        Additional font support for custom typography.
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Import into your project">
+    Import amCharts 5 modules in your JavaScript or TypeScript files:
+    
+    <CodeGroup>
+    ```typescript Core Module
+    import * as am5 from "@amcharts/amcharts5";
+    ```
+    
+    ```typescript XY Charts
+    import * as am5 from "@amcharts/amcharts5";
+    import * as am5xy from "@amcharts/amcharts5/xy";
+    ```
+    
+    ```typescript Pie Charts
+    import * as am5 from "@amcharts/amcharts5";
+    import * as am5percent from "@amcharts/amcharts5/percent";
+    ```
+    
+    ```typescript Map Charts
+    import * as am5 from "@amcharts/amcharts5";
+    import * as am5map from "@amcharts/amcharts5/map";
+    import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+    ```
+    
+    ```typescript Themes
+    import * as am5 from "@amcharts/amcharts5";
+    import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+    import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+    ```
+    </CodeGroup>
+    
+    <Tip>
+      Import only the modules you need to keep your bundle size small.
+    </Tip>
+  </Step>
+</Steps>
+
+## CDN Installation
+
+For quick prototyping or simple projects, you can include amCharts 5 directly from a CDN:
+
+<CodeGroup>
+```html Script Tags
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+</head>
+<body>
+  <div id="chartdiv" style="width: 100%; height: 500px;"></div>
+  
+  <script>
+    // Create root
+    const root = am5.Root.new("chartdiv");
+    
+    // Set themes
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+    
+    // Create chart
+    const chart = root.container.children.push(
+      am5xy.XYChart.new(root, {})
+    );
+  </script>
+</body>
+</html>
+```
+
+```html ES Modules
+<!DOCTYPE html>
+<html>
+<head>
+  <script type="module">
+    import * as am5 from 'https://cdn.amcharts.com/lib/5/index.js';
+    import * as am5xy from 'https://cdn.amcharts.com/lib/5/xy.js';
+    import am5themes_Animated from 'https://cdn.amcharts.com/lib/5/themes/Animated.js';
+    
+    // Your chart code here
+  </script>
+</head>
+<body>
+  <div id="chartdiv" style="width: 100%; height: 500px;"></div>
+</body>
+</html>
+```
+</CodeGroup>
+
+<Warning>
+  CDN links are best for prototyping. For production applications, use npm/yarn installation for better performance and version control.
+</Warning>
+
+## TypeScript Configuration
+
+amCharts 5 is written in TypeScript and includes full type definitions out of the box.
+
+<Steps>
+  <Step title="TypeScript is ready to use">
+    No additional configuration needed! Type definitions are included with the package.
+    
+    ```typescript
+    import * as am5 from "@amcharts/amcharts5";
+    import * as am5xy from "@amcharts/amcharts5/xy";
+    
+    // Full type inference and autocomplete
+    const root = am5.Root.new("chartdiv");
+    const chart = root.container.children.push(
+      am5xy.XYChart.new(root, {
+        panX: false,
+        panY: false
+      })
+    );
+    ```
+  </Step>
+  
+  <Step title="Configure your tsconfig.json">
+    Ensure your TypeScript configuration allows module resolution:
+    
+    ```json tsconfig.json
+    {
+      "compilerOptions": {
+        "target": "ES2015",
+        "module": "ES2015",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true
+      }
+    }
+    ```
+  </Step>
+  
+  <Step title="Use type-safe configurations">
+    Leverage TypeScript interfaces for type-safe chart configuration:
+    
+    ```typescript
+    import { IXYChartSettings } from "@amcharts/amcharts5/xy";
+    
+    const chartSettings: IXYChartSettings = {
+      panX: false,
+      panY: false,
+      wheelX: "panX",
+      wheelY: "zoomX",
+      layout: root.verticalLayout
+    };
+    
+    const chart = am5xy.XYChart.new(root, chartSettings);
+    ```
+  </Step>
+</Steps>
+
+<Info>
+  amCharts 5 requires TypeScript 4.3 or higher for full type support.
+</Info>
+
+## Import Path Reference
+
+Here are the most common import paths you'll use:
+
+<CodeGroup>
+```typescript Core
+// Core classes and utilities
+import * as am5 from "@amcharts/amcharts5";
+
+// Root, Theme, Color, Legend, Tooltip, etc.
+const root = am5.Root.new("chartdiv");
+const color = am5.color(0x3cabff);
+const percent = am5.percent(50);
+```
+
+```typescript XY Charts
+// XY chart types (line, column, bar, etc.)
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// XYChart, LineSeries, ColumnSeries, DateAxis, ValueAxis, etc.
+const chart = am5xy.XYChart.new(root, {});
+const series = am5xy.LineSeries.new(root, {});
+```
+
+```typescript Percent Charts
+// Pie and funnel charts
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+// PieChart, PieSeries, FunnelSeries, etc.
+const chart = am5percent.PieChart.new(root, {});
+const series = am5percent.PieSeries.new(root, {});
+```
+
+```typescript Map Charts
+// Map visualizations
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+// MapChart, MapPolygonSeries, MapLineSeries, etc.
+const chart = am5map.MapChart.new(root, {});
+```
+
+```typescript Hierarchy Charts
+// Tree, treemap, pack, etc.
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+// Tree, Treemap, Pack, ForceDirected, etc.
+const series = am5hierarchy.Treemap.new(root, {});
+```
+
+```typescript Stock Charts
+// Financial charting
+import * as am5stock from "@amcharts/amcharts5/stock";
+
+// StockChart, StockPanel, indicators, etc.
+const chart = am5stock.StockChart.new(root, {});
+```
+
+```typescript Radar Charts
+// Circular/radar visualizations
+import * as am5radar from "@amcharts/amcharts5/radar";
+
+// RadarChart, RadarLineSeries, RadarColumnSeries, etc.
+const chart = am5radar.RadarChart.new(root, {});
+```
+
+```typescript Themes
+// Visual themes
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+import am5themes_Material from "@amcharts/amcharts5/themes/Material";
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  am5themes_Dark.new(root)
+]);
+```
+</CodeGroup>
+
+## Next Steps
+
+Now that you have amCharts 5 installed, you're ready to create your first chart:
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Create your first chart in minutes
+  </Card>
+  
+  <Card
+    title="Core Concepts"
+    icon="book"
+    href="/concepts/root"
+  >
+    Learn about Root, Sprites, and Containers
+  </Card>
+  
+  <Card
+    title="XY Charts"
+    icon="chart-line"
+    href="/charts/xy-chart"
+  >
+    Build line, column, and area charts
+  </Card>
+  
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api/core/root"
+  >
+    Explore the complete API documentation
+  </Card>
+</CardGroup>

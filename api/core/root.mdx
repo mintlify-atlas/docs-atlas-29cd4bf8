@@ -1,0 +1,392 @@
+---
+title: Root
+---
+
+Root element of the chart. Every chart must have exactly one Root instance.
+
+## Constructor
+
+### Root.new()
+
+Creates a new Root instance.
+
+<ParamField path="id" type="string | HTMLElement" required>
+  ID of the target HTML element or the element itself
+</ParamField>
+
+<ParamField path="settings" type="IRootSettings">
+  Root configuration settings
+</ParamField>
+
+<ResponseField name="root" type="Root">
+  New Root instance
+</ResponseField>
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const root = am5.Root.new("chartdiv");
+```
+
+## Properties
+
+### dom
+
+<ResponseField name="dom" type="HTMLElement">
+  Reference to original chart container (div element)
+</ResponseField>
+
+### container
+
+<ResponseField name="container" type="Container">
+  Main content container for the chart
+</ResponseField>
+
+### tooltipContainer
+
+<ResponseField name="tooltipContainer" type="Container">
+  Container used to display tooltips
+</ResponseField>
+
+### locale
+
+<ResponseField name="locale" type="ILocale" default="en">
+  Locale used by the chart
+</ResponseField>
+
+See [Locales](https://www.amcharts.com/docs/v5/concepts/locales/) for more info.
+
+### utc
+
+<ResponseField name="utc" type="boolean" default={false}>
+  Use UTC when formatting date/time
+</ResponseField>
+
+See [UTC and time zones](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-dates/#utc-and-time-zones) for more info.
+
+### timezone
+
+<ResponseField name="timezone" type="Timezone">
+  If set, will format date/time in specific time zone (e.g. "America/Vancouver", "Australia/Sydney", "UTC")
+</ResponseField>
+
+NOTE: Using time zone feature may noticeably affect performance with large data sets.
+
+### fps
+
+<ResponseField name="fps" type="number | undefined">
+  Maximum FPS that the Root will run at. If `undefined` it will run at the highest FPS.
+</ResponseField>
+
+See [Performance](https://www.amcharts.com/docs/v5/getting-started/root-element/#Performance) for more info.
+
+### numberFormatter
+
+<ResponseField name="numberFormatter" type="NumberFormatter">
+  Number formatter instance
+</ResponseField>
+
+See [Formatting numbers](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-numbers/) for more info.
+
+### dateFormatter
+
+<ResponseField name="dateFormatter" type="DateFormatter">
+  Date/time formatter instance
+</ResponseField>
+
+See [Formatting dates](https://www.amcharts.com/docs/v5/concepts/formatters/formatting-dates/) for more info.
+
+### durationFormatter
+
+<ResponseField name="durationFormatter" type="DurationFormatter">
+  Duration formatter instance
+</ResponseField>
+
+### tabindex
+
+<ResponseField name="tabindex" type="number" default={0}>
+  Global tab index for using for the whole chart
+</ResponseField>
+
+See [Accessibility](https://www.amcharts.com/docs/v5/concepts/accessibility/) for more info.
+
+### interfaceColors
+
+<ResponseField name="interfaceColors" type="InterfaceColors">
+  Special color set to be used for various controls
+</ResponseField>
+
+See [Interface colors](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/#Interface_colors) for more info.
+
+### verticalLayout
+
+<ResponseField name="verticalLayout" type="VerticalLayout">
+  An instance of vertical layout object that can be used to set `layout` setting of a Container
+</ResponseField>
+
+### horizontalLayout
+
+<ResponseField name="horizontalLayout" type="HorizontalLayout">
+  An instance of horizontal layout object that can be used to set `layout` setting of a Container
+</ResponseField>
+
+### gridLayout
+
+<ResponseField name="gridLayout" type="GridLayout">
+  An instance of grid layout object that can be used to set `layout` setting of a Container
+</ResponseField>
+
+### autoResize
+
+<ResponseField name="autoResize" type="boolean" default={true}>
+  Indicates whether chart should resize automatically when parent container width/height changes
+</ResponseField>
+
+If disabled (`autoResize = false`), you can resize the chart manually by calling `resize()` method.
+
+### nonce
+
+<ResponseField name="nonce" type="string">
+  Used for dynamically-created CSS and JavaScript with strict source policies
+</ResponseField>
+
+### entitiesById
+
+<ResponseField name="entitiesById" type="{ [index: string]: any }">
+  Entities that have their `id` setting set
+</ResponseField>
+
+### events
+
+<ResponseField name="events" type="EventDispatcher<Events<Root, IRootEvents>>">
+  Root's event dispatcher
+</ResponseField>
+
+See [Events](https://www.amcharts.com/docs/v5/concepts/events/) for more info.
+
+## Methods
+
+### setThemes()
+
+Sets themes to be used for the chart.
+
+<ParamField path="themes" type="Array<Theme>" required>
+  A list of themes
+</ParamField>
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+```
+
+See [Themes](https://www.amcharts.com/docs/v5/concepts/themes/) for more info.
+
+### resize()
+
+Manually resizes the chart. Use this when automatic resizing is disabled (`root.autoResize = false`).
+
+```typescript
+root.resize();
+```
+
+### dispose()
+
+Disposes root and all the content in it.
+
+```typescript
+root.dispose();
+```
+
+### isDisposed()
+
+Returns `true` if root element is disposed.
+
+<ResponseField name="disposed" type="boolean">
+  Whether the root is disposed
+</ResponseField>
+
+```typescript
+if (root.isDisposed()) {
+  // Root has been disposed
+}
+```
+
+### width()
+
+Returns width of the target container in pixels.
+
+<ResponseField name="width" type="number">
+  Width in pixels
+</ResponseField>
+
+```typescript
+const width = root.width();
+```
+
+### height()
+
+Returns height of the target container in pixels.
+
+<ResponseField name="height" type="number">
+  Height in pixels
+</ResponseField>
+
+```typescript
+const height = root.height();
+```
+
+### moveDOM()
+
+Moves the Root to a different HTML element.
+
+<ParamField path="id" type="string | HTMLElement" required>
+  ID of the new target HTML element or the element itself
+</ParamField>
+
+```typescript
+root.moveDOM("newChartDiv");
+```
+
+### readerAlert()
+
+Triggers screen reader to read out a message.
+
+<ParamField path="text" type="string" required>
+  Alert text
+</ParamField>
+
+```typescript
+root.readerAlert("Chart data has been updated");
+```
+
+See [Accessibility](https://www.amcharts.com/docs/v5/concepts/accessibility/) for more info.
+
+### documentPointToRoot()
+
+Converts document coordinates to coordinates within root element.
+
+<ParamField path="point" type="IPoint" required>
+  Document point with x and y coordinates
+</ParamField>
+
+<ResponseField name="point" type="IPoint">
+  Root point with x and y coordinates
+</ResponseField>
+
+```typescript
+const rootPoint = root.documentPointToRoot({ x: 100, y: 200 });
+```
+
+### rootPointToDocument()
+
+Converts root coordinates to document coordinates.
+
+<ParamField path="point" type="IPoint" required>
+  Root point with x and y coordinates
+</ParamField>
+
+<ResponseField name="point" type="IPoint">
+  Document point with x and y coordinates
+</ResponseField>
+
+```typescript
+const docPoint = root.rootPointToDocument({ x: 100, y: 200 });
+```
+
+### eachFrame()
+
+Registers a callback function to be called on each frame.
+
+<ParamField path="callback" type="(currentTime: number) => void" required>
+  Function to call on each frame
+</ParamField>
+
+<ResponseField name="disposer" type="IDisposer">
+  Disposer to remove the callback
+</ResponseField>
+
+```typescript
+const disposer = root.eachFrame((currentTime) => {
+  console.log("Frame rendered at:", currentTime);
+});
+
+// Remove callback
+disposer.dispose();
+```
+
+### focused()
+
+Returns `true` if target sprite is currently focused.
+
+<ParamField path="target" type="Sprite" required>
+  Target sprite
+</ParamField>
+
+<ResponseField name="focused" type="boolean">
+  Whether the target is focused
+</ResponseField>
+
+```typescript
+if (root.focused(sprite)) {
+  // Sprite is focused
+}
+```
+
+## Settings
+
+### IRootSettings
+
+<ParamField path="useSafeResolution" type="boolean" default={true}>
+  Indicates whether chart should use "safe" resolution on some memory-limiting platforms such as Safari
+</ParamField>
+
+<ParamField path="tooltipContainerBounds" type="{ top: number, left: number, right: number, bottom: number }">
+  Allows defining margins around chart area for tooltips to go outside the chart itself
+</ParamField>
+
+<ParamField path="accessible" type="boolean" default={true}>
+  Set to `false` to disable all accessibility features. NOTE: once disabled, accessibility cannot be re-enabled on a live Root object.
+</ParamField>
+
+<ParamField path="focusable" type="boolean" default={false}>
+  If set to `true`, the parent inner `<div>` element will become a focusable element
+</ParamField>
+
+See [Accessibility of Root element](https://www.amcharts.com/docs/v5/concepts/accessibility/#Accessibility_of_Root_element) for more info.
+
+<ParamField path="focusPadding" type="number" default={2}>
+  Distance between focused element and its highlight square in pixels
+</ParamField>
+
+<ParamField path="ariaLabel" type="string">
+  If set to some string, it will be used as inner `<div>` ARIA-LABEL. Should be used in conjunction with `focusable`.
+</ParamField>
+
+<ParamField path="role" type="string">
+  Allows setting a "role" for the inner `<div>`
+</ParamField>
+
+<ParamField path="calculateSize" type="(dimensions: DOMRect) => ISize">
+  Allows for specifying a custom width/height for the chart. This function will be called automatically when the chart is resized.
+</ParamField>
+
+## Events
+
+### IRootEvents
+
+<ResponseField name="framestarted" type="{ timestamp: number }">
+  Invoked when a frame starts rendering
+</ResponseField>
+
+<ResponseField name="frameended" type="{ timestamp: number }">
+  Invoked when a frame ends rendering
+</ResponseField>
+
+```typescript
+root.events.on("frameended", (ev) => {
+  console.log("Frame ended at:", ev.timestamp);
+});
+```

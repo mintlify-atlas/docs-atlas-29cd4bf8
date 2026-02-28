@@ -1,0 +1,328 @@
+---
+title: 'Scrollbar'
+description: 'Range selection control for zooming and scrolling'
+icon: 'scroll'
+---
+
+## Overview
+
+The `Scrollbar` class creates a control that allows range selection, commonly used for zooming chart axes or scrolling through large datasets. It features draggable grips and a thumb for intuitive interaction.
+
+## Constructor
+
+```typescript
+Scrollbar.new(root, settings)
+```
+
+<ParamField path="root" type="Root" required>
+  The root element of the chart
+</ParamField>
+
+<ParamField path="settings" type="IScrollbarSettings">
+  Configuration settings for the scrollbar
+</ParamField>
+
+## Settings
+
+### Orientation
+
+<ParamField path="orientation" type="'horizontal' | 'vertical'" required>
+  Orientation of the scrollbar.
+</ParamField>
+
+### Range Settings
+
+<ParamField path="start" type="number">
+  Relative start of the selected range, where 0 is the beginning and 1 is the end.
+</ParamField>
+
+<ParamField path="end" type="number">
+  Relative end of the selected range, where 0 is the beginning and 1 is the end.
+</ParamField>
+
+### Animation Settings
+
+<ParamField path="animationDuration" type="number">
+  Number of milliseconds to play scroll animations for.
+</ParamField>
+
+<ParamField path="animationEasing" type="(t: Time) => Time">
+  Easing function to use for animations.
+</ParamField>
+
+## Properties
+
+### thumb
+
+<ResponseField name="thumb" type="RoundedRectangle">
+  The thumb element - a draggable rectangle between the grips used for panning the selection.
+</ResponseField>
+
+```typescript
+scrollbar.thumb.setAll({
+  fill: am5.color(0x0000ff),
+  fillOpacity: 0.3
+});
+```
+
+### startGrip
+
+<ResponseField name="startGrip" type="Button">
+  Start grip button for adjusting the start of the range.
+</ResponseField>
+
+```typescript
+scrollbar.startGrip.setAll({
+  scale: 1.2
+});
+```
+
+### endGrip
+
+<ResponseField name="endGrip" type="Button">
+  End grip button for adjusting the end of the range.
+</ResponseField>
+
+```typescript
+scrollbar.endGrip.setAll({
+  scale: 1.2
+});
+```
+
+## Methods
+
+### updateGrips()
+
+Updates the grip positions based on the current `start` and `end` values.
+
+```typescript
+updateGrips(): void
+```
+
+This method is automatically called when `start` or `end` changes.
+
+## Events
+
+### rangechanged
+
+Fired when the range selection changes.
+
+```typescript
+scrollbar.events.on("rangechanged", function(ev) {
+  console.log("Range:", ev.start, "-", ev.end);
+  console.log("Grip:", ev.grip); // "start", "end", or undefined
+});
+```
+
+<ResponseField name="start" type="number">
+  New start position (0-1)
+</ResponseField>
+
+<ResponseField name="end" type="number">
+  New end position (0-1)
+</ResponseField>
+
+<ResponseField name="grip" type="'start' | 'end' | undefined">
+  Which grip is being dragged, if any
+</ResponseField>
+
+### released
+
+Fired when the user releases a grip or thumb after dragging.
+
+```typescript
+scrollbar.events.on("released", function(ev) {
+  console.log("Scrollbar released");
+});
+```
+
+## Examples
+
+### Basic Horizontal Scrollbar
+
+```typescript
+import { Scrollbar } from "@amcharts/amcharts5";
+
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal",
+  start: 0.2,
+  end: 0.8
+});
+
+chart.set("scrollbarX", scrollbar);
+```
+
+### Vertical Scrollbar
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "vertical"
+});
+
+chart.set("scrollbarY", scrollbar);
+```
+
+### Scrollbar with Custom Styling
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal"
+});
+
+scrollbar.thumb.setAll({
+  fill: am5.color(0x3b82f6),
+  fillOpacity: 0.5
+});
+
+scrollbar.startGrip.setAll({
+  scale: 1.5
+});
+
+scrollbar.endGrip.setAll({
+  scale: 1.5
+});
+```
+
+### Scrollbar with Animation
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal",
+  animationDuration: 500,
+  animationEasing: am5.ease.out(am5.ease.cubic)
+});
+```
+
+### Scrollbar with Event Handling
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal"
+});
+
+scrollbar.events.on("rangechanged", function(ev) {
+  const start = ev.start;
+  const end = ev.end;
+  
+  // Update axis range
+  xAxis.zoom(start, end);
+});
+
+scrollbar.events.on("released", function(ev) {
+  console.log("User finished adjusting range");
+});
+```
+
+### Scrollbar on XY Chart
+
+```typescript
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {})
+);
+
+const scrollbar = chart.set("scrollbarX",
+  am5xy.XYChartScrollbar.new(root, {
+    orientation: "horizontal"
+  })
+);
+```
+
+### Programmatically Setting Range
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal"
+});
+
+// Set range with animation
+scrollbar.setAll({
+  start: 0.3,
+  end: 0.7,
+  animationDuration: 1000
+});
+
+// Or set individual values
+scrollbar.set("start", 0.4);
+scrollbar.set("end", 0.6);
+```
+
+### Custom Background
+
+```typescript
+const scrollbar = Scrollbar.new(root, {
+  orientation: "horizontal",
+  background: am5.RoundedRectangle.new(root, {
+    fill: am5.color(0xf0f0f0),
+    fillOpacity: 0.5,
+    cornerRadiusTL: 5,
+    cornerRadiusTR: 5,
+    cornerRadiusBL: 5,
+    cornerRadiusBR: 5
+  })
+});
+```
+
+## Interaction Modes
+
+The scrollbar supports three interaction modes:
+
+### 1. Grip Dragging
+
+Drag the start or end grip to adjust one side of the range while keeping the other fixed.
+
+### 2. Thumb Dragging
+
+Drag the thumb (area between grips) to pan the entire range without changing its size.
+
+### 3. Background Clicking
+
+Click on the background to center the thumb at that position, maintaining the current range size.
+
+### 4. Double-Click Reset
+
+Double-click the thumb to reset the range to full (0-1).
+
+## Accessibility
+
+The scrollbar grips include ARIA attributes:
+
+- `ariaLabel` - Descriptive label ("From X" / "To Y")
+- `ariaValueNow` - Current value as percentage
+- `ariaValueText` - Text representation of value
+- `ariaValueMin` - Minimum value ("0")
+- `ariaValueMax` - Maximum value ("100")
+
+These are automatically updated as the scrollbar is manipulated.
+
+## Theme Tags
+
+The scrollbar automatically receives theme tags based on its orientation:
+
+- `"scrollbar"`
+- `"horizontal"` or `"vertical"`
+
+Child elements receive additional tags:
+- `"main"`, `"background"` - Background
+- `"thumb"`, orientation - Thumb
+- `"resize"`, `"button"`, orientation - Grips
+- `"icon"` - Grip icons
+
+```typescript
+const myTheme = am5.Theme.new(root);
+
+myTheme.rule("Scrollbar", ["horizontal"]).setAll({
+  height: 20
+});
+
+myTheme.rule("RoundedRectangle", ["scrollbar", "thumb"]).setAll({
+  fillOpacity: 0.5
+});
+```
+
+## Related
+
+- [Slider](/api/controls/slider)
+- [Button](/api/controls/button)
+- [Container](/api/core/container)
+- [XY Chart Scrollbar](/xy/scrollbar)
+- [Scrollbar documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/scrollbars/)

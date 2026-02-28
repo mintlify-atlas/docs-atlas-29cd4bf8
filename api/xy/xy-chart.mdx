@@ -1,0 +1,336 @@
+---
+title: 'XYChart'
+description: 'Creates an XY chart for plotting data on cartesian coordinate system'
+---
+
+## Overview
+
+XYChart is the main container for creating charts with X and Y axes. It provides the foundation for line, column, candlestick, and other series types that plot data on a cartesian coordinate system.
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  })
+);
+```
+
+## Settings
+
+<ParamField path="panX" type="boolean">
+  If set to `true`, users will be able to pan the chart horizontally by dragging plot area.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Panning)
+</ParamField>
+
+<ParamField path="panY" type="boolean">
+  If set to `true`, users will be able to pan the chart vertically by dragging plot area.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Panning)
+</ParamField>
+
+<ParamField path="wheelX" type="'zoomX' | 'zoomY' | 'zoomXY' | 'panX' | 'panY' | 'panXY' | 'none'">
+  Indicates what happens when mouse wheel is spinned horizontally while over plot area.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Mouse_wheel_behavior)
+</ParamField>
+
+<ParamField path="wheelY" type="'zoomX' | 'zoomY' | 'zoomXY' | 'panX' | 'panY' | 'panXY' | 'none'">
+  Indicates what happens when mouse wheel is spinned vertically while over plot area.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Mouse_wheel_behavior)
+</ParamField>
+
+<ParamField path="wheelStep" type="number" default="0.25">
+  Indicates the relative "speed" of the mouse wheel.
+</ParamField>
+
+<ParamField path="cursor" type="XYCursor">
+  Chart's cursor for displaying crosshairs and tooltips.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/)
+</ParamField>
+
+<ParamField path="scrollbarX" type="Scrollbar">
+  Horizontal scrollbar.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/scrollbars/)
+</ParamField>
+
+<ParamField path="scrollbarY" type="Scrollbar">
+  Vertical scrollbar.
+</ParamField>
+
+<ParamField path="maxTooltipDistance" type="number">
+  If set, cursor will select closest data item to pointer and show tooltip for it. Also shows tooltips for all data items within X pixels range.
+  
+  Set to `-1` to ensure only one tooltip is displayed.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#tooltips)
+</ParamField>
+
+<ParamField path="maxTooltipDistanceBy" type="'xy' | 'x' | 'y'">
+  Indicates how the distance should be measured when assessing distance between tooltips as set in `maxTooltipDistance`.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#tooltips)
+</ParamField>
+
+<ParamField path="arrangeTooltips" type="boolean" default="true">
+  If set to `false` the chart will not check for overlapping of multiple tooltips, and will not arrange them to not overlap.
+  
+  Will work only if chart has an XYCursor enabled.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/#ooltips)
+</ParamField>
+
+<ParamField path="pinchZoomX" type="boolean" default="false">
+  If set to `true`, using pinch gesture on the chart's plot area will zoom chart horizontally.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Pinch_zoom)
+</ParamField>
+
+<ParamField path="pinchZoomY" type="boolean" default="false">
+  If set to `true`, using pinch gesture on the chart's plot area will zoom chart vertically.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Pinch_zoom)
+</ParamField>
+
+<ParamField path="wheelZoomPositionX" type="number">
+  If set, will use this relative position as a "center" for mouse wheel horizontal zooming instead of actual cursor position.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Mouse_wheel_behavior)
+</ParamField>
+
+<ParamField path="wheelZoomPositionY" type="number">
+  If set, will use this relative position as a "center" for mouse wheel vertical zooming instead of actual cursor position.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Mouse_wheel_behavior)
+</ParamField>
+
+## Properties
+
+<ResponseField name="xAxes" type="ListAutoDispose<Axis<AxisRenderer>>">
+  A list of horizontal axes.
+  
+  ```typescript
+  const xAxis = chart.xAxes.push(
+    am5xy.DateAxis.new(root, {
+      baseInterval: { timeUnit: "day", count: 1 },
+      renderer: am5xy.AxisRendererX.new(root, {})
+    })
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="yAxes" type="ListAutoDispose<Axis<AxisRenderer>>">
+  A list of vertical axes.
+  
+  ```typescript
+  const yAxis = chart.yAxes.push(
+    am5xy.ValueAxis.new(root, {
+      renderer: am5xy.AxisRendererY.new(root, {})
+    })
+  );
+  ```
+</ResponseField>
+
+<ResponseField name="topAxesContainer" type="Container">
+  A Container located on top of the chart, used to store top horizontal axes.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="bottomAxesContainer" type="Container">
+  A Container located on bottom of the chart, used to store bottom horizontal axes.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="leftAxesContainer" type="Container">
+  A Container located on left of the chart, used to store left-hand vertical axes.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="rightAxesContainer" type="Container">
+  A Container located on right of the chart, used to store right-hand vertical axes.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="plotContainer" type="Container">
+  A Container located in the middle of the chart, used to store actual plots (series).
+  
+  NOTE: `plotContainer` will automatically have its `background` preset. If you need to modify background or outline for chart's plot area, you can use `plotContainer.get("background")` for that.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="gridContainer" type="Container">
+  A Container axis grid elements are stored in.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/xy-chart-containers/)
+</ResponseField>
+
+<ResponseField name="zoomOutButton" type="Button">
+  A button that is shown when chart is not fully zoomed out.
+  
+  [See documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/#Zoom_out_button)
+</ResponseField>
+
+## Methods
+
+### handleWheel()
+
+```typescript
+public handleWheel(event: {
+  originalEvent: WheelEvent;
+  point: IPoint;
+  target: Container;
+}): void
+```
+
+This method is invoked when mouse wheel is used over chart's plot container, and handles zooming/pan.
+
+You can invoke this method manually, if you need to mimic chart's wheel behavior over other elements of the chart.
+
+<ParamField path="event" type="object" required>
+  Event object containing the wheel event details
+  
+  <ParamField path="event.originalEvent" type="WheelEvent" required>
+    The original browser wheel event
+  </ParamField>
+  
+  <ParamField path="event.point" type="IPoint" required>
+    The point coordinates
+  </ParamField>
+  
+  <ParamField path="event.target" type="Container" required>
+    The target container
+  </ParamField>
+</ParamField>
+
+### inPlot()
+
+```typescript
+public inPlot(point: IPoint): boolean
+```
+
+Checks if point is within plot area.
+
+<ParamField path="point" type="IPoint" required>
+  Reference point to check
+</ParamField>
+
+**Returns:** `boolean` - Is within plot area?
+
+### arrangeTooltips()
+
+```typescript
+public arrangeTooltips(): void
+```
+
+Arranges tooltips to prevent overlapping.
+
+## Events
+
+<ResponseField name="panstarted" type="event">
+  Invoked when panning starts.
+  
+  ```typescript
+  chart.events.on("panstarted", (ev) => {
+    console.log("Pan started", ev.originalEvent);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="panended" type="event">
+  Invoked when panning ends.
+  
+  ```typescript
+  chart.events.on("panended", (ev) => {
+    console.log("Pan ended", ev.originalEvent);
+  });
+  ```
+</ResponseField>
+
+<ResponseField name="pancancelled" type="event">
+  Invoked if pointer is pressed down on a chart and released without moving.
+  
+  `panended` event will still kick in after that.
+</ResponseField>
+
+<ResponseField name="wheelended" type="event">
+  Invoked when wheel caused zoom ends.
+</ResponseField>
+
+## Usage Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX",
+    pinchZoomX: true,
+    arrangeTooltips: true
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Add cursor
+const cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+cursor.lineY.set("visible", false);
+
+// Add series
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date"
+  })
+);
+
+series.data.setAll([
+  { date: new Date(2021, 0, 1).getTime(), value: 50 },
+  { date: new Date(2021, 0, 2).getTime(), value: 35 },
+  { date: new Date(2021, 0, 3).getTime(), value: 42 }
+]);
+```
+
+## See Also
+
+- [XY Chart Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/)
+- [Zoom and Pan](https://www.amcharts.com/docs/v5/charts/xy-chart/zoom-and-pan/)
+- [XYCursor](cursor)
+- [Axes](axes)
+- [Series](series)

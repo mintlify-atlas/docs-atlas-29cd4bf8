@@ -1,0 +1,515 @@
+---
+title: "Timezone Support"
+description: "Display and manipulate dates in specific timezones with amCharts 5"
+---
+
+## Overview
+
+amCharts 5 provides timezone support through the `Timezone` class, allowing you to display date/time data in any IANA timezone regardless of the user's local timezone.
+
+<Warning>
+Using timezone features may noticeably affect performance, especially with large datasets, since every date needs to be recalculated. Use timezone support only when necessary.
+</Warning>
+
+## Basic Usage
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+
+// Set timezone to America/New_York
+root.timezone = Timezone.new("America/New_York");
+```
+
+## IANA Timezone Names
+
+Use standard IANA timezone identifiers:
+
+```typescript
+// North America
+root.timezone = Timezone.new("America/New_York");      // Eastern Time
+root.timezone = Timezone.new("America/Chicago");       // Central Time
+root.timezone = Timezone.new("America/Los_Angeles");   // Pacific Time
+root.timezone = Timezone.new("America/Denver");        // Mountain Time
+
+// Europe
+root.timezone = Timezone.new("Europe/London");         // GMT/BST
+root.timezone = Timezone.new("Europe/Paris");          // CET/CEST
+root.timezone = Timezone.new("Europe/Berlin");         // CET/CEST
+root.timezone = Timezone.new("Europe/Moscow");         // MSK
+
+// Asia
+root.timezone = Timezone.new("Asia/Tokyo");            // JST
+root.timezone = Timezone.new("Asia/Shanghai");         // CST
+root.timezone = Timezone.new("Asia/Dubai");            // GST
+root.timezone = Timezone.new("Asia/Kolkata");          // IST
+
+// Australia
+root.timezone = Timezone.new("Australia/Sydney");      // AEDT/AEST
+root.timezone = Timezone.new("Australia/Melbourne");   // AEDT/AEST
+
+// UTC
+root.timezone = Timezone.new("UTC");                   // Coordinated Universal Time
+```
+
+<Tip>
+Find the complete list of IANA timezone identifiers at [IANA Time Zone Database](https://www.iana.org/time-zones).
+</Tip>
+
+## Timezone Class
+
+The `Timezone` class provides methods for working with timezones:
+
+```typescript
+import { Timezone } from "@amcharts/amcharts5";
+
+let timezone = Timezone.new("America/New_York");
+
+// Get timezone name
+console.log(timezone.name);  // "America/New_York"
+
+// Convert UTC offset (in minutes)
+let date = new Date();
+let offsetMinutes = timezone.offsetUTC(date);
+console.log(`Offset: ${offsetMinutes} minutes`);
+
+// Parse date in timezone
+let parsed = timezone.parseDate(date);
+// Returns: { year, month, day, hour, minute, second, millisecond, weekday }
+
+// Convert to local time
+let localDate = timezone.convertLocal(date);
+```
+
+## UTC Mode
+
+Display all dates in UTC without timezone conversion:
+
+```typescript
+let root = am5.Root.new("chartdiv");
+
+// Enable UTC mode
+root.utc = true;
+
+// All dates will be displayed in UTC
+// No need to set timezone
+```
+
+<Info>
+`utc` mode is simpler and more performant than using `Timezone`. Use it when you want to display all dates in UTC.
+</Info>
+
+## Date Formatting with Timezones
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+root.timezone = Timezone.new("Asia/Tokyo");
+
+// DateFormatter will use the timezone
+let formatted = root.dateFormatter.format(
+  new Date("2024-01-15T12:00:00Z"),
+  "yyyy-MM-dd HH:mm:ss"
+);
+// Result: "2024-01-15 21:00:00" (Tokyo is UTC+9)
+```
+
+## Time Series Charts
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+
+// Set timezone for the chart
+root.timezone = Timezone.new("Europe/London");
+
+let chart = root.container.children.push(am5xy.XYChart.new(root, {}));
+
+// Create date axis
+let xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+  baseInterval: { timeUnit: "hour", count: 1 },
+  renderer: am5xy.AxisRendererX.new(root, {})
+}));
+
+// Dates in data will be displayed in London timezone
+let data = [
+  { date: new Date("2024-01-15T00:00:00Z").getTime(), value: 10 },
+  { date: new Date("2024-01-15T06:00:00Z").getTime(), value: 15 },
+  { date: new Date("2024-01-15T12:00:00Z").getTime(), value: 20 },
+  { date: new Date("2024-01-15T18:00:00Z").getTime(), value: 18 }
+];
+
+let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {})
+}));
+
+let series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date"
+}));
+
+series.data.setAll(data);
+```
+
+## Stock Charts with Timezones
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5stock from "@amcharts/amcharts5/stock";
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+
+// Display in New York timezone for stock market data
+root.timezone = Timezone.new("America/New_York");
+
+let stockChart = root.container.children.push(
+  am5stock.StockChart.new(root, {})
+);
+
+// All timestamps will be converted to Eastern Time
+```
+
+## Daylight Saving Time
+
+The `Timezone` class automatically handles DST transitions:
+
+```typescript
+import { Timezone } from "@amcharts/amcharts5";
+
+let timezone = Timezone.new("America/New_York");
+
+// Before DST (Winter - EST, UTC-5)
+let winter = new Date("2024-01-15T12:00:00Z");
+let offsetWinter = timezone.offsetUTC(winter);
+console.log(offsetWinter);  // 300 minutes (5 hours)
+
+// After DST (Summer - EDT, UTC-4)
+let summer = new Date("2024-07-15T12:00:00Z");
+let offsetSummer = timezone.offsetUTC(summer);
+console.log(offsetSummer);  // 240 minutes (4 hours)
+```
+
+## Converting Between Timezones
+
+```typescript
+import { Timezone } from "@amcharts/amcharts5";
+
+// Original date in UTC
+let utcDate = new Date("2024-01-15T12:00:00Z");
+
+// Convert to Tokyo time
+let tokyoTz = Timezone.new("Asia/Tokyo");
+let tokyoDate = tokyoTz.convertLocal(utcDate);
+console.log(tokyoDate);  // Shows Tokyo time
+
+// Convert to New York time
+let nyTz = Timezone.new("America/New_York");
+let nyDate = nyTz.convertLocal(utcDate);
+console.log(nyDate);  // Shows New York time
+```
+
+## Performance Considerations
+
+### Impact on Performance
+
+```typescript
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+
+// Every date operation will be slower with timezone
+root.timezone = Timezone.new("America/Los_Angeles");
+
+// With 10,000+ data points, you may notice performance impact
+let largeDataset = Array.from({ length: 10000 }, (_, i) => ({
+  date: new Date(2024, 0, 1, i).getTime(),
+  value: Math.random() * 100
+}));
+```
+
+### Optimization Tips
+
+<AccordionGroup>
+  <Accordion title="Use UTC When Possible">
+    If you don't need timezone conversion, use UTC mode instead:
+    
+    ```typescript
+    // Faster than using Timezone
+    root.utc = true;
+    
+    // Instead of:
+    // root.timezone = Timezone.new("UTC");
+    ```
+  </Accordion>
+  
+  <Accordion title="Pre-convert Data">
+    Convert timestamps server-side before sending to the client:
+    
+    ```typescript
+    // Server-side (Node.js example)
+    const moment = require('moment-timezone');
+    
+    const data = rawData.map(item => ({
+      date: moment.tz(item.timestamp, "America/New_York").valueOf(),
+      value: item.value
+    }));
+    
+    // Client-side - no timezone conversion needed
+    series.data.setAll(data);
+    ```
+  </Accordion>
+  
+  <Accordion title="Limit Data Points">
+    Use data grouping or aggregation for large datasets:
+    
+    ```typescript
+    // Group hourly data into daily when showing large date ranges
+    xAxis.set("groupData", true);
+    xAxis.set("groupCount", 500);
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Displaying Multiple Timezones
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import { Timezone } from "@amcharts/amcharts5";
+
+// Create two charts with different timezones
+let root1 = am5.Root.new("chartdiv1");
+root1.timezone = Timezone.new("America/New_York");
+
+let root2 = am5.Root.new("chartdiv2");
+root2.timezone = Timezone.new("Asia/Tokyo");
+
+// Both will show the same data in their respective timezones
+let data = [
+  { date: new Date("2024-01-15T12:00:00Z").getTime(), value: 10 },
+  { date: new Date("2024-01-15T18:00:00Z").getTime(), value: 15 }
+];
+
+// Setup charts with the same data
+// Chart 1 will show times in Eastern Time
+// Chart 2 will show times in Japan Standard Time
+```
+
+## User-Selectable Timezone
+
+```typescript
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+let currentTimezone = Timezone.new("America/New_York");
+root.timezone = currentTimezone;
+
+// Create timezone selector
+const timezones = [
+  { label: "New York", value: "America/New_York" },
+  { label: "London", value: "Europe/London" },
+  { label: "Tokyo", value: "Asia/Tokyo" },
+  { label: "Sydney", value: "Australia/Sydney" },
+  { label: "UTC", value: "UTC" }
+];
+
+function changeTimezone(tzName: string) {
+  root.timezone = Timezone.new(tzName);
+  
+  // Refresh the chart
+  root.resize();
+}
+
+// HTML select element
+const select = document.getElementById("timezone-select");
+select.addEventListener("change", (e) => {
+  changeTimezone(e.target.value);
+});
+```
+
+## Tooltip with Timezone
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { Timezone } from "@amcharts/amcharts5";
+
+let root = am5.Root.new("chartdiv");
+root.timezone = Timezone.new("Europe/Paris");
+
+let tooltip = am5.Tooltip.new(root, {
+  labelText: "[bold]{categoryX}[/]\nTime: {valueX.formatDate('HH:mm:ss')}\nValue: {valueY}"
+});
+
+series.set("tooltip", tooltip);
+
+// Tooltip will show times in Paris timezone
+```
+
+## Complete Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import { Timezone } from "@amcharts/amcharts5";
+
+// Create root with timezone
+let root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+
+// Set timezone to Singapore
+root.timezone = Timezone.new("Asia/Singapore");
+
+// Create chart
+let chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: true,
+  panY: false,
+  wheelY: "zoomX"
+}));
+
+// Add scrollbar
+let scrollbar = am5xy.XYChartScrollbar.new(root, {
+  orientation: "horizontal",
+  height: 60
+});
+chart.set("scrollbarX", scrollbar);
+
+// Create date axis - will use Singapore timezone
+let xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+  baseInterval: { timeUnit: "hour", count: 1 },
+  renderer: am5xy.AxisRendererX.new(root, {}),
+  tooltip: am5.Tooltip.new(root, {})
+}));
+
+let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {})
+}));
+
+// Add series
+let series = chart.series.push(am5xy.LineSeries.new(root, {
+  name: "Temperature",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date",
+  tooltip: am5.Tooltip.new(root, {
+    labelText: "Time: {valueX.formatDate('HH:mm')} SGT\nTemp: {valueY}°C"
+  })
+}));
+
+// Generate hourly data for 24 hours (UTC timestamps)
+let data = [];
+let baseDate = new Date("2024-01-15T00:00:00Z");
+for (let i = 0; i < 24; i++) {
+  data.push({
+    date: new Date(baseDate.getTime() + i * 3600000).getTime(),
+    value: 20 + Math.random() * 10
+  });
+}
+
+series.data.setAll(data);
+
+// Add cursor
+let cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+  xAxis: xAxis
+}));
+
+// Timezone selector
+const timezones = [
+  "Asia/Singapore",
+  "America/New_York",
+  "Europe/London",
+  "Asia/Tokyo",
+  "UTC"
+];
+
+function updateTimezone(tzName: string) {
+  root.timezone = Timezone.new(tzName);
+  root.resize();
+}
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store Dates in UTC">
+    Always store and transmit dates in UTC, then convert to timezone for display:
+    
+    ```typescript
+    // Good: UTC timestamp
+    const data = [
+      { date: Date.UTC(2024, 0, 15, 12, 0, 0), value: 10 }
+    ];
+    
+    // Bad: Local timestamp (ambiguous)
+    const badData = [
+      { date: new Date(2024, 0, 15, 12, 0, 0).getTime(), value: 10 }
+    ];
+    ```
+  </Accordion>
+  
+  <Accordion title="Document Timezone Assumptions">
+    Clearly indicate which timezone is being used:
+    
+    ```typescript
+    chart.set("paddingTop", 40);
+    
+    let label = chart.children.unshift(am5.Label.new(root, {
+      text: "Times shown in America/New_York (Eastern Time)",
+      fontSize: 12,
+      x: am5.percent(50),
+      centerX: am5.percent(50)
+    }));
+    ```
+  </Accordion>
+  
+  <Accordion title="Test DST Transitions">
+    Verify your charts work correctly during DST transitions:
+    
+    ```typescript
+    // Test data spanning DST transition
+    const dstTestData = [
+      { date: new Date("2024-03-10T00:00:00Z").getTime(), value: 10 },
+      { date: new Date("2024-03-10T12:00:00Z").getTime(), value: 15 },
+      { date: new Date("2024-03-11T00:00:00Z").getTime(), value: 20 }
+    ];
+    ```
+  </Accordion>
+  
+  <Accordion title="Consider Performance">
+    Monitor performance with timezone enabled:
+    
+    ```typescript
+    // Measure impact
+    console.time("data-processing");
+    series.data.setAll(largeDataset);
+    console.timeEnd("data-processing");
+    
+    // If too slow, consider alternatives:
+    // 1. Use UTC mode instead
+    // 2. Pre-convert data server-side
+    // 3. Reduce data points
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card title="Localization" icon="language" href="/advanced/localization">
+    Customize date and number formats for different locales
+  </Card>
+  <Card title="Date Formatting" icon="calendar-days" href="/api/utils/formatters">
+    Learn about date formatting options
+  </Card>
+</CardGroup>

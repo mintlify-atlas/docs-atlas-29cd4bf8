@@ -1,0 +1,698 @@
+---
+title: Math Utilities
+---
+
+Math utilities provide mathematical functions and constants commonly used in chart calculations and geometry operations.
+
+## Constants
+
+### PI
+
+```typescript
+const PI: number
+```
+
+<ResponseField name="PI" type="number">
+  Value of π (pi), equivalent to `Math.PI`.
+</ResponseField>
+
+### HALFPI
+
+```typescript
+const HALFPI: number
+```
+
+<ResponseField name="HALFPI" type="number">
+  Value of π/2, equivalent to `Math.PI / 2`.
+</ResponseField>
+
+### RADIANS
+
+```typescript
+const RADIANS: number
+```
+
+<ResponseField name="RADIANS" type="number">
+  Conversion factor from degrees to radians (π/180).
+</ResponseField>
+
+### DEGREES
+
+```typescript
+const DEGREES: number
+```
+
+<ResponseField name="DEGREES" type="number">
+  Conversion factor from radians to degrees (180/π).
+</ResponseField>
+
+## Rounding Functions
+
+### round()
+
+```typescript
+function round(value: number, precision?: number, floor?: boolean): number
+```
+
+Rounds the numeric value to whole number or specific precision.
+
+<ParamField path="value" type="number" required>
+  Value to round
+</ParamField>
+
+<ParamField path="precision" type="number">
+  Precision (number of decimal points)
+</ParamField>
+
+<ParamField path="floor" type="boolean">
+  If value ends with 0.5 and precision is 0, floor the value instead of ceiling it
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Rounded value
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { round } from "@amcharts/amcharts5";
+
+console.log(round(3.14159)); // 3
+console.log(round(3.14159, 2)); // 3.14
+console.log(round(3.5, 0, true)); // 3 (floored)
+console.log(round(3.5)); // 4 (rounded up)
+```
+
+### ceil()
+
+```typescript
+function ceil(value: number, precision: number): number
+```
+
+Ceils the numeric value to whole number or specific precision.
+
+<ParamField path="value" type="number" required>
+  Value to ceil
+</ParamField>
+
+<ParamField path="precision" type="number" required>
+  Precision (number of decimal points)
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Ceiled value
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { ceil } from "@amcharts/amcharts5";
+
+console.log(ceil(3.14159, 0)); // 4
+console.log(ceil(3.14159, 2)); // 3.15
+```
+
+## Trigonometric Functions
+
+### sin()
+
+```typescript
+function sin(angle: number): number
+```
+
+Returns sine of an angle specified in degrees.
+
+<ParamField path="angle" type="number" required>
+  Angle in degrees
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Sine value
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { sin } from "@amcharts/amcharts5";
+
+console.log(sin(90)); // 1
+console.log(sin(30)); // 0.5
+```
+
+### cos()
+
+```typescript
+function cos(angle: number): number
+```
+
+Returns cosine of an angle specified in degrees.
+
+<ParamField path="angle" type="number" required>
+  Angle in degrees
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Cosine value
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { cos } from "@amcharts/amcharts5";
+
+console.log(cos(0)); // 1
+console.log(cos(90)); // 0
+```
+
+### tan()
+
+```typescript
+function tan(angle: number): number
+```
+
+Returns tangent of an angle specified in degrees.
+
+<ParamField path="angle" type="number" required>
+  Angle in degrees
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Tangent value
+</ResponseField>
+
+## Angle Functions
+
+### normalizeAngle()
+
+```typescript
+function normalizeAngle(value: number): number
+```
+
+Normalizes angle to 0-360 degree range.
+
+<ParamField path="value" type="number" required>
+  Angle to normalize
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Normalized angle (0-360)
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { normalizeAngle } from "@amcharts/amcharts5";
+
+console.log(normalizeAngle(450)); // 90
+console.log(normalizeAngle(-90)); // 270
+```
+
+### getAngle()
+
+```typescript
+function getAngle(point1: IPoint, point2?: IPoint): number
+```
+
+Calculates the angle between two points.
+
+<ParamField path="point1" type="IPoint" required>
+  First point with x and y coordinates
+</ParamField>
+
+<ParamField path="point2" type="IPoint">
+  Second point (optional)
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Angle in degrees
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { getAngle } from "@amcharts/amcharts5";
+
+const angle = getAngle({ x: 0, y: 0 }, { x: 100, y: 100 });
+console.log(angle); // 45
+```
+
+### fitAngleToRange()
+
+```typescript
+function fitAngleToRange(
+  value: number,
+  startAngle: number,
+  endAngle: number
+): number
+```
+
+Fits angle value within a specified range.
+
+<ParamField path="value" type="number" required>
+  Angle to fit
+</ParamField>
+
+<ParamField path="startAngle" type="number" required>
+  Start of angle range
+</ParamField>
+
+<ParamField path="endAngle" type="number" required>
+  End of angle range
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Fitted angle
+</ResponseField>
+
+## Range Functions
+
+### fitToRange()
+
+```typescript
+function fitToRange(value: number, min: number, max: number): number
+```
+
+Constrains a value within a specified range.
+
+<ParamField path="value" type="number" required>
+  Value to constrain
+</ParamField>
+
+<ParamField path="min" type="number" required>
+  Minimum value
+</ParamField>
+
+<ParamField path="max" type="number" required>
+  Maximum value
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Constrained value
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { fitToRange } from "@amcharts/amcharts5";
+
+console.log(fitToRange(150, 0, 100)); // 100
+console.log(fitToRange(-10, 0, 100)); // 0
+console.log(fitToRange(50, 0, 100)); // 50
+```
+
+### closest()
+
+```typescript
+function closest(values: number[], referenceValue: number): number
+```
+
+Returns the closest value from an array of values to the reference value.
+
+<ParamField path="values" type="number[]" required>
+  Array of values to search
+</ParamField>
+
+<ParamField path="referenceValue" type="number" required>
+  Reference value to compare against
+</ParamField>
+
+<ResponseField name="return" type="number">
+  Closest value from the array
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { closest } from "@amcharts/amcharts5";
+
+const values = [10, 20, 30, 40, 50];
+console.log(closest(values, 27)); // 30
+console.log(closest(values, 12)); // 10
+```
+
+## Point and Curve Functions
+
+### getArcPoint()
+
+```typescript
+function getArcPoint(radius: number, arc: number): IPoint
+```
+
+Returns point on an arc.
+
+<ParamField path="radius" type="number" required>
+  Radius of the arc
+</ParamField>
+
+<ParamField path="arc" type="number" required>
+  Arc angle in degrees
+</ParamField>
+
+<ResponseField name="return" type="IPoint">
+  Point on the arc with x and y coordinates
+</ResponseField>
+
+### getPointOnLine()
+
+```typescript
+function getPointOnLine(
+  pointA: IPoint,
+  pointB: IPoint,
+  position: number
+): IPoint
+```
+
+Calculates a point on a line at a specific position.
+
+<ParamField path="pointA" type="IPoint" required>
+  Start point of the line
+</ParamField>
+
+<ParamField path="pointB" type="IPoint" required>
+  End point of the line
+</ParamField>
+
+<ParamField path="position" type="number" required>
+  Position on the line (0-1, where 0 is pointA and 1 is pointB)
+</ParamField>
+
+<ResponseField name="return" type="IPoint">
+  Point on the line
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { getPointOnLine } from "@amcharts/amcharts5";
+
+const pointA = { x: 0, y: 0 };
+const pointB = { x: 100, y: 100 };
+const midpoint = getPointOnLine(pointA, pointB, 0.5);
+console.log(midpoint); // { x: 50, y: 50 }
+```
+
+### getPointOnQuadraticCurve()
+
+```typescript
+function getPointOnQuadraticCurve(
+  pointA: IPoint,
+  pointB: IPoint,
+  controlPoint: IPoint,
+  position: number
+): IPoint
+```
+
+Calculates a point on a quadratic Bézier curve.
+
+<ParamField path="pointA" type="IPoint" required>
+  Start point of the curve
+</ParamField>
+
+<ParamField path="pointB" type="IPoint" required>
+  End point of the curve
+</ParamField>
+
+<ParamField path="controlPoint" type="IPoint" required>
+  Control point for the curve
+</ParamField>
+
+<ParamField path="position" type="number" required>
+  Position on the curve (0-1)
+</ParamField>
+
+<ResponseField name="return" type="IPoint">
+  Point on the curve
+</ResponseField>
+
+### getCubicControlPointA()
+
+```typescript
+function getCubicControlPointA(
+  p0: IPoint,
+  p1: IPoint,
+  p2: IPoint,
+  tensionX: number,
+  tensionY: number
+): IPoint
+```
+
+Calculates the first control point for a cubic curve.
+
+<ParamField path="p0" type="IPoint" required>
+  First point
+</ParamField>
+
+<ParamField path="p1" type="IPoint" required>
+  Second point
+</ParamField>
+
+<ParamField path="p2" type="IPoint" required>
+  Third point
+</ParamField>
+
+<ParamField path="tensionX" type="number" required>
+  Horizontal tension
+</ParamField>
+
+<ParamField path="tensionY" type="number" required>
+  Vertical tension
+</ParamField>
+
+<ResponseField name="return" type="IPoint">
+  Control point
+</ResponseField>
+
+### getCubicControlPointB()
+
+```typescript
+function getCubicControlPointB(
+  p1: IPoint,
+  p2: IPoint,
+  p3: IPoint,
+  tensionX: number,
+  tensionY: number
+): IPoint
+```
+
+Calculates the second control point for a cubic curve.
+
+<ParamField path="p1" type="IPoint" required>
+  First point
+</ParamField>
+
+<ParamField path="p2" type="IPoint" required>
+  Second point
+</ParamField>
+
+<ParamField path="p3" type="IPoint" required>
+  Third point
+</ParamField>
+
+<ParamField path="tensionX" type="number" required>
+  Horizontal tension
+</ParamField>
+
+<ParamField path="tensionY" type="number" required>
+  Vertical tension
+</ParamField>
+
+<ResponseField name="return" type="IPoint">
+  Control point
+</ResponseField>
+
+## Bounds Functions
+
+### getArcBounds()
+
+```typescript
+function getArcBounds(
+  cx: number,
+  cy: number,
+  startAngle: number,
+  endAngle: number,
+  radius: number
+): IBounds
+```
+
+Calculates the bounding box of an arc.
+
+<ParamField path="cx" type="number" required>
+  Center X coordinate
+</ParamField>
+
+<ParamField path="cy" type="number" required>
+  Center Y coordinate
+</ParamField>
+
+<ParamField path="startAngle" type="number" required>
+  Start angle in degrees
+</ParamField>
+
+<ParamField path="endAngle" type="number" required>
+  End angle in degrees
+</ParamField>
+
+<ParamField path="radius" type="number" required>
+  Arc radius
+</ParamField>
+
+<ResponseField name="return" type="IBounds">
+  Bounding box with left, top, right, bottom properties
+</ResponseField>
+
+### mergeBounds()
+
+```typescript
+function mergeBounds(bounds: IBounds[]): IBounds
+```
+
+Merges multiple bounding boxes into a single bounding box that encompasses all.
+
+<ParamField path="bounds" type="IBounds[]" required>
+  Array of bounding boxes to merge
+</ParamField>
+
+<ResponseField name="return" type="IBounds">
+  Merged bounding box
+</ResponseField>
+
+### inBounds()
+
+```typescript
+function inBounds(point: IPoint, bounds: IBounds): boolean
+```
+
+Checks if a point is within bounding box.
+
+<ParamField path="point" type="IPoint" required>
+  Point to check
+</ParamField>
+
+<ParamField path="bounds" type="IBounds" required>
+  Bounding box
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if point is within bounds
+</ResponseField>
+
+### boundsOverlap()
+
+```typescript
+function boundsOverlap(bounds1: IBounds, bounds2: IBounds): boolean
+```
+
+Returns true if two bounding boxes overlap.
+
+<ParamField path="bounds1" type="IBounds" required>
+  First bounding box
+</ParamField>
+
+<ParamField path="bounds2" type="IBounds" required>
+  Second bounding box
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if bounds overlap
+</ResponseField>
+
+## Collision Detection
+
+### circlesOverlap()
+
+```typescript
+function circlesOverlap(
+  circle1: { x: number; y: number; radius: number },
+  circle2: { x: number; y: number; radius: number }
+): boolean
+```
+
+Returns true if two circles overlap.
+
+<ParamField path="circle1" type="{ x: number; y: number; radius: number }" required>
+  First circle with center coordinates and radius
+</ParamField>
+
+<ParamField path="circle2" type="{ x: number; y: number; radius: number }" required>
+  Second circle with center coordinates and radius
+</ParamField>
+
+<ResponseField name="return" type="boolean">
+  True if circles overlap
+</ResponseField>
+
+**Example:**
+
+```typescript
+import { circlesOverlap } from "@amcharts/amcharts5";
+
+const circle1 = { x: 0, y: 0, radius: 10 };
+const circle2 = { x: 15, y: 0, radius: 10 };
+
+console.log(circlesOverlap(circle1, circle2)); // true (they overlap)
+```
+
+## Spiral Functions
+
+### spiralPoints()
+
+```typescript
+function spiralPoints(
+  cx: number,
+  cy: number,
+  radius: number,
+  radiusY: number,
+  innerRadius: number,
+  step: number,
+  radiusStep: number,
+  startAngle: number,
+  endAngle: number
+): IPoint[]
+```
+
+Generates points along a spiral path.
+
+<ParamField path="cx" type="number" required>
+  Center X coordinate
+</ParamField>
+
+<ParamField path="cy" type="number" required>
+  Center Y coordinate
+</ParamField>
+
+<ParamField path="radius" type="number" required>
+  Outer radius
+</ParamField>
+
+<ParamField path="radiusY" type="number" required>
+  Vertical radius (for elliptical spirals)
+</ParamField>
+
+<ParamField path="innerRadius" type="number" required>
+  Starting radius
+</ParamField>
+
+<ParamField path="step" type="number" required>
+  Distance between points
+</ParamField>
+
+<ParamField path="radiusStep" type="number" required>
+  How much radius increases per revolution
+</ParamField>
+
+<ParamField path="startAngle" type="number" required>
+  Start angle in degrees
+</ParamField>
+
+<ParamField path="endAngle" type="number" required>
+  End angle in degrees
+</ParamField>
+
+<ResponseField name="return" type="IPoint[]">
+  Array of points along the spiral
+</ResponseField>
+
+## See Also
+
+- [IPoint Interface](https://www.amcharts.com/docs/v5/concepts/common-elements/positioning/)
+- [IBounds Interface](https://www.amcharts.com/docs/v5/concepts/common-elements/positioning/)

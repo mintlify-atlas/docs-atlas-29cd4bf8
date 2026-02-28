@@ -1,0 +1,728 @@
+---
+title: Sprite
+---
+
+A base class for all visual elements.
+
+## Overview
+
+Sprite is the foundational building block for all visual elements in amCharts 5. It provides common functionality for positioning, styling, events, states, and accessibility.
+
+## Creating a Sprite
+
+Sprite is an abstract class and cannot be instantiated directly. Use specific sprite types like Rectangle, Graphics, or Container instead.
+
+## Properties
+
+### Position and Dimensions
+
+<ResponseField name="x" type="number | Percent">
+  X position relative to parent
+</ResponseField>
+
+<ResponseField name="y" type="number | Percent">
+  Y position relative to parent
+</ResponseField>
+
+<ResponseField name="width" type="number | Percent">
+  Element's absolute width in pixels (numeric) or relative width to parent (Percent)
+</ResponseField>
+
+<ResponseField name="height" type="number | Percent">
+  Element's absolute height in pixels (numeric) or relative height to parent (Percent)
+</ResponseField>
+
+<ResponseField name="maxWidth" type="number">
+  Maximum allowed width in pixels
+</ResponseField>
+
+<ResponseField name="maxHeight" type="number">
+  Maximum allowed height in pixels
+</ResponseField>
+
+<ResponseField name="minWidth" type="number">
+  Minimum allowed width in pixels
+</ResponseField>
+
+<ResponseField name="minHeight" type="number">
+  Minimum allowed height in pixels
+</ResponseField>
+
+<ResponseField name="dx" type="number" default={0}>
+  Horizontal shift in pixels. Can be negative to shift leftward.
+</ResponseField>
+
+<ResponseField name="dy" type="number" default={0}>
+  Vertical shift in pixels. Can be negative to shift upward.
+</ResponseField>
+
+### Visual Appearance
+
+<ResponseField name="opacity" type="number" default={1}>
+  Opacity. 0 - fully transparent; 1 - fully opaque.
+</ResponseField>
+
+<ResponseField name="rotation" type="number" default={0}>
+  Rotation in degrees
+</ResponseField>
+
+<ResponseField name="scale" type="number" default={1}>
+  Scale. Setting to a value less than 1 will shrink object.
+</ResponseField>
+
+<ResponseField name="visible" type="boolean" default={true}>
+  Is element visible?
+</ResponseField>
+
+<ResponseField name="forceHidden" type="boolean">
+  If set to `true` the element will be hidden regardless of `visible` or even if `show()` is called
+</ResponseField>
+
+### Positioning
+
+<ResponseField name="centerX" type="number | Percent">
+  X coordinate of the center of the element relative to itself. Center coordinates will affect placement as well as rotation pivot point.
+</ResponseField>
+
+<ResponseField name="centerY" type="number | Percent">
+  Y coordinate of the center of the element relative to itself. Center coordinates will affect placement as well as rotation pivot point.
+</ResponseField>
+
+<ResponseField name="position" type="'absolute' | 'relative'">
+  Positioning of the element. "absolute" means element will not participate in parent layout scheme.
+</ResponseField>
+
+### Margins
+
+<ResponseField name="marginLeft" type="number" default={0}>
+  Left margin in pixels
+</ResponseField>
+
+<ResponseField name="marginRight" type="number" default={0}>
+  Right margin in pixels
+</ResponseField>
+
+<ResponseField name="marginTop" type="number" default={0}>
+  Top margin in pixels
+</ResponseField>
+
+<ResponseField name="marginBottom" type="number" default={0}>
+  Bottom margin in pixels
+</ResponseField>
+
+### Interactivity
+
+<ResponseField name="interactive" type="boolean">
+  Should this element accept user interaction events?
+</ResponseField>
+
+<ResponseField name="draggable" type="boolean">
+  If set to `true`, user will be able to drag this element. It will also disable default drag events over the area of this element.
+</ResponseField>
+
+<ResponseField name="wheelable" type="boolean">
+  If set to `true`, mouse wheel events will be triggered over the element. It will also disable page scrolling using mouse wheel when pointer is over the element.
+</ResponseField>
+
+<ResponseField name="forceInactive" type="boolean">
+  If set to `true` the element will be inactive - absolutely oblivious to all interactions
+</ResponseField>
+
+### Tooltips
+
+<ResponseField name="tooltip" type="Tooltip">
+  Tooltip instance
+</ResponseField>
+
+<ResponseField name="tooltipText" type="string">
+  Text to show in a tooltip when hovered
+</ResponseField>
+
+<ResponseField name="tooltipHTML" type="string">
+  HTML content to show in a tooltip when hovered
+</ResponseField>
+
+<ResponseField name="tooltipX" type="number | Percent">
+  Tooltip pointer X coordinate relative to the element itself
+</ResponseField>
+
+<ResponseField name="tooltipY" type="number | Percent">
+  Tooltip pointer Y coordinate relative to the element itself
+</ResponseField>
+
+<ResponseField name="tooltipPosition" type="'fixed' | 'pointer'">
+  Tooltip position
+</ResponseField>
+
+<ResponseField name="showTooltipOn" type="'hover' | 'always' | 'click'" default="hover">
+  Defines when tooltip is shown over the element
+</ResponseField>
+
+See [Sticky tooltips](https://www.amcharts.com/docs/v5/concepts/common-elements/tooltips/#Sticky_tooltips) for more info.
+
+### Visual Effects
+
+<ResponseField name="filter" type="string">
+  An SVG filter to apply to the element. IMPORTANT: SVG filters are not supported in some browsers, e.g. Safari.
+</ResponseField>
+
+<ResponseField name="blur" type="number">
+  Apply blur filter. Ranges from `0` to `X` pixels. IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="brightness" type="number">
+  Modify visual brightness. Range: `0` to `1`. IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="contrast" type="number">
+  Modify contrast. Range: `0` to `1`. IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="saturate" type="number">
+  Modify saturation. `0` = grayscale, `1` = no changes, `>1` = more saturated. IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="sepia" type="number">
+  Apply sepia filter. Range: `0` (no changes) to `1` (complete sepia). IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="invert" type="number">
+  Invert colors. Range: `0` (no changes) to `1` (completely inverted). IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+<ResponseField name="hue" type="number">
+  Rotate HUE colors in degrees. Range: `0` to `360`. IMPORTANT: Not supported in Safari.
+</ResponseField>
+
+See [Filters](https://www.amcharts.com/docs/v5/concepts/colors-gradients-and-patterns/filters/) for more info.
+
+### Appearance
+
+<ResponseField name="cursorOverStyle" type="string">
+  A named mouse cursor style to show when hovering this element
+</ResponseField>
+
+See [cursor](https://developer.mozilla.org/en-US/docs/Web/CSS/cursor) for more info.
+
+<ResponseField name="crisp" type="boolean" default={false}>
+  If set to `true`, element will try to draw itself crisp on screen with minimal anti-aliasing
+</ResponseField>
+
+### Layer
+
+<ResponseField name="layer" type="number">
+  Numeric layer to put element in. Elements with higher number will appear in front of ones with lower number.
+</ResponseField>
+
+<ResponseField name="layerMargin" type="IMargin">
+  Margins for the layer. Can be used to make the layer larger or smaller than default chart size.
+</ResponseField>
+
+### States
+
+<ResponseField name="active" type="boolean">
+  Indicates if element is currently active
+</ResponseField>
+
+<ResponseField name="disabled" type="boolean">
+  Indicates if element is disabled
+</ResponseField>
+
+<ResponseField name="toggleKey" type="'disabled' | 'active' | 'none'">
+  If set, element will toggle specified boolean setting between `true` and `false` when clicked/touched
+</ResponseField>
+
+### Data
+
+<ResponseField name="templateField" type="string">
+  Allows binding element's settings to data
+</ResponseField>
+
+See [Template fields](https://www.amcharts.com/docs/v5/concepts/settings/template-fields/) for more info.
+
+### Export
+
+<ResponseField name="exportable" type="boolean">
+  If set to `false` this element will not appear in exported snapshots of the chart
+</ResponseField>
+
+### Layout
+
+<ResponseField name="isMeasured" type="boolean">
+  If set to `false` element will not be measured and cannot participate in layout schemes
+</ResponseField>
+
+### Formatters
+
+<ResponseField name="numberFormatter" type="NumberFormatter">
+  An instance of NumberFormatter that should be used instead of global formatter object
+</ResponseField>
+
+<ResponseField name="dateFormatter" type="DateFormatter">
+  An instance of DateFormatter that should be used instead of global formatter object
+</ResponseField>
+
+<ResponseField name="durationFormatter" type="DurationFormatter">
+  An instance of DurationFormatter that should be used instead of global formatter object
+</ResponseField>
+
+See [Using formatters](https://www.amcharts.com/docs/v5/concepts/using-formatters/) for more info.
+
+## Accessibility
+
+<ResponseField name="focusable" type="boolean">
+  Can element be focused, i.e. selected using TAB key
+</ResponseField>
+
+<ResponseField name="tabindexOrder" type="number">
+  An internal order by which focusable elements will be selected within the chart
+</ResponseField>
+
+<ResponseField name="focusableGroup" type="string | number">
+  An identifier by which to group common elements into focusable groups
+</ResponseField>
+
+See [Grouping focusable elements](https://www.amcharts.com/docs/v5/concepts/accessibility/#Grouping_focusable_elements) for more info.
+
+<ResponseField name="hoverOnFocus" type="boolean">
+  Simulate hover on an element when it gains focus, including changing hover appearance and displaying a tooltip
+</ResponseField>
+
+<ResponseField name="clickAnnounceText" type="string">
+  If set, the text will be read out (announced) by a screen reader when focused element is "clicked"
+</ResponseField>
+
+<ResponseField name="role" type="Role">
+  Element's role
+</ResponseField>
+
+See [Roles](https://www.amcharts.com/docs/v5/concepts/accessibility/#Roles) for more info.
+
+<ResponseField name="ariaLabel" type="string">
+  Label for the element to use for screen readers
+</ResponseField>
+
+<ResponseField name="ariaLive" type="AriaLive">
+  `aria-live` setting
+</ResponseField>
+
+<ResponseField name="ariaChecked" type="boolean">
+  `aria-checked` setting
+</ResponseField>
+
+<ResponseField name="ariaCurrent" type="string">
+  `aria-current` setting
+</ResponseField>
+
+<ResponseField name="ariaSelected" type="boolean">
+  `aria-selected` setting
+</ResponseField>
+
+<ResponseField name="ariaHidden" type="boolean">
+  `aria-hidden` setting
+</ResponseField>
+
+<ResponseField name="ariaOrientation" type="string">
+  `aria-orientation` setting
+</ResponseField>
+
+<ResponseField name="ariaValueNow" type="string">
+  `aria-valuenow` setting
+</ResponseField>
+
+<ResponseField name="ariaValueMin" type="string">
+  `aria-valuemin` setting
+</ResponseField>
+
+<ResponseField name="ariaValueMax" type="string">
+  `aria-valuemax` setting
+</ResponseField>
+
+<ResponseField name="ariaValueText" type="string">
+  `aria-valuetext` setting
+</ResponseField>
+
+<ResponseField name="ariaControls" type="string">
+  `aria-controls` setting
+</ResponseField>
+
+See [Screen reader](https://www.amcharts.com/docs/v5/concepts/accessibility/#Screen_reader) for more info.
+
+## Methods
+
+### show()
+
+Shows currently hidden element.
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+<ResponseField name="promise" type="Promise<void>">
+  Promise that resolves when animation completes
+</ResponseField>
+
+```typescript
+await sprite.show(500);
+```
+
+### hide()
+
+Hides currently visible element.
+
+<ParamField path="duration" type="number">
+  Animation duration in milliseconds
+</ParamField>
+
+<ResponseField name="promise" type="Promise<void>">
+  Promise that resolves when animation completes
+</ResponseField>
+
+```typescript
+await sprite.hide(500);
+```
+
+### isHidden()
+
+Returns `true` if element is currently hidden.
+
+<ResponseField name="hidden" type="boolean">
+  Whether element is hidden
+</ResponseField>
+
+### isVisibleDeep()
+
+Returns `true` if element and all its parents are visible.
+
+<ResponseField name="visible" type="boolean">
+  Whether element is visible
+</ResponseField>
+
+### showTooltip()
+
+Shows element's Tooltip.
+
+<ParamField path="point" type="IPoint">
+  Optional point coordinates
+</ParamField>
+
+<ResponseField name="promise" type="Promise<void> | undefined">
+  Promise that resolves when tooltip is shown
+</ResponseField>
+
+```typescript
+sprite.showTooltip();
+```
+
+### hideTooltip()
+
+Hides element's Tooltip.
+
+<ResponseField name="promise" type="Promise<void> | undefined">
+  Promise that resolves when tooltip is hidden
+</ResponseField>
+
+```typescript
+sprite.hideTooltip();
+```
+
+### getTooltip()
+
+Returns Tooltip used for this element.
+
+<ResponseField name="tooltip" type="Tooltip | undefined">
+  Tooltip instance
+</ResponseField>
+
+```typescript
+const tooltip = sprite.getTooltip();
+```
+
+### hover()
+
+Simulate hover over element.
+
+```typescript
+sprite.hover();
+```
+
+### unhover()
+
+Simulate unhover over element.
+
+```typescript
+sprite.unhover();
+```
+
+### isHover()
+
+Returns `true` if element is currently hovered.
+
+<ResponseField name="hovered" type="boolean">
+  Whether element is hovered
+</ResponseField>
+
+### dragStart()
+
+Initiates drag operation.
+
+<ParamField path="event" type="ISpritePointerEvent" required>
+  Pointer event
+</ParamField>
+
+### dragStop()
+
+Stops drag operation.
+
+<ParamField path="event" type="ISpritePointerEvent" required>
+  Pointer event
+</ParamField>
+
+### dragMove()
+
+Handles drag move.
+
+<ParamField path="event" type="ISpritePointerEvent" required>
+  Pointer event
+</ParamField>
+
+### isDragging()
+
+Returns `true` if element is currently being dragged.
+
+<ResponseField name="dragging" type="boolean">
+  Whether element is being dragged
+</ResponseField>
+
+### x()
+
+Returns element's actual X position in pixels.
+
+<ResponseField name="x" type="number">
+  X position in pixels
+</ResponseField>
+
+```typescript
+const x = sprite.x();
+```
+
+### y()
+
+Returns element's actual Y position in pixels.
+
+<ResponseField name="y" type="number">
+  Y position in pixels
+</ResponseField>
+
+```typescript
+const y = sprite.y();
+```
+
+### width()
+
+Returns element's width in pixels.
+
+<ResponseField name="width" type="number">
+  Width in pixels
+</ResponseField>
+
+```typescript
+const width = sprite.width();
+```
+
+### height()
+
+Returns element's height in pixels.
+
+<ResponseField name="height" type="number">
+  Height in pixels
+</ResponseField>
+
+```typescript
+const height = sprite.height();
+```
+
+### globalBounds()
+
+Returns global coordinates of the element's bounds.
+
+<ResponseField name="bounds" type="IBounds">
+  Bounds object with left, right, top, bottom properties
+</ResponseField>
+
+```typescript
+const bounds = sprite.globalBounds();
+console.log(bounds.left, bounds.top, bounds.right, bounds.bottom);
+```
+
+### localBounds()
+
+Returns local coordinates of the element's bounds.
+
+<ResponseField name="bounds" type="IBounds">
+  Bounds object with left, right, top, bottom properties
+</ResponseField>
+
+### depth()
+
+Returns depth (how deep in the hierarchy of the content tree) of this element.
+
+<ResponseField name="depth" type="number">
+  Depth level
+</ResponseField>
+
+```typescript
+const depth = sprite.depth();
+```
+
+### toGlobal()
+
+Converts local coordinates to global.
+
+<ParamField path="point" type="IPoint" required>
+  Local point
+</ParamField>
+
+<ResponseField name="point" type="IPoint">
+  Global point
+</ResponseField>
+
+```typescript
+const globalPoint = sprite.toGlobal({ x: 10, y: 20 });
+```
+
+### toLocal()
+
+Converts global coordinates to local.
+
+<ParamField path="point" type="IPoint" required>
+  Global point
+</ParamField>
+
+<ResponseField name="point" type="IPoint">
+  Local point
+</ResponseField>
+
+```typescript
+const localPoint = sprite.toLocal({ x: 100, y: 200 });
+```
+
+### markDirty()
+
+Marks element as dirty, triggering re-render.
+
+```typescript
+sprite.markDirty();
+```
+
+### markDirtyBounds()
+
+Marks element's bounds as dirty.
+
+```typescript
+sprite.markDirtyBounds();
+```
+
+### markDirtyPosition()
+
+Marks element's position as dirty.
+
+```typescript
+sprite.markDirtyPosition();
+```
+
+### markDirtyAccessibility()
+
+Marks element's accessibility settings as dirty.
+
+```typescript
+sprite.markDirtyAccessibility();
+```
+
+## Events
+
+<ResponseField name="click" type="ISpritePointerEvent">
+  Invoked when element is clicked or tapped
+</ResponseField>
+
+<ResponseField name="rightclick" type="ISpritePointerEvent">
+  Invoked when element is clicked with the right mouse button
+</ResponseField>
+
+<ResponseField name="middleclick" type="ISpritePointerEvent">
+  Invoked when element is clicked with the middle mouse button
+</ResponseField>
+
+<ResponseField name="dblclick" type="ISpritePointerEvent">
+  Invoked when element is double-clicked or tapped twice quickly
+</ResponseField>
+
+<ResponseField name="pointerover" type="ISpritePointerEvent">
+  Invoked when pointer moves over the element
+</ResponseField>
+
+<ResponseField name="pointerout" type="ISpritePointerEvent">
+  Invoked when pointer moves outside the element
+</ResponseField>
+
+<ResponseField name="pointerdown" type="ISpritePointerEvent">
+  Invoked when pointer button is pressed or touch starts over the element
+</ResponseField>
+
+<ResponseField name="pointerup" type="ISpritePointerEvent">
+  Invoked when pointer button is released or touch stops over the element
+</ResponseField>
+
+<ResponseField name="globalpointerup" type="ISpritePointerEvent">
+  Invoked when pointer button is released anywhere in the window
+</ResponseField>
+
+<ResponseField name="globalpointermove" type="ISpritePointerEvent">
+  Invoked when pointer is moving anywhere in the window
+</ResponseField>
+
+<ResponseField name="dragstart" type="ISpritePointerEvent">
+  Invoked when element dragging starts
+</ResponseField>
+
+<ResponseField name="dragstop" type="ISpritePointerEvent">
+  Invoked when element dragging stops
+</ResponseField>
+
+<ResponseField name="dragged" type="ISpritePointerEvent">
+  Invoked when element is being dragged
+</ResponseField>
+
+<ResponseField name="wheel" type="{ originalEvent: WheelEvent; point: IPoint }">
+  Invoked when mouse wheel is spinned while pointer is over the element
+</ResponseField>
+
+<ResponseField name="focus" type="{ originalEvent: FocusEvent; target: Sprite }">
+  Invoked when element gains focus
+</ResponseField>
+
+<ResponseField name="blur" type="{ originalEvent: FocusEvent; target: Sprite }">
+  Invoked when element loses focus
+</ResponseField>
+
+<ResponseField name="positionchanged" type="{}">
+  Invoked when element's position (X/Y) changes
+</ResponseField>
+
+<ResponseField name="boundschanged" type="{}">
+  Invoked when element's bounds change due to any manipulation to it
+</ResponseField>
+
+<ResponseField name="dataitemchanged" type="{ oldDataItem: DataItem | undefined, newDataItem: DataItem | undefined }">
+  Invoked when element's data item changes
+</ResponseField>
+
+```typescript
+sprite.events.on("click", (ev) => {
+  console.log("Sprite clicked at:", ev.point);
+});
+
+sprite.events.on("dragstart", (ev) => {
+  console.log("Drag started");
+});
+```

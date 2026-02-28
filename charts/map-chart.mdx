@@ -1,0 +1,232 @@
+---
+title: Map Chart
+description: Create interactive geographic maps with various projections and data visualizations
+---
+
+Map charts allow you to visualize geographic data with support for different projections, zoom, pan, and multiple series types including polygons, points, and lines.
+
+## When to Use Map Charts
+
+Use map charts when you need to:
+- Display geographic or location-based data
+- Create choropleth (heat) maps
+- Show points of interest on a map
+- Visualize routes or connections between locations
+- Create interactive world or regional maps
+- Display demographic or statistical data by region
+
+## Creating a Map Chart
+
+Here's a complete example with a polygon series:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create map chart
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    panX: "translateX",
+    panY: "translateY",
+    wheelY: "zoom"
+  })
+);
+
+// Create polygon series for world map
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+// Configure polygons
+polygonSeries.mapPolygons.template.setAll({
+  tooltipText: "{name}",
+  fill: am5.color(0xaaaaaa),
+  strokeWidth: 0.5
+});
+
+// Add hover effect
+polygonSeries.mapPolygons.template.states.create("hover", {
+  fill: am5.color(0x297373)
+});
+
+// Add zoom control
+const zoomControl = chart.set("zoomControl",
+  am5map.ZoomControl.new(root, {})
+);
+
+// Set initial zoom level
+chart.set("zoomLevel", 1);
+```
+
+## Configuration Options
+
+### Map Projections
+
+<Info>
+amCharts 5 supports multiple map projections from the D3 library.
+</Info>
+
+Common projections include:
+
+```typescript
+import { geoMercator, geoOrthographic, geoNaturalEarth1 } from "@amcharts/amcharts5/map";
+
+// Mercator (default)
+const chart = am5map.MapChart.new(root, {
+  projection: geoMercator()
+});
+
+// Globe view
+const chart = am5map.MapChart.new(root, {
+  projection: geoOrthographic()
+});
+
+// Natural Earth
+const chart = am5map.MapChart.new(root, {
+  projection: geoNaturalEarth1()
+});
+```
+
+### Pan and Zoom Settings
+
+- **panX** - Horizontal pan behavior ("none" | "rotateX" | "translateX")
+- **panY** - Vertical pan behavior ("none" | "rotateY" | "translateY")
+- **wheelX** - Horizontal wheel behavior ("none" | "zoom" | "rotateX" | "rotateY")
+- **wheelY** - Vertical wheel behavior ("none" | "zoom" | "rotateX" | "rotateY")
+- **pinchZoom** (`boolean`) - Enable pinch-zoom on touch devices
+- **zoomLevel** (`number`) - Current zoom level
+- **minZoomLevel** (`number`) - Minimum zoom level (default: 1)
+- **maxZoomLevel** (`number`) - Maximum zoom level (default: 32)
+- **zoomStep** (`number`) - Zoom increment (default: 2)
+
+### Centering the Map
+
+```typescript
+// Center on specific coordinates
+chart.set("homeGeoPoint", { 
+  longitude: -73.935242, 
+  latitude: 40.730610 
+});
+
+chart.set("homeZoomLevel", 5);
+
+// Rotation (for globe projections)
+chart.setAll({
+  rotationX: -73.935242,
+  rotationY: -40.730610
+});
+```
+
+## Adding Map Series
+
+### Point Series
+
+Add markers on the map:
+
+```typescript
+const pointSeries = chart.series.push(
+  am5map.MapPointSeries.new(root, {})
+);
+
+pointSeries.bullets.push(function() {
+  return am5.Bullet.new(root, {
+    sprite: am5.Circle.new(root, {
+      radius: 5,
+      fill: am5.color(0xff0000)
+    })
+  });
+});
+
+pointSeries.data.setAll([
+  { geometry: { type: "Point", coordinates: [-73.935242, 40.730610] } },
+  { geometry: { type: "Point", coordinates: [-118.243683, 34.052235] } }
+]);
+```
+
+### Line Series
+
+Draw connections between points:
+
+```typescript
+const lineSeries = chart.series.push(
+  am5map.MapLineSeries.new(root, {})
+);
+
+lineSeries.mapLines.template.setAll({
+  stroke: am5.color(0x000000),
+  strokeWidth: 2
+});
+
+lineSeries.data.setAll([
+  {
+    geometry: {
+      type: "LineString",
+      coordinates: [
+        [-73.935242, 40.730610],
+        [-118.243683, 34.052235]
+      ]
+    }
+  }
+]);
+```
+
+## Zoom Control
+
+```typescript
+const zoomControl = am5map.ZoomControl.new(root, {});
+chart.set("zoomControl", zoomControl);
+
+// Customize buttons
+zoomControl.homeButton.set("visible", true);
+```
+
+## Map Methods
+
+<Steps>
+1. **zoomToGeoPoint()** - Zoom to specific coordinates
+2. **zoomToGeoBounds()** - Zoom to geographic bounds
+3. **goHome()** - Return to home position
+4. **zoomIn() / zoomOut()** - Programmatic zoom
+5. **convert()** - Convert lat/long to screen coordinates
+6. **invert()** - Convert screen coordinates to lat/long
+</Steps>
+
+```typescript
+// Zoom to coordinates
+chart.zoomToGeoPoint(
+  { longitude: -73.935242, latitude: 40.730610 },
+  4, // zoom level
+  true // center
+);
+
+// Zoom to bounds
+chart.zoomToGeoBounds({
+  left: -130,
+  right: -60,
+  top: 50,
+  bottom: 20
+});
+```
+
+## Key Classes
+
+- `MapChart` - Main chart class from `@amcharts/amcharts5/map`
+- `MapPolygonSeries` - For drawing countries/regions
+- `MapPointSeries` - For markers and pins
+- `MapLineSeries` - For routes and connections
+- `ZoomControl` - Interactive zoom buttons
+
+<Tip>
+Use GeoJSON data from the `@amcharts/amcharts5-geodata` package for pre-made maps of countries and regions.
+</Tip>
+
+<Note>
+Map charts require a separate license. Make sure you have a valid AM5M license key.
+</Note>

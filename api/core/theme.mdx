@@ -1,0 +1,323 @@
+---
+title: Theme
+---
+
+A base class for an amCharts theme.
+
+Themes allow you to define reusable style rules that can be applied across all elements in a chart.
+
+## Creating a Theme
+
+### Theme.new()
+
+Creates a new Theme instance.
+
+<ParamField path="root" type="Root" required>
+  Root element
+</ParamField>
+
+<ResponseField name="theme" type="Theme">
+  New Theme instance
+</ResponseField>
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const myTheme = am5.Theme.new(root);
+```
+
+See [Themes](https://www.amcharts.com/docs/v5/concepts/themes/) for more info.
+
+## Methods
+
+### rule()
+
+Creates a Template for specific theme class and tags.
+
+<ParamField path="themeClass" type="string" required>
+  Theme class name (e.g., "Sprite", "Container", "LineSeries")
+</ParamField>
+
+<ParamField path="themeTags" type="Array<string>" default={[]}>
+  Theme tags to match
+</ParamField>
+
+<ResponseField name="template" type="Template">
+  Template for the specified class and tags
+</ResponseField>
+
+```typescript
+const myTheme = am5.Theme.new(root);
+
+// Style all sprites
+myTheme.rule("Sprite").setAll({
+  opacity: 0.9
+});
+
+// Style sprites with specific tag
+myTheme.rule("Sprite", ["myCustomTag"]).setAll({
+  fill: am5.color(0xff0000)
+});
+
+// Style all line series
+myTheme.rule("LineSeries").setAll({
+  strokeWidth: 3
+});
+
+root.setThemes([myTheme]);
+```
+
+### ruleRaw()
+
+Creates a Template for specific theme class and tags without type checking.
+
+<ParamField path="themeClass" type="string" required>
+  Theme class name
+</ParamField>
+
+<ParamField path="themeTags" type="Array<string>" default={[]}>
+  Theme tags to match
+</ParamField>
+
+<ResponseField name="template" type="Template<A>">
+  Template for the specified class and tags
+</ResponseField>
+
+This is similar to `rule()` but does not perform type validation.
+
+```typescript
+const myTheme = am5.Theme.new(root);
+
+myTheme.ruleRaw("Sprite").setAll({
+  opacity: 0.9
+});
+```
+
+## Built-in Themes
+
+amCharts 5 includes several built-in themes:
+
+### Animated Theme
+
+Enables animations on all elements.
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+root.setThemes([
+  am5themes_Animated.new(root)
+]);
+```
+
+### Dark Theme
+
+Provides a dark color scheme.
+
+```typescript
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+root.setThemes([
+  am5themes_Dark.new(root)
+]);
+```
+
+### Material Theme
+
+Material Design inspired theme.
+
+```typescript
+import am5themes_Material from "@amcharts/amcharts5/themes/Material";
+
+root.setThemes([
+  am5themes_Material.new(root)
+]);
+```
+
+### Kelly Theme
+
+Uses Kelly's 22 colors of maximum contrast.
+
+```typescript
+import am5themes_Kelly from "@amcharts/amcharts5/themes/Kelly";
+
+root.setThemes([
+  am5themes_Kelly.new(root)
+]);
+```
+
+### Micro Theme
+
+Optimized for small charts.
+
+```typescript
+import am5themes_Micro from "@amcharts/amcharts5/themes/Micro";
+
+root.setThemes([
+  am5themes_Micro.new(root)
+]);
+```
+
+### Responsive Theme
+
+Provides responsive breakpoints.
+
+```typescript
+import am5themes_Responsive from "@amcharts/amcharts5/themes/Responsive";
+
+root.setThemes([
+  am5themes_Responsive.new(root)
+]);
+```
+
+## Creating Custom Themes
+
+You can create custom themes by extending the base Theme class:
+
+```typescript
+class MyTheme extends am5.Theme {
+  setupDefaultRules() {
+    super.setupDefaultRules();
+    
+    // Style all sprites
+    this.rule("Sprite").setAll({
+      tooltipText: "{name}: {value}"
+    });
+    
+    // Style all labels
+    this.rule("Label").setAll({
+      fontSize: 12,
+      fill: am5.color(0x333333)
+    });
+    
+    // Style all rectangles with "background" tag
+    this.rule("Rectangle", ["background"]).setAll({
+      fill: am5.color(0xf0f0f0),
+      fillOpacity: 0.5
+    });
+    
+    // Style all line series
+    this.rule("LineSeries").setAll({
+      strokeWidth: 2,
+      stroke: am5.color(0x0066cc)
+    });
+  }
+}
+
+const myTheme = MyTheme.new(root);
+root.setThemes([myTheme]);
+```
+
+## Combining Multiple Themes
+
+You can apply multiple themes at once. Themes are applied in order, with later themes overriding earlier ones:
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  am5themes_Dark.new(root),
+  MyTheme.new(root)
+]);
+```
+
+## Theme Tags
+
+Elements can be assigned theme tags to match specific theme rules:
+
+```typescript
+const label = am5.Label.new(root, {
+  text: "Hello",
+  themeTags: ["title", "large"]
+});
+
+// In theme
+const myTheme = am5.Theme.new(root);
+myTheme.rule("Label", ["title"]).setAll({
+  fontSize: 24,
+  fontWeight: "bold"
+});
+
+myTheme.rule("Label", ["title", "large"]).setAll({
+  fontSize: 32
+});
+```
+
+## Examples
+
+### Simple Custom Theme
+
+```typescript
+class BlueTheme extends am5.Theme {
+  setupDefaultRules() {
+    super.setupDefaultRules();
+    
+    this.rule("LineSeries").setAll({
+      stroke: am5.color(0x0066cc),
+      fill: am5.color(0x0066cc)
+    });
+    
+    this.rule("ColumnSeries").setAll({
+      fill: am5.color(0x0066cc)
+    });
+  }
+}
+
+const blueTheme = BlueTheme.new(root);
+root.setThemes([blueTheme]);
+```
+
+### Theme with Different Tag Rules
+
+```typescript
+class CustomTheme extends am5.Theme {
+  setupDefaultRules() {
+    super.setupDefaultRules();
+    
+    // All labels
+    this.rule("Label").setAll({
+      fontSize: 12
+    });
+    
+    // Labels with "header" tag
+    this.rule("Label", ["header"]).setAll({
+      fontSize: 18,
+      fontWeight: "bold"
+    });
+    
+    // Labels with "subtitle" tag
+    this.rule("Label", ["subtitle"]).setAll({
+      fontSize: 14,
+      fontStyle: "italic"
+    });
+  }
+}
+```
+
+### Combining Built-in and Custom Themes
+
+```typescript
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+class MyBrandTheme extends am5.Theme {
+  setupDefaultRules() {
+    super.setupDefaultRules();
+    
+    this.rule("Sprite").setAll({
+      // Your brand colors and styles
+    });
+  }
+}
+
+root.setThemes([
+  am5themes_Animated.new(root),
+  MyBrandTheme.new(root)
+]);
+```
+
+## See Also
+
+- [Themes Documentation](https://www.amcharts.com/docs/v5/concepts/themes/)
+- [Creating Custom Themes](https://www.amcharts.com/docs/v5/concepts/themes/#Creating_custom_themes)
+- [Theme Tags](https://www.amcharts.com/docs/v5/concepts/themes/#Tags)

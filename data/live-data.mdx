@@ -1,0 +1,473 @@
+---
+title: Live Data Updates
+description: Learn how to update charts in real-time with live data, including adding, removing, and modifying data points dynamically.
+---
+
+## Overview
+
+amCharts 5 provides powerful methods for updating chart data in real-time. You can add new data points, remove old ones, and update existing values while maintaining smooth animations and transitions.
+
+## Adding New Data
+
+### Using push()
+
+Add new data points to the end of the series:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date"
+}));
+
+// Add initial data
+series.data.setAll([
+  { date: new Date(2023, 0, 1).getTime(), value: 100 },
+  { date: new Date(2023, 0, 2).getTime(), value: 150 }
+]);
+
+// Add a new data point
+series.data.push({
+  date: new Date(2023, 0, 3).getTime(),
+  value: 180
+});
+```
+
+### Using unshift()
+
+Add new data points to the beginning:
+
+```typescript
+// Add data at the start
+series.data.unshift({
+  date: new Date(2022, 11, 31).getTime(),
+  value: 90
+});
+```
+
+### Using insertIndex()
+
+Insert data at a specific position:
+
+```typescript
+// Insert at index 2
+series.data.insertIndex(2, {
+  date: new Date(2023, 0, 2, 12, 0).getTime(),
+  value: 160
+});
+```
+
+## Removing Data
+
+### Using removeIndex()
+
+Remove data at a specific index:
+
+```typescript
+// Remove the first data point
+series.data.removeIndex(0);
+
+// Remove the last data point
+const lastIndex = series.data.length - 1;
+series.data.removeIndex(lastIndex);
+```
+
+### Using shift() and pop()
+
+Remove from start or end:
+
+```typescript
+// Remove and return first item
+const firstItem = series.data.shift();
+
+// Remove and return last item
+const lastItem = series.data.pop();
+```
+
+### Using clear()
+
+Remove all data:
+
+```typescript
+// Clear all data
+series.data.clear();
+```
+
+## Real-Time Updates Example
+
+Here's a complete example that updates a chart every second:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+
+// Create root
+const root = am5.Root.new("chartdiv");
+root.setThemes([am5themes_Animated.new(root)]);
+
+// Create chart
+const chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: true,
+  panY: true,
+  wheelX: "panX",
+  wheelY: "zoomX"
+}));
+
+// Create axes
+const xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+  maxDeviation: 0.5,
+  baseInterval: { timeUnit: "day", count: 1 },
+  renderer: am5xy.AxisRendererX.new(root, {}),
+  tooltip: am5.Tooltip.new(root, {})
+}));
+
+const yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+  renderer: am5xy.AxisRendererY.new(root, {})
+}));
+
+// Create series
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  name: "Series",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date",
+  tooltip: am5.Tooltip.new(root, {
+    labelText: "{valueY}"
+  })
+}));
+
+// Generate initial data
+let value = 100;
+function generateData() {
+  const data = [];
+  let date = new Date();
+  date.setDate(date.getDate() - 30);
+  
+  for (let i = 0; i < 30; i++) {
+    value += Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+    data.push({
+      date: date.getTime(),
+      value: value
+    });
+    date.setDate(date.getDate() + 1);
+  }
+  return data;
+}
+
+series.data.setAll(generateData());
+
+// Update data every second
+setInterval(function() {
+  addData();
+}, 1000);
+
+function addData() {
+  const lastDataItem = series.dataItems[series.dataItems.length - 1];
+  const lastValue = lastDataItem.get("valueY");
+  const lastDate = new Date(lastDataItem.get("valueX"));
+  
+  // Generate new value
+  const newValue = lastValue + Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 5);
+  const newDate = am5.time.add(lastDate, "day", 1).getTime();
+  
+  // Remove oldest data point
+  series.data.removeIndex(0);
+  
+  // Add new data point
+  series.data.push({
+    date: newDate,
+    value: newValue
+  });
+}
+
+chart.appear(1000, 100);
+```
+
+## Animating Live Updates
+
+Create smooth transitions when adding new data:
+
+```typescript
+function addData() {
+  const lastDataItem = series.dataItems[series.dataItems.length - 1];
+  const lastValue = lastDataItem.get("valueY");
+  const lastDate = new Date(lastDataItem.get("valueX"));
+  
+  const newValue = lastValue + Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 5);
+  const newDate = am5.time.add(lastDate, "day", 1).getTime();
+  
+  // Remove oldest
+  series.data.removeIndex(0);
+  
+  // Add new
+  series.data.push({
+    date: newDate,
+    value: newValue
+  });
+  
+  // Animate the new data item
+  const newDataItem = series.dataItems[series.dataItems.length - 1];
+  
+  // Animate value from old to new
+  newDataItem.animate({
+    key: "valueYWorking",
+    to: newValue,
+    from: lastValue,
+    duration: 600,
+    easing: am5.ease.linear
+  });
+  
+  // Animate position
+  const animation = newDataItem.animate({
+    key: "locationX",
+    to: 0.5,
+    from: -0.5,
+    duration: 600
+  });
+  
+  // Update tooltip after animation
+  if (animation) {
+    const tooltip = xAxis.get("tooltip");
+    if (tooltip && !tooltip.isHidden()) {
+      animation.events.on("stopped", function() {
+        xAxis.updateTooltip();
+      });
+    }
+  }
+}
+```
+
+## Updating Existing Data
+
+### Modifying Values
+
+Update data by modifying the data item:
+
+```typescript
+// Access data items
+const dataItems = series.dataItems;
+
+// Update a specific data item
+if (dataItems.length > 0) {
+  const dataItem = dataItems[5];
+  dataItem.set("valueY", 200);
+  dataItem.set("valueYWorking", 200);
+}
+```
+
+### Replacing Data at Index
+
+Replace an entire data point:
+
+```typescript
+// Replace data at index 3
+series.data.setIndex(3, {
+  date: new Date(2023, 0, 4).getTime(),
+  value: 250
+});
+```
+
+## Polling for Updates
+
+Fetch new data from an API at regular intervals:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+
+const POLL_INTERVAL = 5000; // 5 seconds
+
+async function pollData() {
+  try {
+    const response = await am5.net.load("https://api.example.com/latest");
+    const newData = JSON.parse(response.response);
+    
+    // Add new data points
+    newData.forEach(point => {
+      series.data.push(point);
+    });
+    
+    // Limit data to last 100 points
+    while (series.data.length > 100) {
+      series.data.removeIndex(0);
+    }
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+}
+
+// Start polling
+const intervalId = setInterval(pollData, POLL_INTERVAL);
+
+// Stop polling when needed
+// clearInterval(intervalId);
+```
+
+## WebSocket Updates
+
+Update charts with data from WebSocket connections:
+
+```typescript
+const socket = new WebSocket("wss://api.example.com/stream");
+
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  
+  // Add new data point
+  series.data.push({
+    date: data.timestamp,
+    value: data.value
+  });
+  
+  // Keep only last 50 points
+  if (series.data.length > 50) {
+    series.data.removeIndex(0);
+  }
+};
+
+socket.onerror = (error) => {
+  console.error("WebSocket error:", error);
+};
+
+// Close socket when done
+// socket.close();
+```
+
+## Multiple Series Updates
+
+Update multiple series simultaneously:
+
+```typescript
+const series1 = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value1",
+  valueXField: "date"
+}));
+
+const series2 = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value2",
+  valueXField: "date"
+}));
+
+function updateBothSeries() {
+  const timestamp = new Date().getTime();
+  
+  // Update series 1
+  series1.data.push({
+    date: timestamp,
+    value1: Math.random() * 100
+  });
+  
+  // Update series 2
+  series2.data.push({
+    date: timestamp,
+    value2: Math.random() * 100
+  });
+  
+  // Remove old data from both
+  if (series1.data.length > 50) {
+    series1.data.removeIndex(0);
+  }
+  if (series2.data.length > 50) {
+    series2.data.removeIndex(0);
+  }
+}
+
+setInterval(updateBothSeries, 1000);
+```
+
+## Performance Optimization
+
+### Batch Updates
+
+For multiple updates, batch them together:
+
+```typescript
+// Bad: Multiple individual updates
+for (let i = 0; i < 100; i++) {
+  series.data.push(newDataPoints[i]);  // Triggers 100 updates
+}
+
+// Good: Single batch update
+const currentData = series.data.values;
+const updatedData = [...currentData, ...newDataPoints];
+series.data.setAll(updatedData);  // Single update
+```
+
+### Limiting Data Points
+
+Keep data size manageable:
+
+```typescript
+const MAX_DATA_POINTS = 100;
+
+function addDataPoint(newPoint) {
+  series.data.push(newPoint);
+  
+  // Remove oldest if over limit
+  if (series.data.length > MAX_DATA_POINTS) {
+    series.data.removeIndex(0);
+  }
+}
+```
+
+### Disabling Animations
+
+For high-frequency updates, consider disabling animations:
+
+```typescript
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  valueXField: "date",
+  interpolationDuration: 0  // Disable animation
+}));
+```
+
+## Cleaning Up
+
+Remember to clean up intervals and connections:
+
+```typescript
+let updateInterval;
+let webSocket;
+
+// Start updates
+function startLiveUpdates() {
+  updateInterval = setInterval(addData, 1000);
+  webSocket = new WebSocket("wss://api.example.com/stream");
+  webSocket.onmessage = handleWebSocketData;
+}
+
+// Stop updates
+function stopLiveUpdates() {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+    updateInterval = null;
+  }
+  if (webSocket) {
+    webSocket.close();
+    webSocket = null;
+  }
+}
+
+// Clean up when disposing the chart
+root.events.on("disposed", () => {
+  stopLiveUpdates();
+});
+```
+
+## Related Topics
+
+- [Loading Data](/data/loading) - Initial data loading methods
+- [Processing Data](/data/processing) - Transform data with DataProcessor
+- [Animations](/concepts/animations) - Control animation behavior

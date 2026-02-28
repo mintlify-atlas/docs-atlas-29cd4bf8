@@ -1,0 +1,128 @@
+---
+title: Chart
+---
+
+A base class for all charts.
+
+Chart extends [Container](/api/core/container) and provides the foundation for all chart types in amCharts 5.
+
+## Properties
+
+### chartContainer
+
+<ResponseField name="chartContainer" type="Container" readonly>
+  A Container chart places its elements in
+</ResponseField>
+
+```typescript
+const container = chart.chartContainer;
+```
+
+### bulletsContainer
+
+<ResponseField name="bulletsContainer" type="Container" readonly>
+  A Container chart places its bullets in
+</ResponseField>
+
+```typescript
+const bulletsContainer = chart.bulletsContainer;
+```
+
+## Creating a Chart
+
+Chart is an abstract base class. Use specific chart types instead:
+
+- **XYChart** - For line, area, column, bar, and other XY-based charts
+- **PieChart** - For pie and donut charts
+- **MapChart** - For geographic maps
+- **TreeMap** - For hierarchical tree maps
+- **RadarChart** - For radar/spider charts
+- **And many more...**
+
+## Example: XY Chart
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+const chart = root.container.children.push(am5xy.XYChart.new(root, {
+  panX: true,
+  panY: true,
+  wheelX: "panX",
+  wheelY: "zoomX"
+}));
+```
+
+## Example: Pie Chart
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5percent from "@amcharts/amcharts5/percent";
+
+const chart = root.container.children.push(am5percent.PieChart.new(root, {
+  layout: root.verticalLayout
+}));
+```
+
+## Common Chart Features
+
+Since Chart extends Container, it inherits all Container properties and methods:
+
+- **Layout management** - Use `layout` property to arrange chart elements
+- **Background** - Set a background using `background` property
+- **Padding** - Control inner spacing with padding properties
+- **Children management** - Add/remove elements using `children` list
+- **Events** - Listen to container events
+
+## Working with Series
+
+Most charts have a `series` property (a list) where you add data series:
+
+```typescript
+const series = chart.series.push(am5xy.LineSeries.new(root, {
+  name: "Sales",
+  xAxis: xAxis,
+  yAxis: yAxis,
+  valueYField: "value",
+  categoryXField: "category"
+}));
+
+series.data.setAll([
+  { category: "A", value: 100 },
+  { category: "B", value: 200 },
+  { category: "C", value: 150 }
+]);
+```
+
+## Adding to Root
+
+Charts are typically added to the root container:
+
+```typescript
+const chart = root.container.children.push(am5xy.XYChart.new(root, {
+  // Chart settings
+}));
+```
+
+## Inherited Properties
+
+From [Container](/api/core/container):
+- `width` and `height` - Chart dimensions
+- `paddingTop`, `paddingRight`, `paddingBottom`, `paddingLeft` - Inner spacing
+- `layout` - Layout algorithm for child elements
+- `background` - Background graphics
+
+From [Sprite](/api/core/sprite):
+- `x` and `y` - Position
+- `visible` - Visibility
+- `opacity` - Transparency
+- `rotation` and `scale` - Transformations
+- Event handlers and tooltips
+
+## See Also
+
+- [XYChart Documentation](https://www.amcharts.com/docs/v5/charts/xy-chart/)
+- [PieChart Documentation](https://www.amcharts.com/docs/v5/charts/percent-charts/pie-chart/)
+- [MapChart Documentation](https://www.amcharts.com/docs/v5/charts/map-chart/)
+- [Series](/api/core/series) - Working with data series
+- [Container](/api/core/container) - Container functionality

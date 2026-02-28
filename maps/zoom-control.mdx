@@ -1,0 +1,416 @@
+---
+title: Zoom Control
+description: Add interactive zoom controls to your amCharts 5 maps, including zoom in/out buttons and home button for resetting the view.
+---
+
+The ZoomControl provides interactive buttons for zooming and panning map charts. It includes zoom in, zoom out, and home buttons.
+
+## Basic Setup
+
+Add a zoom control to your map:
+
+```typescript
+import * as am5map from "@amcharts/amcharts5/map";
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator()
+  })
+);
+
+const zoomControl = chart.set(
+  "zoomControl",
+  am5map.ZoomControl.new(root, {})
+);
+```
+
+See ZoomControl.ts:15-20 and MapChart.ts:178-182
+
+## Showing the Home Button
+
+Enable the home button to allow users to reset the map view:
+
+```typescript
+const zoomControl = am5map.ZoomControl.new(root, {});
+chart.set("zoomControl", zoomControl);
+
+zoomControl.homeButton.set("visible", true);
+```
+
+The home button resets the map to its initial position and zoom level.
+
+## Zoom Settings
+
+Configure zoom behavior on the MapChart:
+
+### Zoom Levels
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    zoomLevel: 1,        // Current zoom level
+    minZoomLevel: 1,     // Minimum zoom (fully zoomed out)
+    maxZoomLevel: 32,    // Maximum zoom (fully zoomed in)
+    zoomStep: 2          // Multiplier for zoom in/out
+  })
+);
+```
+
+See MapChart.ts:40-95
+
+**Settings:**
+- `zoomLevel` - Current zoom level (default: 1)
+- `minZoomLevel` - Lowest allowed zoom (default: 1)
+- `maxZoomLevel` - Highest allowed zoom (default: 32)
+- `zoomStep` - Zoom factor when using controls (default: 2)
+
+### Home Position
+
+Define the initial position the home button returns to:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    homeZoomLevel: 1,
+    homeGeoPoint: { longitude: 0, latitude: 0 }
+  })
+);
+```
+
+See MapChart.ts:185-210
+
+**Settings:**
+- `homeZoomLevel` - Zoom level to return to
+- `homeGeoPoint` - Geographic center point
+- `homeRotationX` - X rotation for home position
+- `homeRotationY` - Y rotation for home position
+
+## Programmatic Zoom Control
+
+### Zoom In/Out
+
+Control zoom programmatically:
+
+```typescript
+// Zoom in
+chart.zoomIn();
+
+// Zoom out
+chart.zoomOut();
+
+// Go to home position
+chart.goHome();
+```
+
+See MapChart.ts:1421-1430 and MapChart.ts:710-718
+
+### Zoom to Point
+
+Zoom to a specific screen point:
+
+```typescript
+chart.zoomToPoint(
+  { x: 100, y: 100 },  // Screen coordinates
+  4,                    // Zoom level
+  true,                 // Center on point
+  1000                  // Animation duration (ms)
+);
+```
+
+See MapChart.ts:1192-1234
+
+### Zoom to Geographic Point
+
+Zoom to specific coordinates:
+
+```typescript
+chart.zoomToGeoPoint(
+  { longitude: -73.935, latitude: 40.730 },  // Geographic coordinates
+  8,                                          // Zoom level
+  true,                                       // Center on point
+  1000                                        // Animation duration (ms)
+);
+```
+
+See MapChart.ts:1248-1258
+
+### Zoom to Geographic Bounds
+
+Zoom to fit a specific geographic area:
+
+```typescript
+const bounds = {
+  left: -130,
+  right: -60,
+  top: 50,
+  bottom: 20
+};
+
+chart.zoomToGeoBounds(bounds, 1000);
+```
+
+See MapChart.ts:1145-1181
+
+### Zoom to Data Item
+
+Zoom to a specific polygon:
+
+```typescript
+polygonSeries.mapPolygons.template.on("active", (active, target) => {
+  if (target.get("active")) {
+    polygonSeries.zoomToDataItem(target.dataItem);
+  } else {
+    chart.goHome();
+  }
+});
+```
+
+## Pan and Zoom Behavior
+
+### Pan Settings
+
+Configure how dragging affects the map:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    panX: "translateX",  // Pan horizontally
+    panY: "translateY"   // Pan vertically
+  })
+);
+```
+
+See MapChart.ts:98-111
+
+**Pan Options:**
+- `"none"` - Disable panning
+- `"translateX"` / `"translateY"` - Move the map (flat projections)
+- `"rotateX"` / `"rotateY"` - Rotate the globe (spherical projections)
+
+### Wheel Behavior
+
+Configure mouse wheel actions:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    wheelY: "zoom",       // Vertical scroll zooms
+    wheelX: "none",       // Horizontal scroll disabled
+    wheelSensitivity: 1,  // Wheel sensitivity
+    wheelDuration: 0      // Animation duration
+  })
+);
+```
+
+See MapChart.ts:122-161
+
+**Wheel Options:**
+- `"none"` - Ignore wheel
+- `"zoom"` - Zoom in/out
+- `"rotateX"` / `"rotateY"` - Rotate the map
+
+### Pinch Zoom
+
+Enable touch-based pinch zooming:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    pinchZoom: true  // Enable pinch-to-zoom on touch devices
+  })
+);
+```
+
+See MapChart.ts:114-119
+
+### Max Pan Out
+
+Control how far the map can be panned outside the viewport:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    maxPanOut: 0.4  // 40% of map can go outside viewport
+  })
+);
+```
+
+See MapChart.ts:213-218
+
+### Center on Zoom Out
+
+Automatically center the map when fully zoomed out:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    centerMapOnZoomOut: true  // Auto-center at min zoom
+  })
+);
+```
+
+See MapChart.ts:221-230
+
+## Animation Settings
+
+Control zoom and pan animations:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    animationDuration: 1000,
+    animationEasing: am5.ease.out(am5.ease.cubic)
+  })
+);
+```
+
+See MapChart.ts:163-174
+
+**Settings:**
+- `animationDuration` - Duration in milliseconds
+- `animationEasing` - Easing function for smooth animations
+
+## Rotation Controls
+
+For spherical projections like Orthographic:
+
+```typescript
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoOrthographic(),
+    panX: "rotateX",
+    panY: "rotateY",
+    rotationX: -100,  // Initial horizontal rotation
+    rotationY: -40,   // Initial vertical rotation
+    rotationZ: 0      // Initial depth rotation
+  })
+);
+
+// Programmatic rotation
+chart.rotate(
+  -100,  // rotationX
+  -40,   // rotationY
+  1000   // duration
+);
+```
+
+See MapChart.ts:59-73 and MapChart.ts:1261-1278
+
+## Click to Reset
+
+Reset zoom when clicking the map background:
+
+```typescript
+const zoomControl = am5map.ZoomControl.new(root, {});
+chart.set("zoomControl", zoomControl);
+zoomControl.homeButton.set("visible", true);
+
+// Click background to go home
+chart.chartContainer.get("background").events.on("click", () => {
+  chart.goHome();
+});
+```
+
+## Zoom Events
+
+Listen to zoom level changes:
+
+```typescript
+chart.events.on("zoomLevel", (ev) => {
+  console.log("Zoom level:", ev.target.get("zoomLevel"));
+});
+```
+
+## Styling the Control
+
+Customize the zoom control appearance:
+
+```typescript
+const zoomControl = am5map.ZoomControl.new(root, {
+  x: am5.percent(95),
+  centerX: am5.percent(100),
+  y: am5.percent(50),
+  centerY: am5.percent(50)
+});
+
+chart.set("zoomControl", zoomControl);
+
+// Customize buttons
+zoomControl.plusButton.setAll({
+  background: am5.RoundedRectangle.new(root, {
+    fill: am5.color(0x3b82f6),
+    fillOpacity: 0.8
+  })
+});
+
+zoomControl.minusButton.setAll({
+  background: am5.RoundedRectangle.new(root, {
+    fill: am5.color(0x3b82f6),
+    fillOpacity: 0.8
+  })
+});
+```
+
+## Disabling Zoom Control Buttons
+
+The zoom control automatically disables buttons when limits are reached:
+
+```typescript
+// Plus button is disabled at maxZoomLevel
+// Minus button is disabled at minZoomLevel
+```
+
+See MapChart.ts:606-623
+
+## Complete Example
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+
+const root = am5.Root.new("chartdiv");
+
+const chart = root.container.children.push(
+  am5map.MapChart.new(root, {
+    projection: am5map.geoMercator(),
+    panX: "translateX",
+    panY: "translateY",
+    wheelY: "zoom",
+    pinchZoom: true,
+    minZoomLevel: 1,
+    maxZoomLevel: 16,
+    zoomStep: 2,
+    homeZoomLevel: 1,
+    homeGeoPoint: { longitude: 0, latitude: 0 }
+  })
+);
+
+// Add zoom control with home button
+const zoomControl = chart.set(
+  "zoomControl",
+  am5map.ZoomControl.new(root, {})
+);
+zoomControl.homeButton.set("visible", true);
+
+// Add map data
+const polygonSeries = chart.series.push(
+  am5map.MapPolygonSeries.new(root, {
+    geoJSON: am5geodata_worldLow
+  })
+);
+
+// Click background to go home
+chart.chartContainer.get("background").events.on("click", () => {
+  chart.goHome();
+});
+```
+
+## Related Topics
+
+- [MapChart](/charts/map-chart) - Main map chart component
+- [Projections](/maps/projections) - Map projection types
+- [Series Types](/maps/series-types) - Different data visualizations

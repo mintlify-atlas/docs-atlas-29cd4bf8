@@ -1,0 +1,147 @@
+---
+title: XY Chart
+description: Create interactive XY charts with multiple axes and series types
+---
+
+XY Chart is the most versatile chart type in amCharts 5, supporting various series types including line, column, and candlestick charts on a rectangular coordinate system.
+
+## When to Use XY Charts
+
+Use XY charts when you need to:
+- Display data on horizontal and vertical axes
+- Show trends over time or categories
+- Compare multiple data series
+- Visualize relationships between variables
+- Create column, line, area, or candlestick charts
+
+## Creating an XY Chart
+
+Here's a complete example showing how to create an XY chart with a line series:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5xy from "@amcharts/amcharts5/xy";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create XY chart
+const chart = root.container.children.push(
+  am5xy.XYChart.new(root, {
+    panX: true,
+    panY: true,
+    wheelX: "panX",
+    wheelY: "zoomX"
+  })
+);
+
+// Create axes
+const xAxis = chart.xAxes.push(
+  am5xy.DateAxis.new(root, {
+    baseInterval: { timeUnit: "day", count: 1 },
+    renderer: am5xy.AxisRendererX.new(root, {})
+  })
+);
+
+const yAxis = chart.yAxes.push(
+  am5xy.ValueAxis.new(root, {
+    renderer: am5xy.AxisRendererY.new(root, {})
+  })
+);
+
+// Create series
+const series = chart.series.push(
+  am5xy.LineSeries.new(root, {
+    name: "Series",
+    xAxis: xAxis,
+    yAxis: yAxis,
+    valueYField: "value",
+    valueXField: "date",
+    tooltip: am5.Tooltip.new(root, {
+      labelText: "{valueY}"
+    })
+  })
+);
+
+// Set data
+series.data.setAll([
+  { date: new Date(2021, 0, 1).getTime(), value: 30 },
+  { date: new Date(2021, 0, 2).getTime(), value: 50 },
+  { date: new Date(2021, 0, 3).getTime(), value: 45 },
+  { date: new Date(2021, 0, 4).getTime(), value: 60 }
+]);
+
+// Add cursor
+chart.set("cursor", am5xy.XYCursor.new(root, {}));
+```
+
+## Configuration Options
+
+### Pan and Zoom
+
+<Info>
+Control user interaction with the chart using pan and zoom settings.
+</Info>
+
+- **panX** (`boolean`) - Enable horizontal panning by dragging
+- **panY** (`boolean`) - Enable vertical panning by dragging
+- **wheelX** - Mouse wheel behavior for horizontal scrolling ("zoomX" | "zoomY" | "zoomXY" | "panX" | "panY" | "panXY" | "none")
+- **wheelY** - Mouse wheel behavior for vertical scrolling
+- **pinchZoomX** (`boolean`) - Enable pinch zoom horizontally on touch devices
+- **pinchZoomY** (`boolean`) - Enable pinch zoom vertically on touch devices
+
+### Scrollbars
+
+Add scrollbars for easier navigation:
+
+```typescript
+chart.set("scrollbarX", am5.Scrollbar.new(root, {
+  orientation: "horizontal"
+}));
+
+chart.set("scrollbarY", am5.Scrollbar.new(root, {
+  orientation: "vertical"
+}));
+```
+
+### Cursor
+
+Display crosshair cursor for better data tracking:
+
+```typescript
+const cursor = am5xy.XYCursor.new(root, {
+  behavior: "zoomX" // or "zoomY", "zoomXY", "selectX", "selectY", "selectXY"
+});
+
+chart.set("cursor", cursor);
+```
+
+### Tooltips
+
+Control tooltip display behavior:
+
+- **maxTooltipDistance** (`number`) - Maximum pixel distance for tooltip clustering
+- **maxTooltipDistanceBy** ("xy" | "x" | "y") - How to measure tooltip distance
+- **arrangeTooltips** (`boolean`) - Auto-arrange tooltips to prevent overlap
+
+## Key Classes
+
+- `XYChart` - Main chart class from `@amcharts/amcharts5/xy`
+- `DateAxis` / `CategoryAxis` / `ValueAxis` - Axis types
+- `LineSeries` / `ColumnSeries` / `CandlestickSeries` - Series types
+- `XYCursor` - Interactive cursor
+- `Scrollbar` - Navigation scrollbar
+
+## Common Series Types
+
+<Steps>
+1. **Line Series** - Connect data points with lines
+2. **Column Series** - Display data as vertical bars
+3. **Area Series** - Fill area under line
+4. **Candlestick Series** - Financial OHLC charts
+5. **Step Line Series** - Step-wise line connections
+</Steps>
+
+<Tip>
+You can add multiple series to the same chart to compare different data sets. Each series can use the same or different axes.
+</Tip>

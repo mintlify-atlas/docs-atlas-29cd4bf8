@@ -1,0 +1,251 @@
+---
+title: Hierarchy Charts
+description: Visualize hierarchical data with tree, pack, partition, and treemap charts
+---
+
+Hierarchy charts display hierarchical (tree-structured) data in various visual formats including treemaps, sunburst diagrams, circle packing, and tree diagrams.
+
+## When to Use Hierarchy Charts
+
+Use hierarchy charts when you need to:
+- Visualize organizational structures
+- Display file system hierarchies
+- Show nested categories and subcategories
+- Represent part-to-whole relationships at multiple levels
+- Visualize data with parent-child relationships
+
+## Chart Types
+
+amCharts 5 provides several hierarchy chart types:
+
+- **Treemap** - Rectangular nested boxes
+- **Pack (Circle Pack)** - Nested circles
+- **Partition (Sunburst)** - Radial nested sectors
+- **Tree** - Node-link tree diagram
+- **ForceDirected** - Physics-based node positioning
+
+## Creating a Treemap
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create container
+const container = root.container.children.push(
+  am5.Container.new(root, {
+    width: am5.percent(100),
+    height: am5.percent(100),
+    layout: root.verticalLayout
+  })
+);
+
+// Create treemap series
+const series = container.children.push(
+  am5hierarchy.Treemap.new(root, {
+    singleBranchOnly: false,
+    downDepth: 1,
+    upDepth: 0,
+    initialDepth: 2,
+    valueField: "value",
+    categoryField: "name",
+    childDataField: "children"
+  })
+);
+
+// Configure rectangles
+series.rectangles.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff)
+});
+
+// Set data
+const data = {
+  name: "Root",
+  children: [
+    {
+      name: "Category A",
+      value: 100,
+      children: [
+        { name: "A1", value: 60 },
+        { name: "A2", value: 40 }
+      ]
+    },
+    {
+      name: "Category B",
+      value: 200,
+      children: [
+        { name: "B1", value: 100 },
+        { name: "B2", value: 100 }
+      ]
+    },
+    {
+      name: "Category C",
+      value: 150
+    }
+  ]
+};
+
+series.data.setAll([data]);
+series.set("selectedDataItem", series.dataItems[0]);
+```
+
+## Configuration Options
+
+### Data Structure
+
+<Info>
+Hierarchy charts use nested data with parent-child relationships.
+</Info>
+
+Key fields:
+- **valueField** - Field containing numeric value
+- **categoryField** - Field containing category/name
+- **childDataField** - Field containing array of children (default: "children")
+
+### Depth Control
+
+- **initialDepth** (`number`) - Initial visible depth level
+- **topDepth** (`number`) - Start level (eliminates top branches)
+- **downDepth** (`number`) - Levels to show when drilling down
+- **upDepth** (`number`) - Parent levels to show
+- **singleBranchOnly** (`boolean`) - Collapse other branches on expand
+
+## Other Hierarchy Types
+
+### Circle Pack
+
+```typescript
+import * as am5hierarchy from "@amcharts/amcharts5/hierarchy";
+
+const series = container.children.push(
+  am5hierarchy.Pack.new(root, {
+    valueField: "value",
+    categoryField: "name",
+    childDataField: "children"
+  })
+);
+
+// Configure circles
+series.circles.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff)
+});
+```
+
+### Sunburst (Partition)
+
+```typescript
+const series = container.children.push(
+  am5hierarchy.Partition.new(root, {
+    valueField: "value",
+    categoryField: "name",
+    childDataField: "children"
+  })
+);
+
+// Configure slices
+series.slices.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0xffffff)
+});
+```
+
+### Tree Diagram
+
+```typescript
+const series = container.children.push(
+  am5hierarchy.Tree.new(root, {
+    singleBranchOnly: false,
+    downDepth: 1,
+    initialDepth: 10,
+    valueField: "value",
+    categoryField: "name",
+    childDataField: "children"
+  })
+);
+
+// Configure links
+series.links.template.setAll({
+  strokeWidth: 2,
+  stroke: am5.color(0x999999)
+});
+```
+
+### Force Directed
+
+```typescript
+const series = container.children.push(
+  am5hierarchy.ForceDirected.new(root, {
+    singleBranchOnly: false,
+    downDepth: 1,
+    initialDepth: 1,
+    valueField: "value",
+    categoryField: "name",
+    childDataField: "children",
+    centerStrength: 0.5
+  })
+);
+
+// Configure nodes
+series.nodes.template.setAll({
+  strokeWidth: 2
+});
+```
+
+## Interactive Features
+
+### Drill Down
+
+```typescript
+series.nodes.template.events.on("click", function(ev) {
+  series.selectDataItem(ev.target.dataItem);
+});
+```
+
+### Breadcrumbs
+
+```typescript
+const breadcrumb = container.children.push(
+  am5hierarchy.BreadcrumbBar.new(root, {
+    series: series
+  })
+);
+```
+
+## Color Configuration
+
+```typescript
+// Auto-assign colors
+series.set("colors", am5.ColorSet.new(root, {}));
+
+// Manual colors
+series.data.setAll([{
+  name: "Root",
+  children: [
+    { name: "A", value: 100, fill: am5.color(0xff0000) },
+    { name: "B", value: 200, fill: am5.color(0x00ff00) }
+  ]
+}]);
+```
+
+## Key Classes
+
+- `Treemap` - Rectangular treemap from `@amcharts/amcharts5/hierarchy`
+- `Pack` - Circle packing diagram
+- `Partition` - Sunburst/icicle diagram
+- `Tree` - Node-link tree
+- `ForceDirected` - Force-directed graph
+- `BreadcrumbBar` - Navigation breadcrumbs
+
+<Tip>
+Use `singleBranchOnly: true` to create a focused drill-down experience where only one branch is visible at a time.
+</Tip>
+
+<Note>
+The value of parent nodes is automatically calculated as the sum of their children unless explicitly set with a custom value.
+</Note>

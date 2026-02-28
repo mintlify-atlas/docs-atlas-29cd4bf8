@@ -1,0 +1,374 @@
+---
+title: "ColorPicker Plugin"
+description: "Add interactive color selection UI with the ColorPicker plugin"
+---
+
+## Overview
+
+The ColorPicker plugin provides a user interface for selecting colors and opacity values. It features a gradient-based color selector, hue slider, opacity control, and multiple input methods including hex color input and an eyedropper tool.
+
+## Installation
+
+Import the ColorPicker and related classes:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import { ColorPicker, ColorPickerButton } from "@amcharts/amcharts5/plugins/colorPicker";
+```
+
+## Basic Usage
+
+### Creating a ColorPicker
+
+Add a ColorPicker to your chart container:
+
+```typescript
+let root = am5.Root.new("chartdiv");
+
+let colorPicker = root.container.children.push(
+  ColorPicker.new(root, {
+    color: am5.color(0xff0000)
+  })
+);
+```
+
+### Using with ColorPickerButton
+
+Create a button that opens the color picker:
+
+```typescript
+import { ColorPickerButton } from "@amcharts/amcharts5/plugins/colorPicker";
+
+let button = ColorPickerButton.new(root, {
+  color: am5.color(0x3498db),
+  colorOpacity: 1
+});
+
+let colorPicker = root.container.children.push(
+  ColorPicker.new(root, {
+    colorButton: button
+  })
+);
+```
+
+## Configuration
+
+### Color Settings
+
+```typescript
+let colorPicker = ColorPicker.new(root, {
+  color: am5.color(0xff5733),
+  colorOpacity: 0.8,
+  hue: 12,
+  backgroundColor: am5.color(0xffffff)
+});
+```
+
+<ResponseField name="color" type="Color">
+  Initial color value
+</ResponseField>
+
+<ResponseField name="colorOpacity" type="number" default={1}>
+  Initial opacity (0 to 1)
+</ResponseField>
+
+<ResponseField name="hue" type="number">
+  Initial hue value (0 to 360)
+</ResponseField>
+
+<ResponseField name="backgroundColor" type="Color">
+  Background color for the color picker interface
+</ResponseField>
+
+<ResponseField name="colorButton" type="ColorPickerButton">
+  Associated color picker button that triggered the picker
+</ResponseField>
+
+## Components
+
+The ColorPicker consists of several interactive components:
+
+### Color Gradient Rectangle
+
+The main color selection area showing saturation and brightness:
+
+```typescript
+// Access the color rectangle
+let colorRect = colorPicker.colorRectangle;
+colorRect.set("strokeWidth", 2);
+```
+
+### Hue Slider
+
+Vertical slider for hue selection:
+
+```typescript
+// Customize the hue slider
+let slider = colorPicker.slider;
+slider.set("height", 200);
+```
+
+### Opacity Slider
+
+Horizontal slider for opacity adjustment:
+
+```typescript
+// Access the opacity slider
+let opacitySlider = colorPicker.opacitySlider;
+```
+
+### Color Input
+
+Hex color input field:
+
+```typescript
+// Customize the color input
+let input = colorPicker.colorInput;
+input.set("fontSize", 14);
+```
+
+### Buttons
+
+```typescript
+// Eyedropper/picker button
+let pickerButton = colorPicker.pickerButton;
+
+// No color button (to clear color)
+let noColorButton = colorPicker.noColorButton;
+
+// OK button
+let okButton = colorPicker.okButton;
+
+// Cancel button
+let cancelButton = colorPicker.cancelButton;
+```
+
+## Events
+
+### Color Change Event
+
+Listen for color selection:
+
+```typescript
+colorPicker.events.on("colorchanged", (ev) => {
+  console.log("Color changed:", ev.color);
+  console.log("Opacity:", ev.colorOpacity);
+  
+  // Apply color to chart element
+  if (ev.color) {
+    series.set("fill", ev.color);
+    series.set("fillOpacity", ev.colorOpacity);
+  }
+});
+```
+
+<ResponseField name="color" type="Color | undefined">
+  Selected color (undefined if "no color" was selected)
+</ResponseField>
+
+<ResponseField name="colorOpacity" type="number">
+  Selected opacity value
+</ResponseField>
+
+## Methods
+
+### Cancel Selection
+
+Cancel color selection and restore previous color:
+
+```typescript
+colorPicker.cancel();
+```
+
+## ColorPickerButton
+
+Create buttons that trigger the color picker:
+
+```typescript
+let button = ColorPickerButton.new(root, {
+  color: am5.color(0x3498db),
+  colorOpacity: 0.8,
+  label: Label.new(root, {
+    text: "Choose Color"
+  }),
+  disableOpacity: false
+});
+
+// Show color picker when button is clicked
+button.events.on("click", () => {
+  colorPicker.set("colorButton", button);
+});
+```
+
+<ResponseField name="color" type="Color">
+  Button's current color
+</ResponseField>
+
+<ResponseField name="colorOpacity" type="number">
+  Button's current opacity
+</ResponseField>
+
+<ResponseField name="disableOpacity" type="boolean" default={false}>
+  Hide opacity controls when this button opens the picker
+</ResponseField>
+
+## Use Cases
+
+### Theme Customization
+
+Allow users to customize chart colors:
+
+```typescript
+let colorPicker = ColorPicker.new(root, {});
+
+colorPicker.events.on("colorchanged", (ev) => {
+  if (ev.color) {
+    // Apply to all series
+    chart.series.each((series) => {
+      series.set("fill", ev.color);
+      series.set("fillOpacity", ev.colorOpacity);
+    });
+  }
+});
+```
+
+### Dynamic Series Colors
+
+Let users pick colors for chart series:
+
+```typescript
+let seriesButtons = [];
+
+chart.series.each((series, index) => {
+  let button = ColorPickerButton.new(root, {
+    color: series.get("fill"),
+    label: Label.new(root, {
+      text: series.get("name")
+    })
+  });
+  
+  button.events.on("click", () => {
+    colorPicker.set("colorButton", button);
+  });
+  
+  seriesButtons.push(button);
+});
+
+colorPicker.events.on("colorchanged", (ev) => {
+  let button = ev.target.get("colorButton");
+  let seriesIndex = seriesButtons.indexOf(button);
+  
+  if (seriesIndex !== -1) {
+    let series = chart.series.getIndex(seriesIndex);
+    series.set("fill", ev.color);
+    series.set("fillOpacity", ev.colorOpacity);
+  }
+});
+```
+
+### Annotation Tool
+
+Combine with drawing tools for annotation colors:
+
+```typescript
+import { Annotator } from "@amcharts/amcharts5/plugins/exporting";
+
+let annotator = Annotator.new(root, {});
+let colorPicker = ColorPicker.new(root, {});
+
+colorPicker.events.on("colorchanged", (ev) => {
+  // Update annotator color
+  annotator.set("strokeColor", ev.color);
+  annotator.set("fillColor", ev.color);
+});
+```
+
+## Styling
+
+Customize the appearance using theme tags:
+
+```typescript
+let colorPicker = ColorPicker.new(root, {
+  color: am5.color(0xff0000)
+});
+
+// Customize button appearance
+colorPicker.okButton.get("background").setAll({
+  fill: am5.color(0x4CAF50),
+  fillOpacity: 1
+});
+
+colorPicker.cancelButton.get("background").setAll({
+  fill: am5.color(0xf44336),
+  fillOpacity: 1
+});
+```
+
+## Eyedropper Tool
+
+The picker button enables an eyedropper tool to sample colors from the chart:
+
+```typescript
+// The picker button is automatically configured
+let pickerButton = colorPicker.pickerButton;
+
+// When active, user can click anywhere on the chart to pick that color
+pickerButton.on("active", (active) => {
+  if (active) {
+    console.log("Eyedropper activated");
+  }
+});
+```
+
+<Note>
+  The eyedropper tool works by sampling pixel colors from the canvas, so it can pick any visible color on the chart.
+</Note>
+
+## Accessibility
+
+### Keyboard Navigation
+
+The color picker supports keyboard interaction:
+
+- **Enter** - Confirm color selection
+- **Escape** - Cancel color selection
+- Tab navigation through controls
+
+### Screen Readers
+
+Provide appropriate ARIA labels:
+
+```typescript
+let colorPicker = ColorPicker.new(root, {
+  color: am5.color(0xff0000),
+  ariaLabel: "Color selector"
+});
+```
+
+## Best Practices
+
+<Tip>
+  Set initial colors that match your chart's theme for better user experience.
+</Tip>
+
+<Tip>
+  For charts with many series, consider grouping color pickers in a panel or modal.
+</Tip>
+
+<Warning>
+  The eyedropper tool requires canvas access and may not work if the chart uses WebGL rendering in certain scenarios.
+</Warning>
+
+## Browser Support
+
+The ColorPicker works in all modern browsers. The eyedropper feature requires:
+
+- Canvas API support
+- Same-origin policy compliance
+- JavaScript enabled
+
+## See Also
+
+- [Annotator](https://www.amcharts.com/docs/v5/concepts/exporting/annotator/) - Use with drawing annotations
+- [Themes](https://www.amcharts.com/docs/v5/concepts/themes/) - Apply colors consistently
+- [Colors](https://www.amcharts.com/docs/v5/concepts/colors/) - Understanding color system

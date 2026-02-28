@@ -1,0 +1,326 @@
+---
+title: Word Cloud
+description: Create word clouds to visualize text frequency and importance
+---
+
+Word clouds display words in various sizes based on their frequency or importance, creating visually striking text-based data visualizations.
+
+## When to Use Word Clouds
+
+Use word clouds when you need to:
+- Visualize text frequency in documents
+- Show popular terms or topics
+- Display survey responses or feedback
+- Highlight important keywords
+- Create engaging text visualizations
+- Summarize content or themes
+
+## Creating a Word Cloud
+
+Here's a complete example:
+
+```typescript
+import * as am5 from "@amcharts/amcharts5";
+import * as am5wc from "@amcharts/amcharts5/wc";
+
+// Create root element
+const root = am5.Root.new("chartdiv");
+
+// Create word cloud series
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    categoryField: "word",
+    valueField: "count",
+    minFontSize: am5.percent(2),
+    maxFontSize: am5.percent(15),
+    maxCount: 100,
+    minValue: 1
+  })
+);
+
+// Configure labels
+series.labels.template.setAll({
+  fontFamily: "Arial",
+  paddingTop: 5,
+  paddingBottom: 5,
+  paddingLeft: 5,
+  paddingRight: 5
+});
+
+// Set data
+const data = [
+  { word: "JavaScript", count: 100 },
+  { word: "TypeScript", count: 85 },
+  { word: "React", count: 75 },
+  { word: "Vue", count: 60 },
+  { word: "Angular", count: 55 },
+  { word: "Node", count: 50 },
+  { word: "HTML", count: 45 },
+  { word: "CSS", count: 40 },
+  { word: "Python", count: 35 },
+  { word: "Java", count: 30 }
+];
+
+series.data.setAll(data);
+```
+
+## Configuration Options
+
+### Font Size Range
+
+<Info>
+Control the minimum and maximum font sizes for words.
+</Info>
+
+- **minFontSize** (`number | Percent`) - Smallest font size
+- **maxFontSize** (`number | Percent`) - Largest font size
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    minFontSize: am5.percent(3),
+    maxFontSize: am5.percent(20)
+  })
+);
+```
+
+### Value Filtering
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    minValue: 5,      // Minimum count to display
+    maxCount: 50      // Maximum number of words to show
+  })
+);
+```
+
+### Word Rotation
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    angles: [0, -90, 90],  // Possible rotation angles
+    randomness: 0.5        // 0-1, controls layout randomness
+  })
+);
+```
+
+## Generating from Text
+
+Automatically extract words from text:
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    text: `Your long text content here. The word cloud will automatically 
+           count word frequency and create the visualization. Common words 
+           can be excluded using the excludeWords setting.`,
+    excludeWords: ["the", "and", "or", "a", "an"],
+    minWordLength: 3
+  })
+);
+```
+
+## Label Customization
+
+### Colors
+
+```typescript
+// Auto-assign colors
+series.set("colors", am5.ColorSet.new(root, {}));
+
+// Custom colors in data
+const data = [
+  { word: "Important", count: 100, fill: am5.color(0xff0000) },
+  { word: "Medium", count: 50, fill: am5.color(0x00ff00) },
+  { word: "Low", count: 25, fill: am5.color(0x0000ff) }
+];
+
+series.data.setAll(data);
+```
+
+### Font Styles
+
+```typescript
+series.labels.template.setAll({
+  fontFamily: "Georgia",
+  fontWeight: "bold",
+  fill: am5.color(0x000000)
+});
+
+// Vary font weight by size
+series.labels.template.adapters.add("fontWeight", function(weight, target) {
+  const dataItem = target.dataItem;
+  const count = dataItem?.get("value");
+  return count && count > 50 ? "bold" : "normal";
+});
+```
+
+### Padding
+
+```typescript
+series.labels.template.setAll({
+  paddingTop: 5,
+  paddingBottom: 5,
+  paddingLeft: 5,
+  paddingRight: 5
+});
+```
+
+## Interactive Features
+
+### Tooltips
+
+```typescript
+series.labels.template.set("tooltip", am5.Tooltip.new(root, {
+  labelText: "{category}: {value}"
+}));
+```
+
+### Click Events
+
+```typescript
+series.labels.template.events.on("click", function(ev) {
+  const dataItem = ev.target.dataItem;
+  const word = dataItem?.get("category");
+  const count = dataItem?.get("value");
+  
+  console.log(`Clicked: ${word} (${count} occurrences)`);
+});
+```
+
+### Hover Effects
+
+```typescript
+series.labels.template.states.create("hover", {
+  scale: 1.2,
+  fill: am5.color(0xff0000)
+});
+```
+
+## Auto-Fit
+
+Automatically adjust font sizes to fit container:
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    autoFit: true
+  })
+);
+```
+
+## Animation
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    animationDuration: 1000,
+    animationEasing: am5.ease.out(am5.ease.cubic)
+  })
+);
+```
+
+## Exclude Words
+
+Exclude common or unwanted words:
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    excludeWords: [
+      "the", "and", "or", "but", "in", "on", "at", "to", "for",
+      "a", "an", "is", "was", "are", "were", "be", "been"
+    ],
+    minWordLength: 4
+  })
+);
+```
+
+## Step and Placement
+
+Control word placement algorithm:
+
+```typescript
+const series = root.container.children.push(
+  am5wc.WordCloud.new(root, {
+    step: 15  // Placement precision (lower = slower but better fit)
+  })
+);
+```
+
+## Data from External Source
+
+Load and process text data:
+
+```typescript
+// Fetch text content
+fetch('article.txt')
+  .then(response => response.text())
+  .then(text => {
+    // Process text into word frequency data
+    const words = text.toLowerCase()
+      .replace(/[^a-z\s]/g, '')
+      .split(/\s+/);
+    
+    const frequency: { [key: string]: number } = {};
+    words.forEach(word => {
+      if (word.length > 3) {
+        frequency[word] = (frequency[word] || 0) + 1;
+      }
+    });
+    
+    // Convert to data array
+    const data = Object.entries(frequency)
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 100);
+    
+    series.data.setAll(data);
+  });
+```
+
+## Color by Category
+
+```typescript
+// Assign colors based on category
+const data = [
+  { word: "JavaScript", count: 100, category: "language" },
+  { word: "React", count: 75, category: "framework" },
+  { word: "HTML", count: 45, category: "markup" }
+];
+
+const colorMap = {
+  language: am5.color(0xff0000),
+  framework: am5.color(0x00ff00),
+  markup: am5.color(0x0000ff)
+};
+
+series.labels.template.adapters.add("fill", function(fill, target) {
+  const dataItem = target.dataItem;
+  const category = dataItem?.dataContext?.category;
+  return category ? colorMap[category] : fill;
+});
+```
+
+## Progress Tracking
+
+```typescript
+series.on("progress", function(progress) {
+  console.log(`Layout progress: ${Math.round(progress * 100)}%`);
+});
+```
+
+## Key Classes
+
+- `WordCloud` - Main word cloud class from `@amcharts/amcharts5/wc`
+- `Label` - Individual word labels
+
+<Tip>
+Use `randomness` to control layout variation. Higher values (0.8-1.0) create more organic, varied layouts, while lower values (0.2-0.4) create more structured arrangements.
+</Tip>
+
+<Note>
+Word cloud layout is computationally intensive for large datasets. Use `maxCount` to limit the number of words for better performance.
+</Note>
